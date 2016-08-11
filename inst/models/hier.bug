@@ -1,0 +1,35 @@
+model{
+  
+  ### Model structure ###
+ 
+  for(i in 1:n_obvs){
+    Y[i, 1:n_traits] ~ dmnorm(mu_pft_trait[pft_obvs[i],], invSigma_pfts[pft_obvs[i],,])
+  }
+
+  for(i in 1:n_pfts){
+    mu_pft_trait[i, 1:n_traits] ~ dmnorm(mu_trait, invSigma_trait)
+  }
+
+  ### Priors ###
+
+  mu_trait[1:n_traits]~dmnorm(mu0[], Sigma0[,])
+  
+  invSigma_trait ~ dwish(Wishart.rate, Wishart.df)
+  Sigma_trait <- inverse(invSigma_trait)
+  
+  for(i in 1:n_pfts){
+    invSigma_pfts[i, 1:n_traits, 1:n_traits] ~ dwish(Wishart.rate, Wishart.df)
+    Sigma_pft[i, 1:n_traits, 1:n_traits] <- inverse(invSigma_pfts[i,1:n_traits,1:n_traits])
+  }
+
+  ### Missing values ###
+
+  for(k in 1:n_miss){
+    obvs[miss[k,1], miss[k,2]] ~ dnorm(Y[miss[k,1], miss[k,2]], tau_obvs_miss)
+  }
+
+  for(m in 1:n_pres){
+    obvs[pres[m,1], pres[m,2]] ~ dnorm(Y[pres[m,1], pres[m,2]], tau_obvs_pres)
+  }
+  
+}

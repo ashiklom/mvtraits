@@ -1,0 +1,15 @@
+Package: mvtraits
+Type: Package
+Title: New Phytologist multivariate trait analysis
+Version: 1.0.0
+Date: 2016-08-10
+Author: Alexey Shiklomanov, Elizabeth Cowdery, Michael Dietze
+Maintainer: Alexey Shiklomanov <ashiklom@bu.edu>
+Description: Functions for performing MV trait analysis.
+Depends:
+    data.table,
+    dplyr,
+    runjags,
+    ggplot2
+License: FreeBSD
+
