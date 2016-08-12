@@ -1,4 +1,5 @@
-runModel <- function(model_type, try_data, pft_number,  n.chains = 3){
+runModel <- function(model_type, try_data, pft_number,  n.chains = 3,
+                     tau_obvs_miss = 0.01, tau_obvs_pres = 1000){
     if (!model_type %in% c("uni", "multi", "hier")) {
         stop("Invalid model type. Must be 'uni', 'multi', or 'hier'")
     }
@@ -72,8 +73,8 @@ runModel <- function(model_type, try_data, pft_number,  n.chains = 3){
                                 Sigma0 = diag(0.001,n_traits),
                                 Wishart.rate = Wishart.rate,
                                 Wishart.df = Wishart.df,
-                                tau_obvs_miss = 0.1,
-                                tau_obvs_pres = 1000))
+                                tau_obvs_miss = tau_obvs_miss,
+                                tau_obvs_pres = tau_obvs_pres))
 
         if (model_type == "multi") {
             # Multivariate
