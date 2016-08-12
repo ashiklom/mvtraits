@@ -6,7 +6,7 @@ get_sims <- function(filename, vars){
     library(dplyr)
     load(filename)
     matchvars <- paste(vars, collapse="|")
-    out_sims <- out$mcmc %>% as.matrix() %>% selectFromMatrix(variable)
+    out_sims <- out$mcmc %>% as.matrix() %>% selectFromMatrix(vars)
     remove(out)
     return(out_sims)
 }
@@ -16,5 +16,6 @@ get_sims_list <- function(filenames, vars){
     for(f in seq_along(filenames)){
         l[[f]] <- get_sims(filenames[f], vars)
     }
+    names(l) <- gsub("(.*)\\.Rdata", "\\1", filenames) 
     return(l)
 }

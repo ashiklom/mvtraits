@@ -10,6 +10,8 @@ Depends:
     data.table,
     dplyr,
     runjags,
-    ggplot2
+    ggplot2,
+    MASS,
+    car
 License: FreeBSD
 

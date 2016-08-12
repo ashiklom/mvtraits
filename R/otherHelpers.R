@@ -22,3 +22,7 @@ convert.rownames <- function(dat){
     return(dat)
 }
 
+mypng <- function(path, width=800, height=width, ...){
+    png(path, width=width, height = height, ...)
+}
+
