@@ -36,10 +36,10 @@ get_sims <- function(filename, vars){
 
 get_sims_list <- function(filenames, vars){
     l <- list()
-    for(f in seq_along(filenames)){
-        # TODO: PFT name assignment should happen here
-        l[[f]] <- get_sims(filenames[f], vars)
+    for(f in filenames){
+        pft_number <- gsub(".*_([[:digit:]]+).*", "\\1", f)
+        pft_name <- pft.names[pft_number]
+        l[[pft_name]] <- get_sims(f, vars)
     }
-    names(l) <- getPattern("(.*)\\.Rdata", filenames) 
     return(l)
 }

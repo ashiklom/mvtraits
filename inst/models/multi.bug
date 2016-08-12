@@ -8,7 +8,7 @@ model{
   
   ### Priors ###
   
-  mu_trait[1:n_traits]~dmnorm(mu0[], Sigma0[,])
+  mu_trait[1:n_traits] ~ dmnorm(mu0[], Sigma0[,])
   invSigma_trait ~ dwish(Wishart.rate, Wishart.df)
   Sigma_trait <- inverse(invSigma_trait)
 
