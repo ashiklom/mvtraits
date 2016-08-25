@@ -9,7 +9,7 @@ summarizeSigma <- function(samples, pft_name){
     t %>%
     "rownames<-"(gsub("Sigma_.*\\.(log\\..*\\.log\\..*)", 
                       "\\1", rownames(.))) %>%
-    .[apply(traits.combine, 2, paste, collapse = "."),] %>%
+    .[apply(trait.combine, 2, paste, collapse = "."),] %>%
     as.data.table(keep.rownames = TRUE) %>%
     setnames("rn", "trait") %>%
     .[, PFT := pft_name]
