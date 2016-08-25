@@ -7,6 +7,7 @@ Author: Alexey Shiklomanov, Elizabeth Cowdery, Michael Dietze
 Maintainer: Alexey Shiklomanov <ashiklom@bu.edu>
 Description: Functions for performing MV trait analysis.
 Depends:
+    data.table,
     dtplyr,
     runjags,
     ggplot2,
