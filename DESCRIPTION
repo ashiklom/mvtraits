@@ -12,6 +12,7 @@ Depends:
     runjags,
     ggplot2,
     MASS,
-    car
+    car,
+    corrplot
 License: FreeBSD
 

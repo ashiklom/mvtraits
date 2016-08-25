@@ -1,4 +1,4 @@
-vecToCovMat <- function(vec) {
+vecToMat <- function(vec) {
     cols <- sqrt(length(vec))
     if (cols %% 1 != 0) stop("Not a square matrix")
     covmat <- matrix(vec, cols)
@@ -6,7 +6,7 @@ vecToCovMat <- function(vec) {
 }
 
 covToCor <- function(vec){
-    covmat <- vecToCovMat(vec)
+    covmat <- vecToMat(vec)
     cormat <- cov2cor(covmat)
     corvec <- c(cormat)
     return(corvec)
@@ -17,4 +17,3 @@ covToCor.global <- function(mat){
     colnames(cormat) <- colnames(mat)
     return(cormat)
 }
-

@@ -19,7 +19,7 @@ replaceName <- function(colname){
         trait_index <- as.numeric(getPattern(".*\\[[[:digit:]]+,([[:digit:]]+)\\]", colname))
         newname <- paste(prefix, pft.names[pft_number], traits[trait_index], sep=".")
     } else if (grepl("Sigma_pft", colname)) {
-        pft_number <- as.numeric(getPattern(".*\\[([[:digit:]]+),[[:digit:]]+, [[:digit:]]+\\]", colname))
+        pft_number <- as.numeric(getPattern(".*\\[([[:digit:]]+),[[:digit:]]+,[[:digit:]]+\\]", colname))
         trait1 <- as.numeric(getPattern(".*\\[[[:digit:]]+,([[:digit:]]+),[[:digit:]]+\\]", colname))
         trait2 <- as.numeric(getPattern(".*\\[[[:digit:]]+,[[:digit:]]+,([[:digit:]]+)\\]", colname))
         newname <- paste(prefix, pft.names[pft_number], traits[trait1], traits[trait2], sep=".")
