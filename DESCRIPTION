@@ -8,7 +8,7 @@ Maintainer: Alexey Shiklomanov <ashiklom@bu.edu>
 Description: Functions for performing MV trait analysis.
 Depends:
     data.table,
-    dtplyr,
+    dplyr,
     runjags,
     ggplot2,
     MASS,
