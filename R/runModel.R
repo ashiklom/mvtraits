@@ -84,14 +84,15 @@ runModel <- function(model_type, try_data, pft_number,  n.chains = 3,
         } else if (model_type == "hier") {
             # Hierarchical
             pft_means <- try_data[, lapply(.SD, mean, na.rm = TRUE), 
-                            by = pft, .SDcols = "traits"
+                            by = pft, .SDcols = traits
                             ][, lapply(.SD, nan2na)
                             ][, traits, with = FALSE] %>%
                         as.matrix() %>% 
                         apply(1, replace.with.global, global_means) %>%
                         t()
             n_pfts <- nrow(pft_means)
-            data <- modifyList(data, list(pft_obvs = try_data[,pft]))
+            data <- modifyList(data, list(pft_obvs = try_data[,pft],
+                                          n_pfts = n_pfts))
             inits = function() list(mu_trait = as.numeric(trait_means),
                                     mu_pft_trait = as.matrix(pft_means))
             variable_names <- c("mu_trait","Sigma_trait", 
