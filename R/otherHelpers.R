@@ -26,3 +26,6 @@ mypng <- function(path, width=800, height=width, ...){
     png(path, width=width, height = height, ...)
 }
 
+getPFTFromHier <- function(hier_dat, pft_name){
+    hier_dat[, grep(pft_name, colnames(hier_dat))]
+}
