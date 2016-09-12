@@ -18,6 +18,7 @@ dat[miss] <- NA
 dat[,3] <- NA
 dat <- cbind(dat, "pft" = sample.int(5, N, replace = TRUE))
 dat <- as.data.table(dat)
+dir.create("output", showWarnings = FALSE)
 
 fit_uni <- runModel("uni", dat, NA)
 saveRDS(fit_uni, "output/uni.rds")
