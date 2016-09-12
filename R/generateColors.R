@@ -1,4 +1,6 @@
 # Generate biome colors for plots
+
+#' @export
 generate.colors <- function(models){
   
   library(RColorBrewer)

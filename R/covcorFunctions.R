@@ -1,3 +1,4 @@
+#' @export
 vecToMat <- function(vec) {
     cols <- sqrt(length(vec))
     if (cols %% 1 != 0) stop("Not a square matrix")
@@ -5,6 +6,7 @@ vecToMat <- function(vec) {
     return(covmat)
 }
 
+#' @export
 covToCor <- function(vec){
     covmat <- vecToMat(vec)
     cormat <- cov2cor(covmat)
@@ -12,6 +14,7 @@ covToCor <- function(vec){
     return(corvec)
 }
 
+#' @export
 covToCor.global <- function(mat){
     cormat <- t(apply(mat, 1, covToCor))
     colnames(cormat) <- colnames(mat)

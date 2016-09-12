@@ -1,5 +1,6 @@
 # Functions for easy operations on multidimensional arrays
 
+#' @export
 array2DApply <- function(arr, func, ...){
     arr.dim <- dim(arr)
     out <- array(NA, arr.dim)
@@ -7,6 +8,7 @@ array2DApply <- function(arr, func, ...){
     return(out)
 }
 
+#' @export
 array3Dapply <- function(arr, func, ...){
     out <- array(NA, dim(arr))
     for(i in 1:dim(out)[1]){

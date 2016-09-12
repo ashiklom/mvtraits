@@ -1,3 +1,4 @@
+#' @export
 loadTRYData <- function(try_path="data/try.data.rds"){
     try_raw <- readRDS(try_path)
     try_full <- try_raw[,lapply(.SD, nan2na)]

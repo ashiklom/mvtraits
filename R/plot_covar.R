@@ -1,3 +1,4 @@
+#' @export
 plot_covar <- function(fname, ...){
     library(corrplot)
     cov.global <- readRDS(fname)$Sigma_trait

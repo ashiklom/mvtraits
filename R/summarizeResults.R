@@ -1,9 +1,11 @@
+#' @export
 summary_stats <- function(x) {
     out <- c(mean(x), sd(x), quantile(x, c(.025, 0.5, 0.975)))
     names(out) <- c("Mean", "SD", "q025", "q500", "q975")
     return(out)
 }
 
+#' @export
 summarizeSigma <- function(samples, pft_name){
     out <- apply(samples, 2, summary_stats) %>%
         t %>%
@@ -24,6 +26,7 @@ summarizeSigma <- function(samples, pft_name){
     return(out)
 }
 
+#' @export
 summarizeSigmaPFT <- function(dat, Cor = FALSE) {
     dat.list <- list()
     for (pft_name in pft.names) {

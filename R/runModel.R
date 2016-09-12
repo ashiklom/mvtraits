@@ -1,110 +1,97 @@
-runModel <- function(model_type, try_data, pft_number,  n.chains = 3,
-                     tau_obvs_miss = 0.01, tau_obvs_pres = 1000){
+#' @import data.table
+#' @export
+runModel <- function(model_type, 
+                     try_data, 
+                     pft_number, 
+                     chains = 3,
+                     ...){
+
     if (!model_type %in% c("uni", "multi", "hier")) {
         stop("Invalid model type. Must be 'uni', 'multi', or 'hier'")
     }
 
-    # Calculate global trait means for initial conditions
-    global_means <- as.numeric(try_data[, lapply(.SD, mean, na.rm=TRUE),
-                               .SDcols = traits])
-    names(global_means) <- traits
-
-    # Defining Gamma & Wishart parameters here so we can experiment
-    # See test.wishart.R for more.
-    # dgamma(gamma.shape,gamma.rate)
-    # dwish(Wishart.rate,Wishart.df)
-
-    n_traits <- 5
-    n <- 1
-    Wishart.rate <- diag(n, n_traits)
-    Wishart.df <- n_traits
-    mean <- n * Wishart.df
-    gamma.shape <- Wishart.df/2 
-    gamma.rate <- n/2   
-
-    # Set up output storage directory
-    out.dir <- paste0("output.n",n)
-    if(!dir.exists(out.dir)) dir.create(out.dir)
-
+    if (!is.data.table(try_data)) try_data <- as.data.table(try_data)
     try_data[, pft := as.numeric(pft)]
     if (!is.na(pft_number)) {
         try_data <- try_data[pft == pft_number]
     }
+    dat <- try_data[, !"pft", with=FALSE] %>% as.matrix()
 
+    # Define common input_data
+    Nrow <- nrow(dat)
+    Npar <- ncol(dat)
+    pftvec <- try_data[,pft]
+    Npft <- length(unique(pftvec))
+    sigma_0 <- 1000
+    input_data <- list(Nrow = Nrow,
+                       Npar = Npar,
+                       pftvec = pftvec,
+                       Npft = Npft,
+                       # Priors
+                       mu0 = rep(0, Npar),
+                       sigma0 = rep(sigma_0, Npar),     # uni
+                       Sigma0 = diag(sigma_0, Npar),    # multi/hier
+                       cauchy_location = 0,
+                       cauchy_scale = 2.5,
+                       lkj_eta = 1)
 
-    model <- system.file("models", paste0(model_type, ".bug"),
+    model_file <- system.file("models", paste0(model_type, ".stan"),
                          package = "mvtraits")
-    print("Model path:")
-    print(model)
+    if (file.exists(model_file)) {
+        message("Model path: ", model_file)
+        model_code <- readChar(model_file, file.info(model_file)$size)
+    } else {
+        message("Model file not found. Assuming model_code string")
+        model_code <- model
+    }
 
-    obvs <- try_data[, traits, with=FALSE] %>% as.matrix()
-    n_obvs <- nrow(obvs)
-    n_traits <- length(traits)
+    if (model_type %in% c("multi", "hier")) {
+        # Ragged array storage
+        # See STAN manual, section 13.2 (Ragged Data Structures), pg. 150-151 
+        dat_present <- !is.na(dat)
+        # Need the following:
+        #   sizevec -- VECTOR of number of present traits per row [nrow]
+        input_data$sizevec <- rowSums(dat_present)
 
-    data <- list(obvs = obvs,
-                 n_traits = n_traits,
-                 n_obvs = n_obvs)
+        #   indvec -- VECTOR of positions of present traits [nrow x ncol - nmiss]
+        indmat <- which(dat_present, arr.ind=TRUE)
+        indmat <- indmat[order(indmat[,"row"], indmat[,"col"]),]
+        input_data$indvec <- indmat[,"col"]
 
-    # Calculate trait mean values for iniital conditions
-    trait_means <- try_data[, lapply(.SD, mean, na.rm = T), .SDcols = traits
-                        ][, lapply(.SD, nan2na)] %>%
-        as.numeric() %>%
-        replace.with.global(global_means)
+        #   datvec -- VECTOR of all of the values [nrow x ncol - nmiss]
+        dat_t <- t(dat)
+        datvec <- dat_t[!is.na(dat_t)]
+        input_data$y <- datvec
+        input_data$Ndata <- length(datvec)
+    } else {
+        input_data$pres <- which(!is.na(dat), arr.ind = TRUE)
+        input_data$Ndata <- nrow(input_data$pres)
+        dat[is.na(dat)] <- -9999   # Values ignored in model
+        input_data$y <- dat
+    }
 
     if (model_type == "uni") {
         # Univariate
-        data <- modifyList(data, list(gamma.shape = gamma.shape,
-                                      gamma.rate = gamma.rate))       # scale/rate = n
-        inits = function() list(mu_trait = as.numeric(trait_means))
-        variable_names <- c("mu_trait", "sigma2_obvs")
-
+        variable_names <- c("mu", "sigma2")
     } else if (model_type %in% c("multi", "hier")) {
-        # Missing values
-        miss <- which(is.na(obvs), arr.ind = TRUE)
-        pres <- which(!is.na(obvs), arr.ind = TRUE)
-        n_miss <- nrow(miss)
-        n_pres <- nrow(pres)
-        data <- modifyList(data, 
-                           list(miss = miss,
-                                pres = pres,
-                                n_miss = n_miss,
-                                n_pres = n_pres,
-                                mu0 = rep(0,n_traits), 
-                                Sigma0 = diag(0.001,n_traits),
-                                Wishart.rate = Wishart.rate,
-                                Wishart.df = Wishart.df,
-                                tau_obvs_miss = tau_obvs_miss,
-                                tau_obvs_pres = tau_obvs_pres))
-
         if (model_type == "multi") {
             # Multivariate
-            inits = function() list(mu_trait = as.numeric(trait_means))
-            variable_names <- c("mu_trait", "Sigma_trait")
+            variable_names <- c("mu", "Sigma", "Omega")
 
         } else if (model_type == "hier") {
             # Hierarchical
-            pft_means <- try_data[, lapply(.SD, mean, na.rm = TRUE), 
-                            by = pft, .SDcols = traits
-                            ][, lapply(.SD, nan2na)
-                            ][, traits, with = FALSE] %>%
-                        as.matrix() %>% 
-                        apply(1, replace.with.global, global_means) %>%
-                        t()
-            n_pfts <- nrow(pft_means)
-            data <- modifyList(data, list(pft_obvs = try_data[,pft],
-                                          n_pfts = n_pfts))
-            inits = function() list(mu_trait = as.numeric(trait_means),
-                                    mu_pft_trait = as.matrix(pft_means))
-            variable_names <- c("mu_trait","Sigma_trait", 
-                                "mu_pft_trait", "Sigma_pft")
+            variable_names <- c("mu_pft","Sigma_pft", "Omega_pft", 
+                                "mu_global", "Sigma_global", "Omega_global")
         }
     }
 
     # Run model
     print(Sys.time())
-    out <- try(customJAGS(model = model, data = data, inits = inits,
-                          n.chains = n.chains,
-                          variable.names = variable_names))
+    out <- try(customSTAN(model_code = model_code, 
+                          input_data = input_data, 
+                          pars = variable_names,
+                          chains = chains,
+                          ...))
     return(out)
 }
 

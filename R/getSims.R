@@ -1,10 +1,14 @@
 # Functions to retrieve outputs from RData files
+
+#' @export
 selectFromMatrix <- function(mat, variable) {
     mat[, grep(variable, colnames(mat))]
 }
 
+#' @export
 getPattern <- function(pattern, string) gsub(pattern, "\\1", string)
 
+#' @export
 replaceName <- function(colname){
     prefix <- getPattern("(.*)\\[.*", colname)
     if (grepl("mu_trait|sigma2_obvs", colname)) {
@@ -27,12 +31,14 @@ replaceName <- function(colname){
     return(newname)
 }
 
+#' @export
 assignTraitNames <- function(mat){
     oldnames <- colnames(mat)
     newnames <- sapply(oldnames, replaceName)
     return(newnames)
 }
 
+#' @export
 get_sims <- function(filename, vars){
     library(runjags)
     library(dplyr)
@@ -44,6 +50,7 @@ get_sims <- function(filename, vars){
     return(out_sims)
 }
 
+#' @export
 get_sims_list <- function(filenames, vars){
     l <- list()
     for(f in filenames){

@@ -1,4 +1,5 @@
-pairs.density <- function(uni.mus, multi.mus, hier.mus, 
+#' @export
+pairs_density <- function(uni.mus, multi.mus, hier.mus, 
                           obs.means, obs.global=NA, nsamp=5000, ...){
 
     uni <- 1:nsamp
@@ -35,17 +36,20 @@ pairs.density <- function(uni.mus, multi.mus, hier.mus,
           dens.pars = dens.pars, line.pars = line.pars, ...)
 }
 
+#' @export
 dens2d <- function(x,y,...) {
     z <- kde2d(x, y)
     levs <- c(0.8)
     contour(z, drawlabels=FALSE, levels=levs, add=TRUE, ...)
 }
 
+#' @export
 ellipse2d <- function(x, y, ...){
     dataEllipse(x, y, levels = 0.975, add=TRUE, 
                 plot.points = FALSE, center.pch=FALSE, ...)
 }
 
+#' @export
 dens2d.panel <- function(x, y, densfunc, breaks, dens.pars, line.pars){
     breaks.dens <- breaks[["density"]]
     breaks.line <- breaks[["line"]]

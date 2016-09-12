@@ -6,10 +6,12 @@ Date: 2016-08-10
 Author: Alexey Shiklomanov, Elizabeth Cowdery, Michael Dietze
 Maintainer: Alexey Shiklomanov <ashiklom@bu.edu>
 Description: Functions for performing MV trait analysis.
+Imports:
+    data.table
 Depends:
     data.table,
     dplyr,
-    runjags,
+    rstan,
     ggplot2,
     MASS,
     car,
@@ -17,4 +19,4 @@ Depends:
     tidyr,
     combinat
 License: FreeBSD
-
+RoxygenNote: 5.0.1
