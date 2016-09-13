@@ -27,8 +27,10 @@ customSTAN <- function(model_code,
                            pars = pars)
         stopifnot(result@mode == 0)
         result_summary <- summary(result)$summary
+        # Ignore correlation coefficients
+        # If covariance terms converge, correlations necessarily should also
+        result_summary <- result_summary[!(grepl("Omega", rownames(result_summary))),]
         rhat <- result_summary[,"Rhat"]
-        rhat <- rhat[!is.nan(rhat)]
         neff <- result_summary[,"n_eff"]
         lrhat <- rhat < rhat_max
         lneff <- neff >= n_target
