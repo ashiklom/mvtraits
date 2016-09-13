@@ -11,6 +11,10 @@ customSTAN <- function(model_code,
                        iter = ceiling(n_target / chains),
                        ...){
 
+    temp.dir <- "raw_stan_output"
+    dir.create(temp.dir, showWarnings = FALSE)
+    sample_file <- sprintf("%s/%s.latest.dat", temp.dir, model_name)
+
     # STAN options for parallelism
     rstan_options(auto_write = TRUE)
     options(mc.cores = parallel::detectCores())
@@ -24,7 +28,8 @@ customSTAN <- function(model_code,
                            data = input_data,
                            iter = iter,
                            chains = chains,
-                           pars = pars)
+                           pars = pars, 
+                           sample_file = sample_file)
         stopifnot(result@mode == 0)
         result_summary <- summary(result)$summary
         # Ignore correlation coefficients

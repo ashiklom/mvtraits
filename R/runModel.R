@@ -6,6 +6,7 @@ runModel <- function(model_type,
                      chains = 3,
                      ...){
 
+
     if (!model_type %in% c("uni", "multi", "hier")) {
         stop("Invalid model type. Must be 'uni', 'multi', or 'hier'")
     }
@@ -14,8 +15,10 @@ runModel <- function(model_type,
     try_data[, pft := as.numeric(pft)]
     if (!is.na(pft_number)) {
         try_data <- try_data[pft == pft_number]
+        pft_number <- 0
     }
     dat <- try_data[, !"pft", with=FALSE] %>% as.matrix()
+    model_name <- sprintf("%s_%02d", model_type, pft_number)
 
     # Define common input_data
     Nrow <- nrow(dat)
@@ -91,6 +94,7 @@ runModel <- function(model_type,
                           input_data = input_data, 
                           pars = variable_names,
                           chains = chains,
+                          model_name = model_name,
                           ...))
     return(out)
 }
