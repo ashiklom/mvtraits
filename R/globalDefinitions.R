@@ -6,6 +6,9 @@
 traits <- c("log.LL", "log.LMA", "log.Nmass", "log.Pmass", "log.Rdmass")
 
 #' @export
+traits_nolog <- gsub("log\\.", "", traits)
+
+#' @export
 trait.combine <- combn(traits, 2)
 
 #' @export
