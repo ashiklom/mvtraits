@@ -14,6 +14,7 @@ runModel <- function(model_type,
     try_data[, pft := as.numeric(pft)]
     if (!is.na(pft_number)) {
         try_data <- try_data[pft == pft_number]
+    } else {
         pft_number <- 0
     }
     #dat <- try_data[, !"pft", with=FALSE] %>% as.matrix()
