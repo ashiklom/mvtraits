@@ -1,19 +1,15 @@
 #' @import rstan
 #' @export
 customSTAN <- function(model_code, 
-                       input_data, 
+                       model_data, 
                        pars,
                        chains = 3,
                        model_name = "testmodel",
-                       max.attempts = 50,
-                       n_target = 5000,
+                       max.attempts = 10,
+                       n_target = 100,
                        rhat_max = 1.05,
-                       iter = ceiling(n_target / chains),
+                       iter = 5000,
                        ...){
-
-    temp.dir <- "raw_stan_output"
-    dir.create(temp.dir, showWarnings = FALSE)
-    sample_file <- sprintf("%s/%s.latest.dat", temp.dir, model_name)
 
     # STAN options for parallelism
     rstan_options(auto_write = TRUE)
@@ -25,16 +21,18 @@ customSTAN <- function(model_code,
                             model_name = model_name)
     while (continue & attempt <= max.attempts) {
         result <- sampling(stanmodel,
-                           data = input_data,
+                           data = model_data,
                            iter = iter,
                            chains = chains,
-                           pars = pars, 
-                           sample_file = sample_file)
-        stopifnot(result@mode == 0)
+                           pars = pars)
+        if (result@mode != 0) {
+            print(result@stanmodel)
+            stop("Error in stan model")
+        }
         result_summary <- summary(result)$summary
         # Ignore correlation coefficients
         # If covariance terms converge, correlations necessarily should also
-        result_summary <- result_summary[!(grepl("Omega", rownames(result_summary))),]
+        result_summary <- result_summary[!(grepl("Omega|lp__", rownames(result_summary))),]
         rhat <- result_summary[,"Rhat"]
         neff <- result_summary[,"n_eff"]
         lrhat <- rhat < rhat_max

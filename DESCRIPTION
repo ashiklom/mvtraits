@@ -7,10 +7,12 @@ Author: Alexey Shiklomanov, Elizabeth Cowdery, Michael Dietze
 Maintainer: Alexey Shiklomanov <ashiklom@bu.edu>
 Description: Functions for performing MV trait analysis.
 Imports:
-    data.table
-Depends:
     data.table,
+    rstan
+Depends:
+    plyr,
     dplyr,
+    data.table,
     rstan,
     ggplot2,
     MASS,
