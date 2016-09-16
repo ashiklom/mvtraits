@@ -9,6 +9,7 @@ customSTAN <- function(model_code,
                        n_target = 100,
                        rhat_max = 1.05,
                        iter = 5000,
+                       save_each = TRUE,
                        ...){
 
     # STAN options for parallelism
@@ -24,12 +25,18 @@ customSTAN <- function(model_code,
                            data = model_data,
                            iter = iter,
                            chains = chains,
-                           pars = pars)
+                           pars = pars,
+                           ...)
         if (result@mode != 0) {
             print(result@stanmodel)
             stop("Error in stan model")
         }
         result_summary <- summary(result)$summary
+        if (save_each) {
+            now_time <- strftime(Sys.time(), "%Y_%m_%d_%H_%M")
+            tempfilename <- sprintf("%s.%s.rds", model_name, now_time)
+            saveRDS(result, file = tempfilename)
+        }
         # Ignore correlation coefficients
         # If covariance terms converge, correlations necessarily should also
         result_summary <- result_summary[!(grepl("Omega|lp__", rownames(result_summary))),]
