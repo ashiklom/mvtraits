@@ -71,9 +71,8 @@ summarizeStan <- function(filename) {
 #' @export
 get_sims <- function(filename, vars){
     library(rstan)
-    library(dplyr)
     load(filename)
-    stopifnot(length(v) == 1)
+    stopifnot(length(vars) == 1)
     out_sims <- rstan::extract(out, vars)[[1]]
     dimnames(out_sims)[[2]] <- traits_nolog
     remove(out)
