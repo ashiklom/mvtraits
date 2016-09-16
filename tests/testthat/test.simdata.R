@@ -22,16 +22,16 @@ dat[dat[,"pft"] == 1, 3] <- NA
 #dat <- as.data.table(dat)
 dir.create("output", showWarnings = FALSE)
 
-#fit_uni <- runModel("uni", dat, NA)
+fit_uni <- runModel("uni", dat, NA)
 #saveRDS(fit_uni, "output/uni.rds")
-#fit_uni_1 <- runModel("uni", dat, 1)
+fit_uni_1 <- runModel("uni", dat, 1)
 #saveRDS(fit_uni_1, "output/uni.1.rds")
-fit_multi <- runModel("multi", dat, NA)
+#fit_multi <- runModel("multi", dat, NA)
 #saveRDS(fit_multi, "output/multi.rds")
 #for (i in seq_len(npft)) {
     #message("Running pft ", i)
     #fit_multi_pft <- runModel("multi", dat, i)
 #}
 #saveRDS(fit_multi_1, "output/multi.1.rds")
-fit_hier <- runModel("hier", dat, NA)
+#fit_hier <- runModel("hier", dat, NA)
 #saveRDS(fit_hier, "output/hier.rds")
