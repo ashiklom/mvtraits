@@ -56,11 +56,13 @@ summarizeStan <- function(filename) {
     # Assign PFT name
     result[model_type %in% c("uni", "multi"), pft_num := model_pft_num]
     result[model_type == "hier", pft_num := var_pft_num]
-    result[, PFT := pft.names[pft_num]]
+    result[pft_num == 0, PFT := "global"]
+    result[pft_num != 0, PFT := pft.names[pft_num]]
 
     # Fix column names and remove unneeded columns
     names_dict <- c("model_type" = "model_type",
                     "PFT" = "PFT",
+                    "var_type" = "var_type",
                     "trait" = "trait",
                     "mean" = "Mean",
                     "se_mean" = "se_mean",
