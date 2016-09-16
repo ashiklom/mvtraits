@@ -2,6 +2,8 @@
 summarizeStan <- function(filename) {
     library(rstan)
     library(data.table)
+    library(dplyr)
+    library(tidyr)
 
     # Parse model string
     model_string <- ".*[/](uni|multi|hier)_?([[:digit:]]{0,2})\\.Rdata"
@@ -13,7 +15,7 @@ summarizeStan <- function(filename) {
     outsum <- summary(out)$summary
     result <- as.data.table(outsum, keep.rownames = TRUE)
     rm(out); gc()
-    result[, c("model_type", "model_pft") := list(model_type, model_pft)]
+    result[, c("model_type", "model_pft_num") := list(model_type, model_pft)]
 
     # Parse parameter type
     rnstring <- "^(.*)\\[([[:digit:]]),?([[:digit:]])?,?([[:digit:]])?\\]"
@@ -24,7 +26,7 @@ summarizeStan <- function(filename) {
         as.numeric(gsub(rnstring, paste0("\\", num), string))
     }
 
-    cols <- c("trait", "var_pft")
+    cols <- c("trait", "var_pft_num")
     sg <- c("Sigma", "Sigma_global")
     og <- c("Omega", "Omega_global")
     sog <- c(sg, og)
@@ -51,10 +53,14 @@ summarizeStan <- function(filename) {
     
     result <- result[!is.na(trait)]
 
+    # Assign PFT name
+    result[model_type %in% c("uni", "multi"), pft_num := model_pft_num]
+    result[model_type == "hier", pft_num := var_pft_num]
+    result[, PFT := pft.names[pft_num]]
+
+    # Fix column names and remove unneeded columns
     names_dict <- c("model_type" = "model_type",
-                    "model_pft" = "model_pft",
-                    "var_type" = "var_type",
-                    "var_pft" = "var_pft",
+                    "PFT" = "PFT",
                     "trait" = "trait",
                     "mean" = "Mean",
                     "se_mean" = "se_mean",
@@ -62,8 +68,19 @@ summarizeStan <- function(filename) {
                     "2.5%" = "q025",
                     "50%" = "q500",
                     "97.5%" = "q975")
-
     setnames(result, names(names_dict), names_dict)
     result <- result[, names_dict, with=FALSE]
+
+    # Process the PFT name
+    result <- result %>%
+        separate(PFT, into=c("Biome", "Function"), sep="_", 
+                 extra="merge", remove=FALSE) %>%
+        separate(Function, into = c("growth_form", "ps_type", 
+                                    "leaf_type", "phenology"),
+                 sep = "_", extra = "drop", remove=FALSE) %>%
+        setDT()
+    result[is.na(ps_type), 
+        c("ps_type", "leaf_type", "phenology") := Function]
+
     return(result)
 }
