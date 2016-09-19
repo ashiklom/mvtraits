@@ -179,7 +179,7 @@ generated quantities {
     model_code <- paste(full_model_string, collapse = "\n")
     #cat(model_code)
 
-    Npar <- ncol(dat)
+    Npar <- ncol(datnp)
     Npft <- length(unique(pftvec))
     default_inputs <- list(Npar = Npar,
                            Npft = Npft,
