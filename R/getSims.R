@@ -1,13 +1,54 @@
 # Functions to retrieve outputs from RData files
 
 #' @export
-get_sims <- function(filename, vars){
+get_sims <- function(filename, vars, samples = 5000){
     library(rstan)
     load(filename)
-    stopifnot(length(vars) == 1)
-    out_sims <- rstan::extract(out, vars)[[1]]
-    dimnames(out_sims)[[2]] <- traits_nolog
+    ntrait <- length(traits_nolog)
+    nt <- 1:ntrait
+    out_sims <- rstan::extract(out, vars)
+    s <- function(x) sample.int(dim(x)[1], samples)
     remove(out)
+    if ("mu" %in% vars) {
+        n <- s(out_sims[['mu']])
+        out_sims[["mu"]] <- out_sims[["mu"]][n,nt]
+        colnames(out_sims[["mu"]]) <- traits_nolog
+    }
+    if ("mu_global" %in% vars) {
+        n <- s(out_sims[['mu_global']])
+        out_sims[["mu_global"]] <- out_sims[["mu_global"]][n,nt]
+        colnames(out_sims[["mu_global"]]) <- traits_nolog
+    }
+    if ("mu_pft" %in% vars) {
+        n <- s(out_sims[['mu_pft']])
+        out_sims[["mu_pft"]] <- out_sims[["mu_pft"]][n,,nt]
+        dimnames(out_sims[["mu_pft"]])[[2]] <- pft.names
+        dimnames(out_sims[["mu_pft"]])[[3]] <- traits_nolog
+    }
+    if ("sigma" %in% vars) {
+        n <- s(out_sims[['sigma2']])
+        out_sims[["sigma2"]] <- out_sims[["sigma2"]][n,nt,nt]
+        dimnames(out_sims[["sigma2"]])[[2]] <- traits_nolog
+    }
+    if ("Sigma" %in% vars) {
+        n <- s(out_sims[['Sigma']])
+        out_sims[["Sigma"]] <- out_sims[["Sigma"]][n,nt,nt]
+        dimnames(out_sims[["Sigma"]])[[2]] <- traits_nolog
+        dimnames(out_sims[["Sigma"]])[[3]] <- traits_nolog
+    }
+    if ("Sigma_global" %in% vars) {
+        n <- s(out_sims[['Sigma_global']])
+        out_sims[["Sigma_global"]] <- out_sims[["Sigma_global"]][n,nt,nt]
+        dimnames(out_sims[["Sigma_global"]])[[2]] <- traits_nolog
+        dimnames(out_sims[["Sigma_global"]])[[3]] <- traits_nolog
+    }
+    if ("Sigma_pft" %in% vars) {
+        n <- s(out_sims[['Sigma_pft']])
+        out_sims[["Sigma_pft"]] <- out_sims[["Sigma_pft"]][n,,nt,nt]
+        dimnames(out_sims[["Sigma_pft"]])[[2]] <- pft.names
+        dimnames(out_sims[["Sigma_pft"]])[[3]] <- traits_nolog
+        dimnames(out_sims[["Sigma_pft"]])[[4]] <- traits_nolog
+    }
     return(out_sims)
 }
 
@@ -22,43 +63,3 @@ get_sims_list <- function(filenames, vars){
     }
     return(l)
 }
-
-#' @export
-selectFromMatrix <- function(mat, variable) {
-    mat[, grep(variable, colnames(mat))]
-}
-
-#' @export
-getPattern <- function(pattern, string) gsub(pattern, "\\1", string)
-
-#' @export
-assignTraitNames <- function(mat){
-    oldnames <- colnames(mat)
-    newnames <- sapply(oldnames, replaceName)
-    return(newnames)
-}
-
-#' @export
-replaceName <- function(colname){
-    prefix <- getPattern("(.*)\\[.*", colname)
-    if (grepl("mu_trait|sigma2_obvs", colname)) {
-        trait_index <- as.numeric(getPattern(".*\\[([[:digit:]]+)\\]", colname))
-        newname <- paste(prefix, traits[trait_index], sep=".")
-    } else if (grepl("Sigma_trait", colname)) {
-        trait1 <- as.numeric(getPattern(".*\\[([[:digit:]]+),[[:digit:]]+\\]", colname))
-        trait2 <- as.numeric(getPattern(".*\\[[[:digit:]]+,([[:digit:]]+)\\]", colname))
-        newname <- paste(prefix, traits[trait1], traits[trait2], sep=".")
-    } else if (grepl("mu_pft_trait", colname)) {
-        pft_number <- as.numeric(getPattern(".*\\[([[:digit:]]+),[[:digit:]]+\\]", colname))
-        trait_index <- as.numeric(getPattern(".*\\[[[:digit:]]+,([[:digit:]]+)\\]", colname))
-        newname <- paste(prefix, pft.names[pft_number], traits[trait_index], sep=".")
-    } else if (grepl("Sigma_pft", colname)) {
-        pft_number <- as.numeric(getPattern(".*\\[([[:digit:]]+),[[:digit:]]+,[[:digit:]]+\\]", colname))
-        trait1 <- as.numeric(getPattern(".*\\[[[:digit:]]+,([[:digit:]]+),[[:digit:]]+\\]", colname))
-        trait2 <- as.numeric(getPattern(".*\\[[[:digit:]]+,[[:digit:]]+,([[:digit:]]+)\\]", colname))
-        newname <- paste(prefix, pft.names[pft_number], traits[trait1], traits[trait2], sep=".")
-    }
-    return(newname)
-}
-
-
