@@ -60,12 +60,12 @@ buildModel_multi <- function(dat, custom_inputs = list()) {
     Sigma_names_uni <- sprintf("sigma_%s", pres_uni)
     Sigma_names_multi <- sprintf("L_Sigma_%s", pres_multi)
     Sigma_declarations_uni <- sprintf("real %s;", Sigma_names_uni)
-    Sigma_declarations_multi <- sprintf("matrix[%1$s,%1$s] %2$s;", 
+    Sigma_declarations_multi <- sprintf("matrix[%1$s, %1$s] %2$s;", 
                                         Npres_multi, Sigma_names_multi)
 
-    Sigma_definitions_uni <- sprintf("%1$s = L_Sigma[%2$d,%2$d];",
+    Sigma_definitions_uni <- sprintf("%1$s = Sigma[%2$d,%2$d];",
                                      Sigma_names_uni, ind_values_uni)
-    Sigma_definitions_multi <- sprintf("%1$s = L_Sigma[%2$s,%2$s];",
+    Sigma_definitions_multi <- sprintf("%1$s = cholesky_decompose(Sigma[%2$s,%2$s]);",
                                        Sigma_names_multi, ind_names_multi)
     Sigma_definitions <- c(Sigma_definitions_uni, Sigma_definitions_multi)
 
@@ -100,34 +100,35 @@ parameters {
     cholesky_factor_corr[Npar] L_Omega;
 }
 
+transformed parameters {
+    corr_matrix[Npar] Omega;
+    cov_matrix[Npar] Sigma;
+
+    Omega = multiply_lower_tri_self_transpose(L_Omega);
+    Sigma = quad_form_diag(Omega, sigma_vec);
+}
+
 model {
-    matrix[Npar,Npar] L_Sigma;    
-    ",
+",
     mu_declarations_uni,
     mu_declarations_multi,
     Sigma_declarations_uni,
     Sigma_declarations_multi,
-    "
 
+"
     // Prior
     mu ~ multi_normal(mu0, Sigma0);
 
     L_Omega ~ lkj_corr_cholesky(lkj_eta);
     sigma_vec ~ cauchy(cauchy_location, cauchy_scale);
-    L_Sigma = diag_pre_multiply(sigma_vec, L_Omega);",
+
+    ",
 
     mu_definitions,
     Sigma_definitions,
     sampling_statements_uni,
     sampling_statements_multi,
     "
-}
-
-generated quantities {
-    corr_matrix[Npar] Omega;
-    cov_matrix[Npar] Sigma;
-    Omega = multiply_lower_tri_self_transpose(L_Omega);
-    Sigma = quad_form_diag(Omega, sigma_vec);
 }
 ")
 

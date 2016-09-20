@@ -81,11 +81,11 @@ buildModel_hier <- function(dat, custom_inputs = list()) {
     Sigma_declarations_multi <- sprintf("matrix[%1$s,%1$s] %2$s;", 
                                         Npres_multi, Sigma_names_multi)
 
-    Sigma_definitions_uni <- sprintf("%1$s = L_Sigma_pft[%3$d,%2$d,%2$d];",
+    Sigma_definitions_uni <- sprintf("%1$s = Sigma_pft[%3$d,%2$d,%2$d];",
                                      Sigma_names_uni, 
                                      ind_values_uni,
                                      pft_inds_uni)
-    Sigma_definitions_multi <- sprintf("%1$s = L_Sigma_pft[%3$d,%2$s,%2$s];",
+    Sigma_definitions_multi <- sprintf("%1$s = cholesky_decompose(Sigma_pft[%3$d,%2$s,%2$s]);",
                                        Sigma_names_multi,
                                        ind_names_multi,
                                        pft_inds_multi)
@@ -127,6 +127,22 @@ parameters {
     vector<lower=0>[Npar] sigma_vec_pft[Npft];
 }
 
+transformed parameters {
+    corr_matrix[Npar] Omega_global;
+    cov_matrix[Npar] Sigma_global;
+
+    corr_matrix[Npar] Omega_pft[Npft];
+    cov_matrix[Npar] Sigma_pft[Npft];
+
+    Omega_global = multiply_lower_tri_self_transpose(L_Omega_global);
+    Sigma_global = quad_form_diag(Omega_global, sigma_vec_global);
+
+    for (i in 1:Npft) {
+        Omega_pft[i] = multiply_lower_tri_self_transpose(L_Omega_pft[i]);
+        Sigma_pft[i] = quad_form_diag(Omega_pft[i], sigma_vec_pft[i]);
+    }
+}
+
 model {
     matrix [Npar, Npar] L_Sigma_global;
     matrix [Npar, Npar] L_Sigma_pft[Npft];
@@ -157,22 +173,6 @@ model {
     sampling_statements_uni,
     sampling_statements_multi,
     "
-}
-
-generated quantities {
-    corr_matrix[Npar] Omega_global;
-    cov_matrix[Npar] Sigma_global;
-
-    corr_matrix[Npar] Omega_pft[Npft];
-    cov_matrix[Npar] Sigma_pft[Npft];
-
-    Omega_global = multiply_lower_tri_self_transpose(L_Omega_global);
-    Sigma_global = quad_form_diag(Omega_global, sigma_vec_global);
-
-    for (i in 1:Npft) {
-        Omega_pft[i] = multiply_lower_tri_self_transpose(L_Omega_pft[i]);
-        Sigma_pft[i] = quad_form_diag(Omega_pft[i], sigma_vec_pft[i]);
-    }
 }
 ")
 

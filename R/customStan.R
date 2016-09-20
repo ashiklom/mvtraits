@@ -6,7 +6,7 @@ customSTAN <- function(model_code,
                        chains = 3,
                        model_name = "testmodel",
                        max.attempts = 10,
-                       n_target = 100,
+                       n_target = 1,
                        rhat_max = 1.05,
                        iter = 5000,
                        save_each = TRUE,
@@ -28,7 +28,7 @@ customSTAN <- function(model_code,
                            pars = pars,
                            ...)
         if (result@mode != 0) {
-            print(result@stanmodel)
+            #print(result@stanmodel)
             stop("Error in stan model")
         }
         result_summary <- summary(result)$summary
@@ -38,7 +38,7 @@ customSTAN <- function(model_code,
             saveRDS(result, file = tempfilename)
         }
         # Ignore correlation coefficients
-        # If covariance terms converge, correlations necessarily should also
+        # If covariance terms converge, correlations must also
         result_summary <- result_summary[!(grepl("Omega|lp__", rownames(result_summary))),]
         rhat <- result_summary[,"Rhat"]
         neff <- result_summary[,"n_eff"]
