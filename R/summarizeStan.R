@@ -25,7 +25,7 @@ summarizeStan <- function(filename) {
     opar_pft <- rep(vpft, each = nrow(opar))
     params <- list(mu = sprintf("mu[%d]", vpar),
                    mu_global = sprintf("mu_global[%d]", vpar),
-                   mu_pft = sprintf("mu_global[%d,%d]", 
+                   mu_pft = sprintf("mu_pft[%d,%d]", 
                                       vpft_par, vpar_pft),
                    sigma2 = sprintf("sigma2[%d]", vpar),
                    Sigma = sprintf("Sigma[%d,%d]", spar[,1], spar[,2]),
@@ -41,7 +41,6 @@ summarizeStan <- function(filename) {
 
     # Load model and grab the relevant parameters
     load(filename)
-    allpars <- out@model_pars
     outsum <- summary(out)$summary
     result <- as.data.table(outsum, keep.rownames = TRUE)
     result <- result[rn %in% unlist(params)]
@@ -74,11 +73,7 @@ summarizeStan <- function(filename) {
 
     # Hierarchical indices
     result[var_type == "mu_pft", c(cols) := list(traits_nolog[n2], n1)]
-    result <- result[!(var_type=="Sigma_pft" & n2 > n3)]
-    result <- result[!(var_type=="Omega_pft" & n2 >= n3)]
     result[var_type %in% sop, c(cols) := list(ptrait(n2, n3), n1)]
-    
-    result <- result[!is.na(trait)]
 
     # Assign PFT name
     result[model_type %in% c("uni", "multi"), pft_num := model_pft_num]
