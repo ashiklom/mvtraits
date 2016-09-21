@@ -1,6 +1,8 @@
 #' @export
 pairs_density <- function(uni.mus, multi.mus, hier.mus, 
-                          obs.means, obs.global=NA, nsamp=5000, ...){
+                          obs.means, obs.global=NA, ...){
+
+    nsamp <- min(nrow(uni.mus), nrow(multi.mus), nrow(hier.mus), 5000)
 
     uni <- 1:nsamp
     multi <- uni + nsamp
