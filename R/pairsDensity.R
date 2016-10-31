@@ -52,7 +52,7 @@ ellipse2d <- function(x, y, ...){
 }
 
 #' @export
-dens2d.panel <- function(x, y, densfunc, breaks, dens.pars, line.pars){
+dens2d.panel <- function(x, y, densfunc, breaks, dens.pars, line.pars, ...){
     breaks.dens <- breaks[["density"]]
     breaks.line <- breaks[["line"]]
 
