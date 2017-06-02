@@ -1,168 +1,161 @@
 buildModel_multi <- function(dat, custom_inputs = list()) {
 
-    if ("pft" %in% colnames(dat)) {
-        dat <- dat[, colnames(dat) != "pft", drop=FALSE]
+    stopifnot(length(dim(dat)) > 1)
+
+    params <- colnames(dat)
+    if (is.null(params)) {
+        params <- paste0('V', 1:ncol(dat))
     }
 
-    dat_all_missing <- apply(dat, 1, function(x) all(is.na(x)))
-    if (any(dat_all_missing)){
-        warning("Some rows were missing entirely. Omitting these rows from analysis")
-        dat <- dat[!dat_all_missing,]
+    dat_df <- dplyr::as_data_frame(dat)
+
+    dat_df_full <- dplyr::mutate(dat_df, rn = 1:nrow(dat_df))
+
+    dat_long <- tidyr::gather(dat_df_full, variable, value, -rn)
+
+    dat_nested <- tidyr::nest(dat_long, variable, value)
+
+    dat_present <- dplyr::mutate(dat_nested, 
+                                 present = purrr::map(data, ~which(!is.na(.$value))),
+                                 present_str = purrr::map_chr(present, paste, collapse = "_"),
+                                 npresent = purrr::map_int(present, length)
+                                 )
+
+    dat_present_sub <- dplyr::filter(dplyr::select(dat_present, -data), npresent > 0)
+    diff_rows <- nrow(dat_present) - nrow(dat_present_sub)
+    if (diff_rows > 0) {
+        warning(diff_rows, ' rows dropped because all values were missing.')
     }
-    dat_pres <- plyr::alply(dat, 1, function(x) which(!is.na(x)))
-    dat_pres_str <- sapply(dat_pres, paste0, collapse = "")
-    pres <- unique(dat_pres_str)
-    pres_tab <- table(dat_pres_str)
 
-    dat_pres_uniq <- unique(dat_pres)
-    names(dat_pres_uniq) <- pres
-    Npres <- sapply(dat_pres_uniq, length)
-    pres <- pres[Npres > 0]
+    dat_merge <- dplyr::left_join(dat_present_sub, dat_df_full)
+    dat_renested <- tidyr::nest(dplyr::select(dat_merge, -rn, -present), dplyr::one_of(params))
 
-    uni_ind <- which(Npres == 1)
-    multi_ind <- which(Npres > 1)
-    pres_uni <- pres[uni_ind]
-    pres_multi <- pres[multi_ind]
-    Npres_uni <- Npres[uni_ind]
-    Npres_multi <- Npres[multi_ind]
+    matrify <- function(x, y) {
+        ymat <- as.matrix(y)
+        drp <- TRUE
+        if (nrow(ymat) == 1) drp <- FALSE
+        if (length(x) == 1) drp <- TRUE
+        d <- ymat[, x, drop = drp]
+        return(as.array(d))
+    }
 
-    Nrow <- pres_tab
-    Nrow_names <- sprintf("Nrow_%s", pres)
-    Nrow_declarations <- sprintf("int<lower=0> %s;", Nrow_names)
-    Nrow_in <- as.list(pres_tab)[pres]
-    names(Nrow_in) <- Nrow_names
+    dat_processed <- 
+        dplyr::mutate(dat_renested,
+                      present = purrr::map(present_str, function(x) as.array(as.integer(unlist(strsplit(x, "_"))))),
+                      data_sub = purrr::map2(present, data, matrify),
+                      Nrow_str = sprintf("Nrow_%s", present_str),
+                      Nrow_dec = sprintf("int<lower=0> %s;", Nrow_str),
+                      Nrow_values = purrr::map_dbl(data, nrow),
+                      dat_str = sprintf("dat_%s", present_str),
+                      dat_dec = dplyr::if_else(npresent == 1, 
+                                               sprintf('real %s[%s];', dat_str, Nrow_str),
+                                               sprintf('vector[%d] %s[%s];', npresent, dat_str, Nrow_str)),
+                      ind_str = sprintf('ind_%s', present_str),
+                      ind_dec = sprintf('int %s[%d];', ind_str, npresent),
+                      mu_str = sprintf('mu_%s', present_str),
+                      mu_dec = dplyr::if_else(npresent == 1,
+                                              sprintf('real %s;', mu_str),
+                                              sprintf('vector[%d] %s;', npresent, mu_str)),
+                      mu_def = dplyr::if_else(npresent == 1,
+                                              sprintf('%s = mu[%d];', mu_str,
+                                                      purrr::map_int(present, 1)),
+                                              sprintf('%s = mu[%s];', mu_str, ind_str)),
+                      Sigma_str = dplyr::if_else(npresent == 1,
+                                                 sprintf('sigma_vec_%s', present_str),
+                                                 sprintf('L_Sigma_%s', present_str)),
+                      Sigma_dec = dplyr::if_else(npresent == 1,
+                                                 sprintf('real %s;', Sigma_str),
+                                                 sprintf('matrix[%1$s,%1$s] %2$s;', npresent, Sigma_str)),
+                      Sigma_def = dplyr::if_else(npresent == 1,
+                                                 sprintf('%1$s = Sigma[%2$d,%2$d];',
+                                                         Sigma_str, purrr::map_int(present, 1)),
+                                                 sprintf('%1$s = cholesky_decompose(Sigma[%2$s,%2$s]);',
+                                                         Sigma_str, ind_str)),
+                      sample_statement = dplyr::if_else(npresent == 1,
+                                                        sprintf('%s ~ normal(%s, %s);', 
+                                                                dat_str, mu_str, Sigma_str),
+                                                        sprintf('%s ~ multi_normal_cholesky(%s, %s);',
+                                                                dat_str, mu_str, Sigma_str))
+                      )
+    #glimpse(dat_processed)
 
-    dat_names_uni <- sprintf("dat_%s", pres_uni)
-    dat_names_multi <- sprintf("dat_%s", pres_multi)
-    # TODO: Maybe fix
-    dat_declarations_uni <- sprintf("real %s[%s];", 
-                                    dat_names_uni, Nrow_names[uni_ind])
-    dat_declarations_multi <- sprintf("vector[%s] %s[%s];", 
-                                      Npres_multi, dat_names_multi,
-                                      Nrow_names[multi_ind])
-
-    ind_values_uni <- unlist(dat_pres_uniq[uni_ind])
-    ind_names_multi <- sprintf("ind_%s", pres_multi)
-    ind_declarations <- sprintf("int %s[%d];", ind_names_multi, Npres_multi)
-
-
-    mu_names_uni <- sprintf("mu_%s", pres_uni)
-    mu_names_multi <- sprintf("mu_%s", pres_multi)
-    mu_declarations_uni <- sprintf("real %s;", mu_names_uni)
-    mu_declarations_multi <- sprintf("vector[%d] %s;",
-                                     Npres_multi, mu_names_multi)
-
-    mu_definitions_uni <- sprintf("%s = mu[%d];", mu_names_uni, ind_values_uni)
-    mu_definitions_multi <- sprintf("%s = mu[%s];",
-                                    mu_names_multi, ind_names_multi)
-    mu_definitions <- c(mu_definitions_uni, mu_definitions_multi)
-
-    Sigma_names_uni <- sprintf("sigma_%s", pres_uni)
-    Sigma_names_multi <- sprintf("L_Sigma_%s", pres_multi)
-    Sigma_declarations_uni <- sprintf("real %s;", Sigma_names_uni)
-    Sigma_declarations_multi <- sprintf("matrix[%1$s, %1$s] %2$s;", 
-                                        Npres_multi, Sigma_names_multi)
-
-    Sigma_definitions_uni <- sprintf("%1$s = Sigma[%2$d,%2$d];",
-                                     Sigma_names_uni, ind_values_uni)
-    Sigma_definitions_multi <- sprintf("%1$s = cholesky_decompose(Sigma[%2$s,%2$s]);",
-                                       Sigma_names_multi, ind_names_multi)
-    Sigma_definitions <- c(Sigma_definitions_uni, Sigma_definitions_multi)
-
-    sampling_statements_uni <- sprintf("%s ~ normal(%s, %s);",
-                                       dat_names_uni, mu_names_uni,
-                                       Sigma_names_uni)
-    sampling_statements_multi <- 
-        sprintf("%s ~ multi_normal_cholesky(%s, %s);",
-                dat_names_multi, mu_names_multi, Sigma_names_multi)
+    model_dat <- dplyr::arrange(dat_processed, npresent, present_str)
 
     full_model_string <- c(
-" data {
-    int<lower=0> Npar;
+                           " data {
+                           int<lower=0> Npar;
 
-    vector[Npar] mu0;
-    cov_matrix[Npar] Sigma0;
+                           vector[Npar] mu0;
+                           cov_matrix[Npar] Sigma0;
 
-    real<lower=0> cauchy_location;
-    real<lower=0> cauchy_scale;
-    real<lower=0> lkj_eta;
-",
+                           real<lower=0> cauchy_location;
+                           real<lower=0> cauchy_scale;
+                           real<lower=0> lkj_eta;
+                           ",
+                           unique(model_dat[['Nrow_dec']]),
+                           unique(model_dat[['dat_dec']]),
+                           unique(model_dat[['ind_dec']]),
+                           "}
 
-    Nrow_declarations,
-    dat_declarations_uni,
-    dat_declarations_multi,
-    ind_declarations,
-"}
+                           parameters {
+                               vector[Npar] mu;
+                               cholesky_factor_corr[Npar] L_Omega;
+                               vector<lower=0>[Npar] sigma_vec;
+                           }
 
-parameters {
-    vector[Npar] mu;
-    vector<lower=0>[Npar] sigma_vec;
-    cholesky_factor_corr[Npar] L_Omega;
-}
+                           transformed parameters {
+                               corr_matrix[Npar] Omega;
+                               cov_matrix[Npar] Sigma;
 
-transformed parameters {
-    corr_matrix[Npar] Omega;
-    cov_matrix[Npar] Sigma;
+                               Omega = multiply_lower_tri_self_transpose(L_Omega);
+                               Sigma = quad_form_diag(Omega, sigma_vec);
+                           }
 
-    Omega = multiply_lower_tri_self_transpose(L_Omega);
-    Sigma = quad_form_diag(Omega, sigma_vec);
-}
+                           model {
+                               matrix [Npar, Npar] L_Sigma;
+                               ",
+                               unique(model_dat[['mu_dec']]),
+                               unique(model_dat[['Sigma_dec']]),
+                               "
 
-model {
-",
-    mu_declarations_uni,
-    mu_declarations_multi,
-    Sigma_declarations_uni,
-    Sigma_declarations_multi,
+                               // Prior
+                               mu ~ multi_normal(mu0, Sigma0);
 
-"
-    // Prior
-    mu ~ multi_normal(mu0, Sigma0);
+                               L_Omega ~ lkj_corr_cholesky(lkj_eta);
+                               sigma_vec ~ cauchy(cauchy_location, cauchy_scale);
+                               L_Sigma = diag_pre_multiply(sigma_vec, L_Omega);
 
-    L_Omega ~ lkj_corr_cholesky(lkj_eta);
-    sigma_vec ~ cauchy(cauchy_location, cauchy_scale);
+                               ",
+                               unique(model_dat[['mu_def']]),
+                               unique(model_dat[['Sigma_def']]),
+                               unique(model_dat[['sample_statement']]),
+                               "
+                           }
+                           ")
 
-    ",
+                           model_code <- paste(full_model_string, collapse = '\n')
 
-    mu_definitions,
-    Sigma_definitions,
-    sampling_statements_uni,
-    sampling_statements_multi,
-    "
-}
-")
+                           Npar <- ncol(dat)
+                           default_inputs <- list(Npar = Npar,
+                                                  mu0 = rep(0, Npar),
+                                                  Sigma0 = diag(1000, Npar),
+                                                  cauchy_location = 0,
+                                                  cauchy_scale = 2.5,
+                                                  lkj_eta = 1)
+                           common_inputs <- modifyList(default_inputs, custom_inputs)
 
-    model_code <- paste(full_model_string, collapse = "\n")
-    #cat(model_code)
+                           Nrow_in <- model_dat[['Nrow_values']]
+                           names(Nrow_in) <- model_dat[['Nrow_str']]
 
-    Npar <- ncol(dat)
-    default_inputs <- list(Npar = Npar,
-                        mu0 = rep(0, Npar),
-                        Sigma0 = diag(1000, Npar),
-                        cauchy_location = 0,
-                        cauchy_scale = 2.5,
-                        lkj_eta = 1)
-    common_inputs <- modifyList(default_inputs, custom_inputs)
+                           dat_in <- model_dat[['data_sub']]
+                           names(dat_in) <- model_dat[['dat_str']]
 
-    select_dat <- function(x) {
-        drp <- TRUE
-        irow <- which(dat_pres_str == x)
-        icol <- dat_pres_uniq[[x]]
-        if (length(irow) == 1) drp <- FALSE
-        if (length(icol) == 1) drp <- TRUE
-        d <- dat[irow, icol, drop = drp]
-        if (length(d) == 1) d <- array(d, 1)
-        return(d)
-    }
+                           ind_in <- model_dat[['present']]
+                           names(ind_in) <- model_dat[['ind_str']]
 
-    dat_in <- lapply(pres, select_dat)
-    names(dat_in) <- sprintf("dat_%s", pres)
+                           return_model_data <- c(common_inputs, Nrow_in, dat_in, ind_in)
+                           out <- list(model_code = model_code, model_data = return_model_data)
 
-    ind_in <- dat_pres_uniq[pres_multi]
-    names(ind_in) <- ind_names_multi
+                           return(out)
 
-    model_data <- c(common_inputs, Nrow_in, dat_in, ind_in)
-
-    out <- list(model_code = model_code, model_data = model_data)
-    return(out)
 }

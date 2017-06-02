@@ -1,3 +1,5 @@
+rm(list = ls())
+
 library(testthat)
 #library(mvtraits)
 devtools::load_all('.')
@@ -9,20 +11,27 @@ mu <- c(10, 5, 0, -5, 10)
 Sig <- genPositiveDefMat(length(mu))$Sigma
 
 N <- 1000
-npft <- 7
-dat <- rmvnorm(N, mu, Sig)
+ngroup <- 7
+dat_all <- rmvnorm(N, mu, Sig)
+groups <- sample.int(ngroup, N, replace = TRUE)
 
 # Randomly remove some data
+#dat <- dat_all[groups == 1,]
+dat <- dat_all
+
 nmiss <- round(length(dat) * 0.5)
 miss <- sample.int(length(dat), size = nmiss)
+
 dat[miss] <- NA
-groups <- sample.int(npft, N, replace = TRUE)
+
+custom_inputs <- list()
 
 #dat[dat[,"pft"] == 1, "pft"] <- 2
 #dat[1, "pft"] <- 1
 #dat <- as.data.table(dat)
 dir.create("output", showWarnings = FALSE)
 
+#fit_multi <- runModel('multi', dat)
 fit_hier <- runModel('hier', dat, groups = groups)
 #fit_uni <- runModel("uni", dat, NA)
 #saveRDS(fit_uni, "output/uni.rds")

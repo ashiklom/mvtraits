@@ -1,5 +1,7 @@
 buildModel_hier <- function(dat, groups, custom_inputs = list()) {
 
+    stopifnot(length(dim(dat)) > 1)
+
     Ngroup <- dplyr::n_distinct(groups)
     params <- colnames(dat)
     if (is.null(params)) {
@@ -18,7 +20,7 @@ buildModel_hier <- function(dat, groups, custom_inputs = list()) {
 
     dat_nested <- tidyr::nest(dat_long, variable, value)
 
-    dat_present <- dplyr::mutate(dat_nested, present = purrr::map(data, ~which(is.na(.$value))),
+    dat_present <- dplyr::mutate(dat_nested, present = purrr::map(data, ~which(!is.na(.$value))),
                                  present_str = purrr::map_chr(present, paste, collapse = "_"),
                                  npresent = purrr::map_int(present, length),
                                  present_str_group = sprintf('g_%d_p_%s', group, present_str)
@@ -33,10 +35,20 @@ buildModel_hier <- function(dat, groups, custom_inputs = list()) {
     dat_merge <- dplyr::left_join(dat_present_sub, dat_df_full)
     #dat_renested <- tidyr::nest(dat_merge, -rn, -present, -group, -present_str_group, -npresent)
     dat_renested <- tidyr::nest(dplyr::select(dat_merge, -rn, -present), dplyr::one_of(params))
+    
+    matrify <- function(x, y) {
+        ymat <- as.matrix(y)
+        drp <- TRUE
+        if (nrow(ymat) == 1) drp <- FALSE
+        if (length(x) == 1) drp <- TRUE
+        d <- ymat[, x, drop = drp]
+        return(as.array(d))
+    }
 
     dat_processed <- 
         dplyr::mutate(dat_renested,
-                      present = purrr::map(present_str, function(x) as.integer(unlist(strsplit(x, "_")))),
+                      present = purrr::map(present_str, function(x) as.array(as.integer(unlist(strsplit(x, "_"))))),
+                      data_sub = purrr::map2(present, data, matrify),
                       Nrow_str = sprintf("Nrow_%s", present_str_group),
                       Nrow_dec = sprintf("int<lower=0> %s;", Nrow_str),
                       Nrow_values = purrr::map_dbl(data, nrow),
@@ -45,7 +57,7 @@ buildModel_hier <- function(dat, groups, custom_inputs = list()) {
                                                sprintf('real %s[%s];', dat_str, Nrow_str),
                                                sprintf('vector[%d] %s [%s];', npresent, dat_str, Nrow_str)),
                       ind_str = sprintf('ind_%s', present_str_group),
-                      ind_dec = sprintf('int %s[%s];', ind_str, Nrow_str),
+                      ind_dec = sprintf('int %s[%s];', ind_str, npresent),
                       mu_str = sprintf('mu_%s', present_str_group),
                       mu_dec = dplyr::if_else(npresent == 1,
                                               sprintf('real %s;', mu_str),
@@ -160,10 +172,10 @@ buildModel_hier <- function(dat, groups, custom_inputs = list()) {
                                                   lkj_eta = 1)
                            common_inputs <- modifyList(default_inputs, custom_inputs)
 
-                           Nrow_in <- model_dat[['npresent']]
+                           Nrow_in <- model_dat[['Nrow_values']]
                            names(Nrow_in) <- model_dat[['Nrow_str']]
 
-                           dat_in <- model_dat[['data']]
+                           dat_in <- model_dat[['data_sub']]
                            names(dat_in) <- model_dat[['dat_str']]
 
                            ind_in <- model_dat[['present']]
