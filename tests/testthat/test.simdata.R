@@ -1,5 +1,6 @@
 library(testthat)
-library(mvtraits)
+#library(mvtraits)
+devtools::load_all('.')
 library(mvtnorm)
 library(clusterGeneration)
 
@@ -15,16 +16,17 @@ dat <- rmvnorm(N, mu, Sig)
 nmiss <- round(length(dat) * 0.5)
 miss <- sample.int(length(dat), size = nmiss)
 dat[miss] <- NA
-dat <- cbind(dat, "pft" = sample.int(npft, N, replace = TRUE))
-dat[dat[,"pft"] == 1, 3] <- NA
+groups <- sample.int(npft, N, replace = TRUE)
+
 #dat[dat[,"pft"] == 1, "pft"] <- 2
 #dat[1, "pft"] <- 1
 #dat <- as.data.table(dat)
 dir.create("output", showWarnings = FALSE)
 
-fit_uni <- runModel("uni", dat, NA)
+fit_hier <- runModel('hier', dat, groups = groups)
+#fit_uni <- runModel("uni", dat, NA)
 #saveRDS(fit_uni, "output/uni.rds")
-fit_uni_1 <- runModel("uni", dat, 1)
+#fit_uni_1 <- runModel("uni", dat, 1)
 #saveRDS(fit_uni_1, "output/uni.1.rds")
 #fit_multi <- runModel("multi", dat, NA)
 #saveRDS(fit_multi, "output/multi.rds")

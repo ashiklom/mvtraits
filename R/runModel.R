@@ -1,39 +1,33 @@
-#' @import data.table
 #' @export
 runModel <- function(model_type, 
-                     try_data, 
-                     pft_number, 
+                     dat,
+                     groups = NA,
+                     model_name = paste0('testmodel_', model_type),
                      chains = 3,
+                     custom_inputs = list(),
                      ...){
 
     if (!model_type %in% c("uni", "multi", "hier")) {
         stop("Invalid model type. Must be 'uni', 'multi', or 'hier'")
     }
 
-    if (!is.data.table(try_data)) try_data <- as.data.table(try_data)
-    try_data[, pft := as.numeric(pft)]
-    if (!is.na(pft_number)) {
-        try_data <- try_data[pft == pft_number]
-    } else {
-        pft_number <- 0
+    if (model_type == 'hier' && is.na(groups)) {
+        stop('If running hierarchical analysis, must supply groups vector.')
     }
-    #dat <- try_data[, !"pft", with=FALSE] %>% as.matrix()
-    dat <- as.matrix(try_data, 
-                     nrow = nrow(try_data),
-                     ncol=ncol(try_data))
-    model_name <- sprintf("%s_%02d", model_type, pft_number)
 
-    #pftvec <- try_data[,pft]
-    modbuild <- buildModel(model_type, dat, model_name)
+    modbuild <- buildModel(model_type = model_type, 
+                           dat = dat, 
+                           groups = groups, 
+                           custom_inputs = custom_inputs)
     model_code <- modbuild$model_code
     model_data <- modbuild$model_data
 
     variable_names <- switch(model_type, 
                              uni = c("mu", "sigma2"),
                              multi = c("mu", "Sigma", "Omega"),
-                             hier = c("mu_pft", "mu_global", 
-                                      "Sigma_pft", "Sigma_global", 
-                                      "Omega_pft", "Omega_global"))
+                             hier = c("mu_group", "mu_global", 
+                                      "Sigma_group", "Sigma_global", 
+                                      "Omega_group", "Omega_global"))
 
     # Run model
     print(Sys.time())
