@@ -1,8 +1,8 @@
 rm(list = ls())
 
 library(testthat)
-#library(mvtraits)
-devtools::load_all('.')
+library(mvtraits)
+#devtools::load_all('.')
 library(mvtnorm)
 library(clusterGeneration)
 
@@ -31,8 +31,9 @@ custom_inputs <- list()
 #dat <- as.data.table(dat)
 dir.create("output", showWarnings = FALSE)
 
-#fit_multi <- runModel('multi', dat)
-fit_hier <- runModel('hier', dat, groups = groups)
+fit_uni <- runModel('uni', dat[groups == 1,])
+fit_multi <- runModel('multi', dat[groups == 1,])
+fit_hier <- runModel('hier', dat, groups = groups, iter = 100)
 #fit_uni <- runModel("uni", dat, NA)
 #saveRDS(fit_uni, "output/uni.rds")
 #fit_uni_1 <- runModel("uni", dat, 1)
