@@ -21,6 +21,7 @@ customSTAN <- function(model_code,
     stanmodel <- stan_model(model_code = model_code,
                             model_name = model_name)
     while (continue & attempt <= max.attempts) {
+        attempt <- attempt + 1
         result <- sampling(stanmodel,
                            data = model_data,
                            iter = iter,
