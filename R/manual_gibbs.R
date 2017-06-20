@@ -46,20 +46,43 @@ fit_mvnorm <- function(dat, niter = 5000,
 }
 
 #' @export
-mvnorm_fill_missing <- function(y, mu, Sigma_chol) {
-    Sigma_chol_inv <- solve(Sigma_chol)
-    nc <- ncol(y)
-    nr <- nrow(y)
-    x <- matrix(NA_real_, nr, nc)
-    for (j in seq_len(nc)) {
-        ymiss <- is.na(y[,j])
-        nmiss <- sum(ymiss)
-        x[ymiss, j] <- rnorm(nmiss)
-        x[!ymiss, j] <- y[!ymiss, 1:j, drop = FALSE] %*% Sigma_chol_inv[1:j, j]
-        y[ymiss, j] <- x[ymiss, 1:j, drop = FALSE] %*% Sigma_chol[1:j, j]
+Rcpp::cppFunction(depends = 'RcppArmadillo',
+                  code = '
+    arma::mat mvnorm_fill_missing(arma::mat y, arma::vec mu, arma::mat Sigma_chol) {
+        int nr = y.n_rows;
+        int nc = y.n_cols;
+        arma::mat Sigma_chol_inv = Sigma_chol.i();
+        arma::mat x(nr, nc);
+        arma::uvec j1(1);
+        int nmiss;
+        for (int j = 0; j < nc; j++) {
+            arma::uvec jj = arma::regspace<arma::uvec>(0, j);
+            arma::uvec ypres = arma::find_finite(y.col(j));
+            arma::uvec ymiss = arma::find_nonfinite(y.col(j));
+            nmiss = ymiss.size();
+            j1.fill(j);
+            x(ymiss, j1) = arma::randn(nmiss);
+            y(ymiss, j1) = x(ymiss, jj) * Sigma_chol(jj, j1);
+            x(ypres, j1) = y(ypres, jj) * Sigma_chol_inv(jj, j1);
+        }
+        return(y);
     }
-    return(y)
-}
+                  ')
+
+#mvnorm_fill_missing <- function(y, mu, Sigma_chol) {
+    #Sigma_chol_inv <- solve(Sigma_chol)
+    #nc <- ncol(y)
+    #nr <- nrow(y)
+    #x <- matrix(NA_real_, nr, nc)
+    #for (j in seq_len(nc)) {
+        #ymiss <- is.na(y[,j])
+        #nmiss <- sum(ymiss)
+        #x[ymiss, j] <- rnorm(nmiss)
+        #x[!ymiss, j] <- y[!ymiss, 1:j, drop = FALSE] %*% Sigma_chol_inv[1:j, j]
+        #y[ymiss, j] <- x[ymiss, 1:j, drop = FALSE] %*% Sigma_chol[1:j, j]
+    #}
+    #return(y)
+#}
 
 #' @export
 Rcpp::cppFunction(depends = 'RcppArmadillo',
@@ -68,14 +91,13 @@ Rcpp::cppFunction(depends = 'RcppArmadillo',
         int nr = mat.n_rows;
         int nc = mat.n_cols;
         arma::mat S = arma::zeros(nc, nc);
-        arma::mat mrow = arma::zeros(1, nc);
+        arma::rowvec mrow(nc);
         for (int i = 0; i < nr; i++) {
             mrow = mat.row(i);
             S += mrow.t() * mrow;
         }
         return(S);
     }
-    
                   ')
 
 #' @export
@@ -89,9 +111,13 @@ draw_mu <- function(xbar, nx, Sigma_inv, mu0, Sigma_0_inv) {
     # Sigma_0_inv -- Prior precision (inverse variance) matrix
     A_n <- Sigma_0_inv + nx * Sigma_inv
     Sigma_n <- solve(A_n)
+    Sigma_n_chol <- chol(Sigma_n)
     b_n <- Sigma_0_inv %*% mu0 + nx * Sigma_inv %*% xbar
     mu_n <- Sigma_n %*% b_n
-    mu <- mvtnorm::rmvnorm(1, mu_n, Sigma_n)[1,]
+    nparam <- length(mu0)
+    # Random normal draw, based on Cholesky decomposition of 
+    mu <- Sigma_n_chol %*% rnorm(nparam) + mu_n
+    #mu <- mvtnorm::rmvnorm(1, mu_n, Sigma_n)[1,]
     return(mu)
 }
 
