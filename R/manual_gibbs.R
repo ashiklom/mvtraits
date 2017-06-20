@@ -1,3 +1,46 @@
+#' @export
+fit_mvnorm <- function(dat, niter = 5000, 
+                       mu0 = rep(0, ncol(dat)), Sigma_0 = diag(10, ncol(dat)),
+                       v0 = ncol(dat), S0 = diag(ncol(dat)),
+                       mu_init = rep(0, ncol(dat)), Sigma_init = diag(ncol(dat))) {
+    # Precalculate certain quantities
+    nparam <- ncol(dat)
+    n <- nrow(dat)
+    Sigma_0_inv <- solve(Sigma_0)
+
+    # Setup storage
+    mu_samp <- matrix(NA_real_, nrow = niter, ncol = nparam)
+    Sigma_samp <- array(NA_real_, c(niter, nparam, nparam))
+
+    has_missing <- any(is.na(dat))
+
+    # If no values missing, pre-calculate more quantities
+    if (!has_missing) {
+        y <- dat
+        ybar <- colMeans(y)
+    }
+
+    pb <- txtProgressBar(1, niter, style = 3)
+    for (i in seq_len(niter)) {
+        setTxtProgressBar(pb, i)
+        Sigma_inv <- solve(Sigma)
+        if (has_missing) {
+            Sigma_chol <- chol(Sigma)
+            y <- mvnorm_fill_missing(dat, mu, Sigma_chol)
+            ybar <- colMeans(y)
+        }
+        mu <- draw_mu(ybar, n, Sigma_inv, mu0, Sigma_0_inv)
+        Sigma <- draw_Sigma(y, mu, v0, S0)
+        # Store outputs
+        mu_samp[i,] <- mu
+        Sigma_samp[i,,] <- Sigma
+    }
+    close(pb)
+    result <- list(mu = mu_samp, Sigma = Sigma_samp)
+    return(result)
+}
+
+#' @export
 mvnorm_fill_missing <- function(y, mu, Sigma_chol) {
     Sigma_chol_inv <- solve(Sigma_chol)
     nc <- ncol(y)
@@ -13,6 +56,7 @@ mvnorm_fill_missing <- function(y, mu, Sigma_chol) {
     return(y)
 }
 
+#' @export
 Rcpp::cppFunction(depends = 'RcppArmadillo',
                   code = '
     arma::mat scatter(arma::mat mat) {
@@ -29,6 +73,7 @@ Rcpp::cppFunction(depends = 'RcppArmadillo',
     
                   ')
 
+#' @export
 draw_mu <- function(xbar, nx, Sigma_inv, mu0, Sigma_0_inv) {
     # mu | x, Sigma
     # ---------------
@@ -45,6 +90,7 @@ draw_mu <- function(xbar, nx, Sigma_inv, mu0, Sigma_0_inv) {
     return(mu)
 }
 
+#' @export
 draw_Sigma <- function(x, mu, S0, v0) {
     # Sigma_star | x, mu
     # ------------------

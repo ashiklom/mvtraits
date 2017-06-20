@@ -1,51 +1,44 @@
 # Data
-source('R/manual_gibbs.R')
+devtools::load_all('.')
 
 set.seed(666)
-nparam <- 4
 nx <- 10000
-nmiss <- 30000
-x <- cbind(rnorm(nx, -4), rnorm(nx, -2), rnorm(nx, 2), rnorm(nx, 4))
+nmiss <- 2000
+irismat <- as.matrix(iris[,-5])
+
+true_mu <- colMeans(irismat)
+true_Sigma <- cov(irismat)
+nparam <- length(true_mu)
+x <- mvtnorm::rmvnorm(nx, true_mu, true_Sigma)
 xobs <- x
 xobs[sample.int(length(xobs), nmiss)] <- NA
 
-# Prior parameters
-mu0 <- rep(0, nparam)
-Sigma_0 <- diag(10, nparam)
-Sigma_0_inv <- solve(Sigma_0)
-v0 <- nparam
-S0 <- diag(nparam)
-
-# Initial conditions
-mu <- rep(0, nparam)
-Sigma <- diag(nparam)
-
-ngibbs <- 1000
-mu_samp <- matrix(NA_real_, ngibbs, nparam)
-Sigma_samp <- array(NA_real_, c(ngibbs, nparam, nparam))
-
-# Begin sampler
-Rprof()
-pb <- txtProgressBar(1, ngibbs, style = 3)
-for (i in seq_len(ngibbs)) {
-    setTxtProgressBar(pb, i)
-    Sigma_inv <- solve(Sigma)
-    Sigma_chol <- chol(Sigma)
-    y <- mvnorm_fill_missing(xobs, mu, Sigma_chol)
-    ybar <- colMeans(y)
-    mu <- draw_mu(ybar, nx, Sigma_inv, mu0, Sigma_0_inv)
-    Sigma <- draw_Sigma(x, mu, v0, S0)
-    # Store outputs
-    mu_samp[i,] <- mu
-    Sigma_samp[i,,] <- Sigma
-}
-close(pb)
-Rprof(NULL)
+samples <- fit_mvnorm(dat = xobs)
 
 print('Mu:')
-colMeans(mu_samp)
-apply(mu_samp, 2, sd)
+mu_mle <- colMeans(samples$mu)
+mu_mle
+apply(samples$mu, 2, sd)
+
+print("True mu:")
+true_mu
+
+print("Mu diff:")
+mu_mle - true_mu
 
 print('Sigma:')
-apply(Sigma_samp, 2:3, mean)
-apply(Sigma_samp, 2:3, sd)
+sigma_mle <- apply(samples$Sigma, 2:3, mean)
+sigma_mle
+apply(samples$Sigma, 2:3, sd)
+
+omega_samples <- array(NA_real_, dim(samples$Sigma))
+for (i in seq_len(dim(samples$Sigma)[1])){
+    omega_samples[i,,] <- cov2cor(samples$Sigma[i,,])
+}
+omega_mle <- apply(omega_samples, 2:3, mean)
+
+print('True sigma')
+true_Sigma
+
+print("Sigma diff:")
+sigma_mle - true_Sigma
