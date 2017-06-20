@@ -3,6 +3,7 @@ fit_mvnorm <- function(dat, niter = 5000,
                        mu0 = rep(0, ncol(dat)), Sigma_0 = diag(10, ncol(dat)),
                        v0 = ncol(dat), S0 = diag(ncol(dat)),
                        mu_init = rep(0, ncol(dat)), Sigma_init = diag(ncol(dat))) {
+
     # Precalculate certain quantities
     nparam <- ncol(dat)
     n <- nrow(dat)
@@ -19,6 +20,10 @@ fit_mvnorm <- function(dat, niter = 5000,
         y <- dat
         ybar <- colMeans(y)
     }
+
+    # Set initial conditions
+    mu <- mu_init
+    Sigma <- Sigma_init
 
     pb <- txtProgressBar(1, niter, style = 3)
     for (i in seq_len(niter)) {

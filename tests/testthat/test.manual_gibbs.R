@@ -31,14 +31,23 @@ sigma_mle <- apply(samples$Sigma, 2:3, mean)
 sigma_mle
 apply(samples$Sigma, 2:3, sd)
 
-omega_samples <- array(NA_real_, dim(samples$Sigma))
-for (i in seq_len(dim(samples$Sigma)[1])){
-    omega_samples[i,,] <- cov2cor(samples$Sigma[i,,])
-}
-omega_mle <- apply(omega_samples, 2:3, mean)
-
 print('True sigma')
 true_Sigma
 
 print("Sigma diff:")
 sigma_mle - true_Sigma
+
+print('Correlation estimate:')
+omega_samples <- array(NA_real_, dim(samples$Sigma))
+for (i in seq_len(dim(samples$Sigma)[1])){
+    omega_samples[i,,] <- cov2cor(samples$Sigma[i,,])
+}
+omega_mle <- apply(omega_samples, 2:3, mean)
+omega_mle
+
+print('True correlation')
+omega_true <- cov2cor(true_Sigma)
+omega_true
+
+print('Correlation difference:')
+omega_mle - omega_true
