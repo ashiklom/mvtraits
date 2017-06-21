@@ -30,14 +30,7 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list()) {
     mu_samp <- matrix(NA_real_, nrow = niter, ncol = nparam)
     Sigma_samp <- array(NA_real_, c(niter, nparam, nparam))
 
-    has_missing <- any(is.na(dat))
-
     # If no values missing, pre-calculate more quantities
-    if (!has_missing) {
-        y <- dat
-        ybar <- colMeans(y)
-    }
-
     # Draw initial conditions from priors
     mu <- mvtnorm::rmvnorm(1, mu0, Sigma0)[1,]
     Sigma <- solve(rWishart(1, v0, S0)[,,1])
@@ -48,22 +41,8 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list()) {
     dimnames(Sigma_samp) <- list(NULL, param_names, param_names)
     dimnames(Sigma) <- list(param_names, param_names)
 
-    pb <- txtProgressBar(1, niter, style = 3)
-    for (i in seq_len(niter)) {
-        setTxtProgressBar(pb, i)
-        Sigma_inv <- solve(Sigma)
-        if (has_missing) {
-            Sigma_chol <- chol(Sigma)
-            y <- mvnorm_fill_missing(dat, mu, Sigma_chol)
-            ybar <- colMeans(y)
-        }
-        mu <- draw_mu(ybar, ndat, Sigma_inv, mu0, Sigma0_inv)
-        Sigma <- draw_Sigma(y, mu, v0, S0)
-        # Store outputs
-        mu_samp[i,] <- mu
-        Sigma_samp[i,,] <- Sigma
-    }
-    close(pb)
-    result <- list(mu = mu_samp, Sigma = Sigma_samp)
+    result <- sample_mvnorm(niter, dat, mu, Sigma,
+                            mu0, Sigma0, v0, S0,
+                            mu_samp, Sigma_samp)
     return(result)
 }
