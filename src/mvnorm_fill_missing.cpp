@@ -21,16 +21,3 @@ arma::mat mvnorm_fill_missing(arma::mat y, arma::vec mu, arma::mat Sigma_chol) {
     }
     return(y);
 }
-
-// [[Rcpp::export]]
-arma::mat scatter(arma::mat mat) {
-    int nr = mat.n_rows;
-    int nc = mat.n_cols;
-    arma::mat S = arma::zeros(nc, nc);
-    arma::rowvec mrow(nc);
-    for (int i = 0; i < nr; i++) {
-        mrow = mat.row(i);
-        S += mrow.t() * mrow;
-    }
-    return(S);
-}
