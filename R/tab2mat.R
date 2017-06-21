@@ -1,7 +1,6 @@
 #' @export
 tab2mat <- function(dat, colname = "Mean", ...) {
-    library(data.table)
-    stopifnot(is.data.table(dat))
+    stopifnot(data.table::is.data.table(dat))
     vec <- dat[[colname]]
     names(vec) <- dat[["trait"]]
     mat <- lowerdiag2mat(vec, ...)

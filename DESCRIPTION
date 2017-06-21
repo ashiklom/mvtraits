@@ -6,19 +6,14 @@ Date: 2016-08-10
 Author: Alexey Shiklomanov, Elizabeth Cowdery, Michael Dietze
 Maintainer: Alexey Shiklomanov <ashiklom@bu.edu>
 Description: Functions for performing MV trait analysis.
-Imports:
-    data.table,
-    rstan
 Depends:
-    plyr,
-    dplyr,
-    data.table,
+    Rcpp
+Imports:
     rstan,
-    ggplot2,
-    MASS,
-    car,
-    corrplot,
+    dplyr,
     tidyr,
-    combinat
+    MASS,
+    corrplot,
+    data.table
 License: FreeBSD
 RoxygenNote: 6.0.1

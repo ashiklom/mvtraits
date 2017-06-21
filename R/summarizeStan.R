@@ -1,10 +1,5 @@
 #' @export
 summarizeStan <- function(filename) {
-    library(rstan)
-    library(data.table)
-    library(dplyr)
-    library(tidyr)
-
     # Parse model string
     model_string <- ".*[/](uni|multi|hier)_?([[:digit:]]{0,2})\\.Rdata"
     model_type <- gsub(model_string, "\\1", filename)
@@ -41,8 +36,8 @@ summarizeStan <- function(filename) {
 
     # Load model and grab the relevant parameters
     load(filename)
-    outsum <- summary(out)$summary
-    result <- as.data.table(outsum, keep.rownames = TRUE)
+    outsum <- rstan::summary(out)$summary
+    result <- data.table::as.data.table(outsum, keep.rownames = TRUE)
     result <- result[rn %in% unlist(params)]
     rm(out); gc()
     result[, c("model_type", "model_pft_num") := list(model_type, model_pft)]
@@ -94,17 +89,17 @@ summarizeStan <- function(filename) {
                     "97.5%" = "q975",
                     "n_eff" = "n_eff",
                     "Rhat" = "Rhat")
-    setnames(result, names(names_dict), names_dict)
+    data.table::setnames(result, names(names_dict), names_dict)
     result <- result[, names_dict, with=FALSE]
 
     # Process the PFT name
     result <- result %>%
-        separate(PFT, into=c("Biome", "Function"), sep="_", 
-                 extra="merge", remove=FALSE) %>%
-        separate(Function, into = c("growth_form", "ps_type", 
-                                    "leaf_type", "phenology"),
-                 sep = "_", extra = "drop", remove=FALSE) %>%
-        setDT()
+        tidyr::separate(PFT, into=c("Biome", "Function"), sep="_", 
+                        extra="merge", remove=FALSE) %>%
+        tidyr::separate(Function, into = c("growth_form", "ps_type", 
+                                        "leaf_type", "phenology"),
+                        sep = "_", extra = "drop", remove=FALSE) %>%
+        data.table::setDT()
     result[is.na(ps_type), 
         c("ps_type", "leaf_type", "phenology") := Function]
 

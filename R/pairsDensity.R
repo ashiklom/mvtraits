@@ -40,15 +40,15 @@ pairs_density <- function(uni.mus, multi.mus, hier.mus,
 
 #' @export
 dens2d <- function(x,y,...) {
-    z <- kde2d(x, y)
+    z <- MASS::kde2d(x, y)
     levs <- c(0.8)
     contour(z, drawlabels=FALSE, levels=levs, add=TRUE, ...)
 }
 
 #' @export
 ellipse2d <- function(x, y, ...){
-    dataEllipse(x, y, levels = 0.975, add=TRUE, 
-                plot.points = FALSE, center.pch=FALSE, ...)
+    ellipse::dataEllipse(x, y, levels = 0.975, add=TRUE, 
+                         plot.points = FALSE, center.pch=FALSE, ...)
 }
 
 #' @export

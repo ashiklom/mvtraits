@@ -2,7 +2,6 @@
 
 #' @export
 get_sims <- function(filename, vars, samples = 5000){
-    library(rstan)
     load(filename)
     ntrait <- length(traits_nolog)
     nt <- 1:ntrait
@@ -59,7 +58,7 @@ get_sims_list <- function(filenames, vars){
         pft_number <- gsub(".*_([[:digit:]]+).*", "\\1", f) %>%
             as.numeric
         pft_name <- pft.names[pft_number]
-        l[[pft_name]] <- get_sims(f, vars)
+        l[[pft_name]] <- rstan::get_sims(f, vars)
     }
     return(l)
 }

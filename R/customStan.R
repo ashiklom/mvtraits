@@ -1,4 +1,3 @@
-#' @import rstan
 #' @export
 customSTAN <- function(model_code, 
                        model_data, 
@@ -13,26 +12,26 @@ customSTAN <- function(model_code,
                        ...){
 
     # STAN options for parallelism
-    rstan_options(auto_write = TRUE)
+    rstan::rstan_options(auto_write = TRUE)
     options(mc.cores = parallel::detectCores())
     message("Running model...")
     continue <- TRUE
     attempt <- 1
-    stanmodel <- stan_model(model_code = model_code,
-                            model_name = model_name)
+    stanmodel <- rstan::stan_model(model_code = model_code,
+                                   model_name = model_name)
     while (continue & attempt <= max.attempts) {
         attempt <- attempt + 1
-        result <- sampling(stanmodel,
-                           data = model_data,
-                           iter = iter,
-                           chains = chains,
-                           pars = pars,
-                           ...)
+        result <- rstan::sampling(stanmodel,
+                                  data = model_data,
+                                  iter = iter,
+                                  chains = chains,
+                                  pars = pars,
+                                  ...)
         if (result@mode != 0) {
             #print(result@stanmodel)
             stop("Error in stan model")
         }
-        result_summary <- summary(result)$summary
+        result_summary <- rstan::summary(result)$summary
         if (save_each) {
             now_time <- strftime(Sys.time(), "%Y_%m_%d_%H_%M")
             tempfilename <- sprintf("%s.%s.rds", model_name, now_time)

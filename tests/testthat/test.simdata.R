@@ -11,8 +11,8 @@ if (interactive()) {
 mu <- c(10, 5, 0, -5, 10)
 Sig <- clusterGeneration::genPositiveDefMat(length(mu))$Sigma
 
-N <- 1000
-ngroup <- 7
+N <- 100
+ngroup <- 3
 dat_all <- mvtnorm::rmvnorm(N, mu, Sig)
 groups <- sample.int(ngroup, N, replace = TRUE)
 
@@ -26,8 +26,8 @@ dat[miss] <- NA
 
 custom_inputs <- list()
 
-fit_uni <- runModel('uni', dat[groups == 1,])
-fit_multi <- runModel('multi', dat[groups == 1,])
+fit_uni <- runModel('uni', dat[groups == 1,], iter = 100, max.attempts = 1)
+fit_multi <- runModel('multi', dat[groups == 1,], iter = 100, max.attempts = 1)
 fit_hier <- runModel('hier', dat, groups = groups, iter = 100, max.attempts = 1)
 
 file.remove(list.files('testmodel_*.rds'))
