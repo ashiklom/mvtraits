@@ -1,3 +1,4 @@
+#' @useDynLib mvtraits
 #' @export
 fit_mvnorm <- function(dat, niter = 5000, 
                        mu0 = rep(0, ncol(dat)), Sigma_0 = diag(10, ncol(dat)),
@@ -44,61 +45,6 @@ fit_mvnorm <- function(dat, niter = 5000,
     result <- list(mu = mu_samp, Sigma = Sigma_samp)
     return(result)
 }
-
-#' @export
-Rcpp::cppFunction(depends = 'RcppArmadillo',
-                  code = '
-    arma::mat mvnorm_fill_missing(arma::mat y, arma::vec mu, arma::mat Sigma_chol) {
-        int nr = y.n_rows;
-        int nc = y.n_cols;
-        arma::mat Sigma_chol_inv = Sigma_chol.i();
-        arma::mat x(nr, nc);
-        arma::uvec j1(1);
-        int nmiss;
-        for (int j = 0; j < nc; j++) {
-            arma::uvec jj = arma::regspace<arma::uvec>(0, j);
-            arma::uvec ypres = arma::find_finite(y.col(j));
-            arma::uvec ymiss = arma::find_nonfinite(y.col(j));
-            nmiss = ymiss.size();
-            j1.fill(j);
-            x(ymiss, j1) = arma::randn(nmiss);
-            y(ymiss, j1) = x(ymiss, jj) * Sigma_chol(jj, j1);
-            x(ypres, j1) = y(ypres, jj) * Sigma_chol_inv(jj, j1);
-        }
-        return(y);
-    }
-                  ')
-
-#mvnorm_fill_missing <- function(y, mu, Sigma_chol) {
-    #Sigma_chol_inv <- solve(Sigma_chol)
-    #nc <- ncol(y)
-    #nr <- nrow(y)
-    #x <- matrix(NA_real_, nr, nc)
-    #for (j in seq_len(nc)) {
-        #ymiss <- is.na(y[,j])
-        #nmiss <- sum(ymiss)
-        #x[ymiss, j] <- rnorm(nmiss)
-        #x[!ymiss, j] <- y[!ymiss, 1:j, drop = FALSE] %*% Sigma_chol_inv[1:j, j]
-        #y[ymiss, j] <- x[ymiss, 1:j, drop = FALSE] %*% Sigma_chol[1:j, j]
-    #}
-    #return(y)
-#}
-
-#' @export
-Rcpp::cppFunction(depends = 'RcppArmadillo',
-                  code = '
-    arma::mat scatter(arma::mat mat) {
-        int nr = mat.n_rows;
-        int nc = mat.n_cols;
-        arma::mat S = arma::zeros(nc, nc);
-        arma::rowvec mrow(nc);
-        for (int i = 0; i < nr; i++) {
-            mrow = mat.row(i);
-            S += mrow.t() * mrow;
-        }
-        return(S);
-    }
-                  ')
 
 #' @export
 draw_mu <- function(xbar, nx, Sigma_inv, mu0, Sigma_0_inv) {

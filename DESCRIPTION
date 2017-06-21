@@ -16,4 +16,5 @@ Imports:
     corrplot,
     data.table
 License: FreeBSD
+LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 6.0.1
