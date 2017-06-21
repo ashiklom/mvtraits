@@ -94,7 +94,9 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
                            mu_group_samp, Sigma_group_samp)
     }
 
+    parallel::clusterSetRNGStream(cl)
     results_list <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
+    parallel::stopCluster(cl)
 
     return(results_list) 
 }

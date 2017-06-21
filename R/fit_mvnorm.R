@@ -1,6 +1,6 @@
 #' @useDynLib mvtraits
 #' @export
-fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel = TRUE) {
+fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3) {
 
     chainseq <- seq_len(nchains)
 
@@ -53,7 +53,9 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
                       mu_samp, Sigma_samp)
     }
 
+    parallel::clusterSetRNGStream(cl)
     results_list <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
+    parallel::stopCluster(cl)
 
     return(results_list)
 }
