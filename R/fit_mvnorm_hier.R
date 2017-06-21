@@ -1,7 +1,9 @@
 #' @export
-fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list()) {
+fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains = 3) {
 
     stopifnot(is.matrix(dat), length(groups) == nrow(dat))
+
+    chainseq <- seq_len(nchains)
 
     nparam <- ncol(dat)
     param_names <- colnames(dat)
@@ -48,39 +50,51 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list()) {
 
     # Setup storage
     mu_global_samp <- matrix(NA_real_, nrow = niter, ncol = nparam)
+    dimnames(mu_global_samp) <- list(NULL, param_names)
     Sigma_global_samp <- array(NA_real_, c(niter, nparam, nparam))
+    dimnames(Sigma_global_samp) <- list(NULL, param_names, param_names)
     mu_group_samp <- array(NA_real_, c(niter, ngroup, nparam))
+    dimnames(mu_group_samp) <- list(NULL, group_names, param_names)
     Sigma_group_samp <- array(NA_real_, c(niter, ngroup, nparam, nparam))
+    dimnames(Sigma_group_samp) <- list(NULL, group_names, param_names, param_names)
 
     # Draw initial conditions from priors
-    mu_global <- mvtnorm::rmvnorm(1, mu0_global, Sigma0_global)[1,]
-    Sigma_global <- solve(rWishart(1, v0_global, S0_global)[,,1])
+    mu_global <- list()
+    Sigma_global <- list()
+    mu_group <- list()
+    Sigma_group <- list()
+    for (n in chainseq) {
+        mu_global[[n]] <- mvtnorm::rmvnorm(1, mu0_global, Sigma0_global)[1,]
+        names(mu_global[[n]]) <- param_names
+        Sigma_global[[n]] <- solve(rWishart(1, v0_global, S0_global)[,,1])
+        dimnames(Sigma_global[[n]]) <- list(param_names, param_names)
 
-    mu_group <- mu_group_samp[1,,]
-    Sigma_group <- Sigma_group_samp[1,,,]
-    for (i in seq_len(ngroup)) {
-        mu_group[i,] <- mvtnorm::rmvnorm(1, mu0_group[i,], Sigma0_group[i,,])
-        Sigma_group[i,,] <- solve(rWishart(1, v0_group[i], S0_group[i,,])[,,1])
-    } 
+        mu_group[[n]] <- mu_group_samp[1,,]
+        dimnames(mu_group[[n]]) <- list(group_names, param_names)
+        Sigma_group[[n]] <- Sigma_group_samp[1,,,]
+        dimnames(Sigma_group[[n]]) <- list(group_names, param_names, param_names)
+        for (i in seq_len(ngroup)) {
+            mu_group[[n]][i,] <- mvtnorm::rmvnorm(1, mu0_group[i,], Sigma0_group[i,,])
+            Sigma_group[[n]][i,,] <- solve(rWishart(1, v0_group[i], S0_group[i,,])[,,1])
+        } 
+    }
 
-    # Set names for everything
-    dimnames(mu_global_samp) <- list(NULL, param_names)
-    names(mu_global) <- param_names
-    dimnames(Sigma_global_samp) <- list(NULL, param_names, param_names)
-    dimnames(Sigma_global) <- list(param_names, param_names)
-    dimnames(mu_group_samp) <- list(NULL, group_names, param_names)
-    dimnames(mu_group) <- list(group_names, param_names)
-    dimnames(Sigma_group_samp) <- list(NULL, group_names, param_names, param_names)
-    dimnames(Sigma_group) <- list(group_names, param_names, param_names)
+    ncores <- min(parallel::detectCores() - 1, nchains)
+    cl <- parallel::makeCluster(ncores, "FORK")
 
-    result <- sample_mvnorm_hier(niter, dat, igroups,
-                                 mu_global, Sigma_global,
-                                 mu_group, Sigma_group,
-                                 mu0_global, Sigma0_global,
-                                 mu0_group, Sigma0_group_inv,
-                                 v0_global, S0_global,
-                                 v0_group, S0_group,
-                                 mu_global_samp, Sigma_global_samp,
-                                 mu_group_samp, Sigma_group_samp)
-    return(result) 
+    samplefun <- function(n) {
+        sample_mvnorm_hier(niter, dat, igroups,
+                           mu_global[[n]], Sigma_global[[n]],
+                           mu_group[[n]], Sigma_group[[n]],
+                           mu0_global, Sigma0_global,
+                           mu0_group, Sigma0_group_inv,
+                           v0_global, S0_global,
+                           v0_group, S0_group,
+                           mu_global_samp, Sigma_global_samp,
+                           mu_group_samp, Sigma_group_samp)
+    }
+
+    results_list <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
+
+    return(results_list) 
 }

@@ -24,5 +24,10 @@ miss <- sample.int(length(dat), size = nmiss)
 
 dat[miss] <- NA
 
+message('Running simple multivariate...')
 samps_mv <- fit_mvnorm(dat)
+message('Done!')
+
+message('Running hierarchical...')
 samps_hier <- fit_mvnorm_hier(dat, groups)
+message('Done!')

@@ -1,6 +1,8 @@
 #' @useDynLib mvtraits
 #' @export
-fit_mvnorm <- function(dat, niter = 5000, priors = list()) {
+fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel = TRUE) {
+
+    chainseq <- seq_len(nchains)
 
     nparam <- ncol(dat)
     param_names <- colnames(dat)
@@ -28,21 +30,30 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list()) {
 
     # Setup storage
     mu_samp <- matrix(NA_real_, nrow = niter, ncol = nparam)
-    Sigma_samp <- array(NA_real_, c(niter, nparam, nparam))
-
-    # If no values missing, pre-calculate more quantities
-    # Draw initial conditions from priors
-    mu <- mvtnorm::rmvnorm(1, mu0, Sigma0)[1,]
-    Sigma <- solve(rWishart(1, v0, S0)[,,1])
-
-    # Set names on everything
     colnames(mu_samp) <- param_names
-    names(mu) <- param_names
+    Sigma_samp <- array(NA_real_, c(niter, nparam, nparam))
     dimnames(Sigma_samp) <- list(NULL, param_names, param_names)
-    dimnames(Sigma) <- list(param_names, param_names)
 
-    result <- sample_mvnorm(niter, dat, mu, Sigma,
-                            mu0, Sigma0, v0, S0,
-                            mu_samp, Sigma_samp)
-    return(result)
+    # Draw initial conditions from priors
+    mu <- list()
+    Sigma <- list()
+    for (n in chainseq) {
+        mu[[n]] <- mvtnorm::rmvnorm(1, mu0, Sigma0)[1,]
+        names(mu[[n]]) <- param_names
+        Sigma[[n]] <- solve(rWishart(1, v0, S0)[,,1])
+        dimnames(Sigma[[n]]) <- list(param_names, param_names)
+    }
+
+    ncores <- min(parallel::detectCores() - 1, nchains)
+    cl <- parallel::makeCluster(ncores, "FORK")
+
+    samplefun <- function(n) {
+        sample_mvnorm(niter, dat, mu[[n]], Sigma[[n]],
+                      mu0, Sigma0, v0, S0,
+                      mu_samp, Sigma_samp)
+    }
+
+    results_list <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
+
+    return(results_list)
 }
