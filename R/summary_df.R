@@ -1,4 +1,4 @@
-#' @importFrom magrittr `%>%`
+#' @importFrom magrittr %>%
 #' @export
 summary_df <- function(results_mcmc_list, group = NULL) {
     stopifnot(coda::is.mcmc.list(results_mcmc_list))

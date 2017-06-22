@@ -10,6 +10,7 @@ if (interactive()) {
 # Simulate some data
 mu <- colMeans(iris[,-5])
 Sig <- cov(iris[,-5])
+Cor <- cov2cor(Sig)
 
 N <- 5000
 ngroup <- 7
@@ -24,19 +25,28 @@ miss <- sample.int(length(dat), size = nmiss)
 
 dat[miss] <- NA
 
+niter <- 500
+
 message('Running simple multivariate...')
-niter <- 5000
 samps_mv <- fit_mvnorm(dat, niter = niter)
 message('Done!')
 
-samps_mv_mcmc <- results2mcmclist(samps_mv, chain2matrix_multi)
+samps_mv_full <- add_correlations(samps_mv)
+samps_mv_mcmc <- results2mcmclist(samps_mv_full, chain2matrix_multi)
 samps_mv_burned <- window(samps_mv_mcmc, start = floor(niter / 2))
-summary(samps_mv_burned)
+mv_sum <- summary_df(samps_mv_burned, group = NULL)
 
 message('Running hierarchical...')
-samps_hier <- fit_mvnorm_hier(dat, groups)
+samps_hier <- fit_mvnorm_hier(dat, groups, niter = niter)
 message('Done!')
 
-samps_hier_mcmc <- results2mcmclist(samps_hier, chain2matrix_hier)
+samps_hier_full <- add_correlations(samps_hier)
+samps_hier_mcmc <- results2mcmclist(samps_hier_full, chain2matrix_hier)
 samps_hier_burned <- window(samps_hier_mcmc, start = floor(niter / 2))
-summary(samps_hier_burned)
+hier_sum <- summary_df(samps_hier_burned, group = TRUE)
+
+library(ggplot2)
+ggplot(dplyr::filter(hier_sum, variable == 'Corr')) + 
+    aes(x = group, y = Mean, ymin = `2.5%`, ymax = `97.5%`, color = group) + 
+    geom_pointrange() +
+    facet_wrap(~index, scales = 'free_y')

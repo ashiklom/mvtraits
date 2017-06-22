@@ -12,17 +12,23 @@ chain2matrix_multi <- function(chain) {
     colnames(mu_mat) <- paste('mu', colnames(mu_mat), sep = varsep)
     sigma_mat <- flatten_sigma(chain[['Sigma']])
     colnames(sigma_mat) <- paste('Sigma', colnames(sigma_mat), sep = varsep)
-    params_mat <- cbind(mu_mat, sigma_mat)
+    if ('Corr' %in% names(chain)) {
+        corr_mat <- flatten_sigma(chain[['Corr']], diag = FALSE)
+        colnames(corr_mat) <- paste('Corr', colnames(corr_mat), sep = varsep)
+        params_mat <- cbind(mu_mat, sigma_mat, corr_mat)
+    } else {
+        params_mat <- cbind(mu_mat, sigma_mat)
+    }
     return(params_mat)
 }
 
-flatten_sigma <- function(sigma_samples) {
+flatten_sigma <- function(sigma_samples, diag = TRUE) {
     dims <- dim(sigma_samples)
     nparam <- tail(dims, 1)
     param_names <- dimnames(sigma_samples)[[length(dims)]]
-    tri_inds <- which(lower.tri(diag(nparam), diag = TRUE), arr.ind = TRUE)
+    tri_inds <- which(lower.tri(diag(nparam), diag = diag), arr.ind = TRUE)
     sigma_mat_names <- paste(param_names[tri_inds[,'row']], param_names[tri_inds[,'col']], sep = varsep)
-    sigma_mat <- t(apply(sigma_samples, 1, function(x) x[lower.tri(x, diag = TRUE)]))
+    sigma_mat <- t(apply(sigma_samples, 1, function(x) x[lower.tri(x, diag = diag)]))
     colnames(sigma_mat) <- sigma_mat_names
     return(sigma_mat)
 }

@@ -14,6 +14,7 @@ Imports:
     tidyr,
     purrr,
     tibble,
+    magrittr,
     MASS,
     corrplot,
     data.table,

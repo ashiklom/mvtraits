@@ -8,7 +8,16 @@ chain2matrix_hier <- function(chain) {
     colnames(mu_group_mat) <- paste('mu', colnames(mu_group_mat), sep = varsep)
     sigma_group_mat <- flatten_sigma_group(chain[['Sigma_group']])
     colnames(sigma_group_mat) <- paste('Sigma', colnames(sigma_group_mat), sep = varsep)
-    params_mat <- cbind(mu_global_mat, sigma_global_mat, mu_group_mat, sigma_group_mat)
+    if ('Corr_global' %in% names(chain) && 'Corr_group' %in% names(chain)) {
+        corr_global_mat <- flatten_sigma(chain[['Corr_global']], diag = FALSE)
+        colnames(corr_global_mat) <- paste('Corr', 'global', colnames(corr_global_mat), sep = varsep)
+        corr_group_mat <- flatten_sigma_group(chain[['Corr_group']], diag = FALSE)
+        colnames(corr_group_mat) <- paste('Corr', colnames(corr_group_mat), sep = varsep)
+        params_mat <- cbind(mu_global_mat, sigma_global_mat, corr_global_mat, 
+                            mu_group_mat, sigma_group_mat, corr_group_mat)
+    } else {
+        params_mat <- cbind(mu_global_mat, sigma_global_mat, mu_group_mat, sigma_group_mat)
+    }
     return(params_mat)
 }
 
@@ -27,12 +36,12 @@ flatten_mu_group <- function(mu_group_samples) {
     return(mu_group_mat)
 }
 
-flatten_sigma_group <- function(sigma_group_samples) {
+flatten_sigma_group <- function(sigma_group_samples, ...) {
     ngroup <- dim(sigma_group_samples)[2]
     dimsnames <- dimnames(sigma_group_samples)
     group_names <- dimsnames[[2]]
     param_names <- dimsnames[[3]]
-    group_list <- lapply(seq_len(ngroup), function(i) flatten_sigma(sigma_group_samples[,i,,]))
+    group_list <- lapply(seq_len(ngroup), function(i) flatten_sigma(sigma_group_samples[,i,,], ...))
     ncolumn <- ncol(group_list[[1]])
     group_mat <- do.call(cbind, group_list)
     colnames(group_mat) <- paste(rep(group_names, each = ncolumn), colnames(group_mat), sep = varsep)
