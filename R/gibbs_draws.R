@@ -28,11 +28,12 @@ draw_Sigma <- function(x, mu, S0, v0) {
     # S0 -- Wishart prior matrix
     # v0 -- Wishart prior degrees of freedom
     nx <- nrow(x)
+    nparam <- ncol(x)
     ss <- sweep(x, 2, mu, "-")
     S_theta <- scatter(ss)
     S_n_inv <- S0 + S_theta
     S_n <- solve(S_n_inv)
-    df_n <- v0 + nx
+    df_n <- v0 + nx + nparam + 1
     Sigma_inv <- rWishart(1, df = df_n, Sigma = S_n)[,,1]
     Sigma <- solve(Sigma_inv)
     return(Sigma)

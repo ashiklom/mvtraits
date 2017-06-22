@@ -1,5 +1,5 @@
 #' @export
-fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains = 3) {
+fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains = 3, parallel = TRUE) {
 
     stopifnot(is.matrix(dat), length(groups) == nrow(dat))
 
@@ -66,7 +66,7 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
     for (n in chainseq) {
         mu_global[[n]] <- mvtnorm::rmvnorm(1, mu0_global, Sigma0_global)[1,]
         names(mu_global[[n]]) <- param_names
-        Sigma_global[[n]] <- solve(rWishart(1, v0_global, S0_global)[,,1])
+        Sigma_global[[n]] <- solve(rWishart(1, v0_global + nparam + 1, S0_global)[,,1])
         dimnames(Sigma_global[[n]]) <- list(param_names, param_names)
 
         mu_group[[n]] <- mu_group_samp[1,,]
@@ -75,12 +75,9 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
         dimnames(Sigma_group[[n]]) <- list(group_names, param_names, param_names)
         for (i in seq_len(ngroup)) {
             mu_group[[n]][i,] <- mvtnorm::rmvnorm(1, mu0_group[i,], Sigma0_group[i,,])
-            Sigma_group[[n]][i,,] <- solve(rWishart(1, v0_group[i], S0_group[i,,])[,,1])
+            Sigma_group[[n]][i,,] <- solve(rWishart(1, v0_group[i] + nparam + 1, S0_group[i,,])[,,1])
         } 
     }
-
-    ncores <- min(parallel::detectCores() - 1, nchains)
-    cl <- parallel::makeCluster(ncores, "FORK")
 
     samplefun <- function(n) {
         sample_mvnorm_hier(niter, dat, igroups,
@@ -94,9 +91,15 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
                            mu_group_samp, Sigma_group_samp)
     }
 
-    parallel::clusterSetRNGStream(cl)
-    results_list <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
-    parallel::stopCluster(cl)
+    if (parallel) {
+        ncores <- min(parallel::detectCores() - 1, nchains)
+        cl <- parallel::makeCluster(ncores, "FORK")
+        parallel::clusterSetRNGStream(cl)
+        results_list <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
+        parallel::stopCluster(cl)
+    } else {
+        results_list <- lapply(chainseq, samplefun)
+    }
 
     return(results_list) 
 }

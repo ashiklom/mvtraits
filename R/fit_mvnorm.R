@@ -1,6 +1,6 @@
 #' @useDynLib mvtraits
 #' @export
-fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3) {
+fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel = TRUE) {
 
     chainseq <- seq_len(nchains)
 
@@ -40,12 +40,9 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3) {
     for (n in chainseq) {
         mu[[n]] <- mvtnorm::rmvnorm(1, mu0, Sigma0)[1,]
         names(mu[[n]]) <- param_names
-        Sigma[[n]] <- solve(rWishart(1, v0, S0)[,,1])
+        Sigma[[n]] <- solve(rWishart(1, v0 + nparam + 1, S0)[,,1])
         dimnames(Sigma[[n]]) <- list(param_names, param_names)
     }
-
-    ncores <- min(parallel::detectCores() - 1, nchains)
-    cl <- parallel::makeCluster(ncores, "FORK")
 
     samplefun <- function(n) {
         sample_mvnorm(niter, dat, mu[[n]], Sigma[[n]],
@@ -53,9 +50,15 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3) {
                       mu_samp, Sigma_samp)
     }
 
-    parallel::clusterSetRNGStream(cl)
-    results_list <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
-    parallel::stopCluster(cl)
+    if (parallel) {
+        ncores <- min(parallel::detectCores() - 1, nchains)
+        cl <- parallel::makeCluster(ncores, "FORK")
+        parallel::clusterSetRNGStream(cl)
+        results_list <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
+        parallel::stopCluster(cl)
+    } else {
+        results_list <- lapply(chainseq, samplefun)
+    }
 
     return(results_list)
 }

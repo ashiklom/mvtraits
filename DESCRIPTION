@@ -12,9 +12,12 @@ Imports:
     rstan,
     dplyr,
     tidyr,
+    purrr,
+    tibble,
     MASS,
     corrplot,
-    data.table
+    data.table,
+    coda
 License: FreeBSD
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 6.0.1
