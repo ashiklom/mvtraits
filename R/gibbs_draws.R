@@ -29,13 +29,13 @@ draw_mu <- function(xbar, nx, Sigma_inv, mu0, Sigma_0_inv) {
 }
 
 #' @export
-draw_Sigma <- function(x, mu, S0, v0) {
+draw_Sigma <- function(x, mu, v0, S0) {
     # Sigma_star | x, mu
     # ------------------
     # x -- Data matrix
     # mu -- Mean vector
-    # S0 -- Wishart prior matrix
     # v0 -- Wishart prior degrees of freedom
+    # S0 -- Wishart prior matrix
     nx <- nrow(x)
     nparam <- ncol(x)
     ss <- sweep(x, 2, mu, "-")
