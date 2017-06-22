@@ -1,3 +1,12 @@
+solve <- function(x, ...) {
+    out <- try(chol2inv(chol(x, ...)))
+    if (class(out) == 'try-error') {
+        print(x)
+        stop('Solve failed')
+    }
+    return(out)
+}
+
 #' @export
 draw_mu <- function(xbar, nx, Sigma_inv, mu0, Sigma_0_inv) {
     # mu | x, Sigma
