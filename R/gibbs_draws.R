@@ -24,7 +24,6 @@ draw_mu <- function(xbar, nx, Sigma_inv, mu0, Sigma_0_inv) {
     nparam <- length(mu0)
     # Random normal draw, based on Cholesky decomposition of 
     mu <- Sigma_n_chol %*% rnorm(nparam) + mu_n
-    #mu <- mvtnorm::rmvnorm(1, mu_n, Sigma_n)[1,]
     return(mu)
 }
 
@@ -35,15 +34,16 @@ draw_Sigma <- function(x, mu, v0, S0) {
     # x -- Data matrix
     # mu -- Mean vector
     # v0 -- Wishart prior degrees of freedom
-    # S0 -- Wishart prior matrix
+    # S0 -- Wishart prior scale matrix
     nx <- nrow(x)
     nparam <- ncol(x)
-    ss <- sweep(x, 2, mu, "-")
-    S_theta <- scatter(ss)
-    S_n_inv <- S0 + S_theta
-    S_n <- solve(S_n_inv)
+    xbar <- colMeans(x)
+    Q0 <- cov(x) * n
+    xbm0 <- (xbar - mu0) %*% t(xbar - mu0)
+    Sinv_n <- S0 + Q0 + (k0 * n) / k_n * xbm0
+    S_n <- solve(Sinv_n)
     df_n <- v0 + nx + nparam + 1
-    Sigma_inv <- rWishart(1, df = df_n, Sigma = S_n)[,,1]
+    Sigma_inv <- rWishart(1, df_n, S_n)[,,1]
     Sigma <- solve(Sigma_inv)
     return(Sigma)
 }
