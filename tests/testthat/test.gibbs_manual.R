@@ -14,21 +14,24 @@ Cor <- cov2cor(Sig)
 
 N <- 5000
 ngroup <- 7
+frac_miss <- 0.85
 dat_all <- mvtnorm::rmvnorm(N, mu, Sig)
 groups <- sample.int(ngroup, N, replace = TRUE)
 
 # Randomly remove a fraction of the data
 dat <- dat_all
 
-nmiss <- round(length(dat) * 0.5)
+nmiss <- round(length(dat) * frac_miss)
 miss <- sample.int(length(dat), size = nmiss)
 
 dat[miss] <- NA
 
-niter <- 500
+niter <- 2000
+nchain <- 1
+parallel <- FALSE
 
 message('Running simple multivariate...')
-samps_mv <- fit_mvnorm(dat, niter = niter)
+samps_mv <- fit_mvnorm(dat, niter = niter, nchains = nchain, parallel = parallel)
 message('Done!')
 
 samps_mv_full <- add_correlations(samps_mv)
@@ -37,7 +40,7 @@ samps_mv_burned <- window(samps_mv_mcmc, start = floor(niter / 2))
 mv_sum <- summary_df(samps_mv_burned, group = NULL)
 
 message('Running hierarchical...')
-samps_hier <- fit_mvnorm_hier(dat, groups, niter = niter)
+samps_hier <- fit_mvnorm_hier(dat, groups, niter = niter, nchains = nchain, parallel = parallel)
 message('Done!')
 
 samps_hier_full <- add_correlations(samps_hier)

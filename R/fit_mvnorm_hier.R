@@ -75,7 +75,8 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
         dimnames(Sigma_group[[n]]) <- list(group_names, param_names, param_names)
         for (i in seq_len(ngroup)) {
             mu_group[[n]][i,] <- mvtnorm::rmvnorm(1, mu0_group[i,], Sigma0_group[i,,])
-            Sigma_group[[n]][i,,] <- solve(rWishart(1, v0_group[i] + nparam + 1, S0_group[i,,])[,,1])
+            #Sigma_group[[n]][i,,] <- solve(rWishart(1, v0_group[i] + nparam + 1, S0_group[i,,])[,,1])
+            Sigma_group[[n]][i,,] <- diag(1, nparam)
         } 
     }
 

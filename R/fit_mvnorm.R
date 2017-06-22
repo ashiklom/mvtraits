@@ -46,7 +46,7 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
 
     samplefun <- function(n) {
         sample_mvnorm(niter, dat, mu[[n]], Sigma[[n]],
-                      mu0, Sigma0, v0, S0,
+                      mu0, Sigma0_inv, v0, S0,
                       mu_samp, Sigma_samp)
     }
 
