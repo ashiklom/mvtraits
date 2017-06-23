@@ -17,7 +17,8 @@ arma::mat mvnorm_fill_missing(arma::mat y, arma::vec mu, arma::mat Sigma_chol) {
         j1.fill(j);
         x(ymiss, j1) = arma::randn(nmiss);
         y(ymiss, j1) = x(ymiss, jj) * Sigma_chol(jj, j1) + mu(j);
-        x(ypres, j1) = (y(ypres, jj) - mu(j)) * Sigma_chol_inv(jj, j1);
+        //x(ypres, j1) = arma::trans(arma::solve(Sigma_chol(jj, j1), arma::trans(y(ypres, jj) - mu(j))));
+        x(ypres, j1) = (y(ypres, jj) - mu(j)) * inv(Sigma_chol(jj, j1));
     }
     return(y);
 }
