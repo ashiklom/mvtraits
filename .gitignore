@@ -1,3 +1,4 @@
 *.rds
 *.o
 *.so
+figures
