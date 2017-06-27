@@ -11,7 +11,7 @@ if (interactive()) {
 mu <- c(10, 5, 0, -5, 10)
 Sig <- clusterGeneration::genPositiveDefMat(length(mu))$Sigma
 
-N <- 100
+N <- 5000
 ngroup <- 3
 dat_all <- mvtnorm::rmvnorm(N, mu, Sig)
 groups <- sample.int(ngroup, N, replace = TRUE)

@@ -19,8 +19,10 @@ sample_mvnorm <- function(niter, dat,
     for (i in seq_len(niter)) {
         setTxtProgressBar(pb, i)
         if (has_missing) {
-            Sigma_chol <- chol(Sigma)
-            y <- mvnorm_fill_missing(dat, mu, Sigma_chol)
+            #Sigma_chol <- chol(Sigma)
+            #y <- mvnorm_fill_missing(dat, mu, Sigma_chol)
+            print(Sigma)
+            y <- alt_fill_missing(dat, mu, Sigma)
             ybar <- colMeans(y)
             print(ybar)
         }

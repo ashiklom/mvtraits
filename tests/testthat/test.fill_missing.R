@@ -14,10 +14,10 @@ niris <- nrow(iris)
 inmat <- as.matrix(iris[,-5])
 nparam <- ncol(inmat)
 mu <- colMeans(inmat)
-Sig <- cov(inmat)
+Sigma <- cov(inmat)
 
 N <- 5000
-dat_all <- mvtnorm::rmvnorm(N, mu, Sig)
+dat_all <- mvtnorm::rmvnorm(N, mu, Sigma)
 
 # Randomly remove a fraction of the data
 dat <- dat_all
@@ -28,9 +28,9 @@ scramble <- 4:1
 #scramble <- c(4,1,2,3)
 dat <- dat[,scramble]
 mu_scr <- mu[scramble]
-Sig_scr <- Sig[scramble, scramble]
+Sigma_scr <- Sigma[scramble, scramble]
 
-dat_filled <- mvtraits:::mvnorm_fill_missing(dat, mu_scr, chol(Sig_scr))
+dat_filled <- alt_fill_missing(dat, mu_scr, Sigma_scr)
 imputed <- dat_filled
 imputed[!is.na(dat)] <- NA
 
@@ -43,12 +43,12 @@ print('Difference')
 mu_imp - mu
 
 print('True sigma')
-print(Sig)
+print(Sigma)
 print('Imputed sigma')
-Sig_imp <- cov(imputed, use = 'pairwise.complete.obs')
-Sig_imp
+Sigma_imp <- cov(imputed, use = 'pairwise.complete.obs')
+Sigma_imp
 print('Difference')
-Sig_imp - Sig
+Sigma_imp - Sigma
 
 
 if (interactive()) {
@@ -56,7 +56,7 @@ if (interactive()) {
         plot(dat[,i], dat[,j])
         points(imputed[,i], imputed[,j], col = 'red')
         inds <- scramble[c(i, j)]
-        mixtools::ellipse(mu = mu[inds], sigma = Sig[inds, inds], )
+        mixtools::ellipse(mu = mu[inds], sigma = Sigma[inds, inds], )
     }
     par(mfrow = c(nparam, nparam))
     for (i in seq_len(nparam)) {
