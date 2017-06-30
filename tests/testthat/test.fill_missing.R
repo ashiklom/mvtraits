@@ -24,13 +24,15 @@ dat <- dat_all
 nmiss <- round(length(dat) * 0.5)
 miss <- sample.int(length(dat), size = nmiss)
 dat[miss] <- NA
-scramble <- 4:1
+#scramble <- 4:1
 #scramble <- c(4,1,2,3)
-dat <- dat[,scramble]
-mu_scr <- mu[scramble]
-Sigma_scr <- Sigma[scramble, scramble]
+#dat <- dat[,scramble]
+#mu_scr <- mu[scramble]
+#Sigma_scr <- Sigma[scramble, scramble]
 
-dat_filled <- alt_fill_missing(dat, mu_scr, Sigma_scr)
+setup <- setup_missing(dat)
+dat_filled <- alt_fill_missing(dat, mu, Sigma, setup)
+
 imputed <- dat_filled
 imputed[!is.na(dat)] <- NA
 
@@ -50,12 +52,12 @@ Sigma_imp
 print('Difference')
 Sigma_imp - Sigma
 
-
 if (interactive()) {
     testplot <- function(i, j) {
         plot(dat[,i], dat[,j])
         points(imputed[,i], imputed[,j], col = 'red')
-        inds <- scramble[c(i, j)]
+        #inds <- scramble[c(i, j)]
+        inds <- c(i,j)
         mixtools::ellipse(mu = mu[inds], sigma = Sigma[inds, inds], )
     }
     par(mfrow = c(nparam, nparam))
