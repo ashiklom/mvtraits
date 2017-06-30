@@ -19,21 +19,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// scatter
-arma::mat scatter(arma::mat mat);
-RcppExport SEXP mvtraits_scatter(SEXP matSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type mat(matSEXP);
-    rcpp_result_gen = Rcpp::wrap(scatter(mat));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"mvtraits_mvnorm_fill_missing", (DL_FUNC) &mvtraits_mvnorm_fill_missing, 3},
-    {"mvtraits_scatter", (DL_FUNC) &mvtraits_scatter, 1},
     {NULL, NULL, 0}
 };
 

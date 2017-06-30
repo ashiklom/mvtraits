@@ -8,7 +8,7 @@ gibbs_default_priors <- function(nparam, ngroup = NULL) {
         group <- list(mu_group = matrix(0, ngroup, nparam), 
                       Sigma_group = matrep(diag(1.0, nparam), ngroup),
                       v_group = rep(0, ngroup),
-                      S_group = matrep(diag(1.0, nparam)))
+                      S_group = matrep(diag(1.0, nparam), ngroup))
         prior <- c(prior, group)
     }
     return(prior)
@@ -25,5 +25,5 @@ Wishart_prior_param <- function(mean, sd, nparam) {
 
 #' @export
 matrep <- function(mat, n) {
-    aperm(replicate(ngroup, mat), c(3, 1, 2))
+    aperm(replicate(n, mat), c(3, 1, 2))
 }

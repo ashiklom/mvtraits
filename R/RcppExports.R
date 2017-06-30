@@ -5,7 +5,3 @@ mvnorm_fill_missing <- function(y, mu, Sigma_chol) {
     .Call('mvtraits_mvnorm_fill_missing', PACKAGE = 'mvtraits', y, mu, Sigma_chol)
 }
 
-scatter <- function(mat) {
-    .Call('mvtraits_scatter', PACKAGE = 'mvtraits', mat)
-}
-

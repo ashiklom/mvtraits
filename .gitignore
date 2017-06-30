@@ -1,3 +1,5 @@
 *.rds
 *.o
 *.so
+Rprof.out
+figures/

@@ -27,8 +27,8 @@ miss <- sample.int(length(dat), size = nmiss)
 dat[miss] <- NA
 
 niter <- 2000
-nchain <- 3
-parallel <- TRUE
+nchain <- 1
+parallel <- FALSE
 
 message('Running simple multivariate...')
 samps_mv <- fit_mvnorm(dat, niter = niter, nchains = nchain, parallel = parallel)
