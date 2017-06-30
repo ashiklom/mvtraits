@@ -11,6 +11,7 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
     }
 
     ndat <- nrow(dat)
+    setup <- setup_missing(dat)
 
     # Where missing, use default priors
     default_priors <- gibbs_default_priors(nparam)
@@ -47,7 +48,7 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
     samplefun <- function(n) {
         sample_mvnorm(niter, dat, mu[[n]], Sigma[[n]],
                       mu0, Sigma0_inv, v0, S0,
-                      mu_samp, Sigma_samp)
+                      mu_samp, Sigma_samp, setup)
     }
 
     if (parallel) {

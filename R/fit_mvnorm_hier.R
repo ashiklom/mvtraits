@@ -21,8 +21,10 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
         group_names <- sprintf('group%02d', seq_len(ngroup))
     }
     igroups <- as.integer(groups)
+    ugroups <- sort(unique(igroups))
 
     ndat <- nrow(dat)
+    setup_bygroup <- lapply(ugroups, function(x) setup_missing(dat[groups == x,]))
 
     # Where missing, use default priors
     default_priors <- gibbs_default_priors(nparam, ngroup)
@@ -89,7 +91,8 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
                            v0_global, S0_global,
                            v0_group, S0_group,
                            mu_global_samp, Sigma_global_samp,
-                           mu_group_samp, Sigma_group_samp)
+                           mu_group_samp, Sigma_group_samp,
+                           setup_bygroup)
     }
 
     if (parallel) {

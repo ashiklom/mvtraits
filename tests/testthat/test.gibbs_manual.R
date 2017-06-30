@@ -14,7 +14,7 @@ Cor <- cov2cor(Sig)
 
 N <- 5000
 ngroup <- 7
-frac_miss <- 0.85
+frac_miss <- 0.9
 dat_all <- mvtnorm::rmvnorm(N, mu, Sig)
 groups <- sample.int(ngroup, N, replace = TRUE)
 
@@ -27,8 +27,8 @@ miss <- sample.int(length(dat), size = nmiss)
 dat[miss] <- NA
 
 niter <- 2000
-nchain <- 1
-parallel <- FALSE
+nchain <- 3
+parallel <- TRUE
 
 message('Running simple multivariate...')
 samps_mv <- fit_mvnorm(dat, niter = niter, nchains = nchain, parallel = parallel)

@@ -17,17 +17,15 @@ add_correlations <- function(results_list) {
 calc_correlations <- function(sigma_samples) {
     dims <- dim(sigma_samples)
     cormat_samples <- sigma_samples
-    if (length(dims) == 4) {
-        for (i in seq_len(dims[1])) {
-            if (length(dims) == 4) {
+    for (i in seq_len(dims[1])) {
+        if (length(dims) == 4) {
             # Hierarchical model -- nsamp, ngroup, nparam, nparam
-                for (j in seq_len(dims[2])) {
-                    cormat_samples[i,j,,] <- cov2cor(sigma_samples[i,j,,])
-                }
-            } else {
-            # Simple multivariate model -- nsamp, nparam, nparam
-                cormat_samples[i,,] <- cov2cor(sigma_samples[i,,])
+            for (j in seq_len(dims[2])) {
+                cormat_samples[i,j,,] <- cov2cor(sigma_samples[i,j,,])
             }
+        } else {
+            # Simple multivariate model -- nsamp, nparam, nparam
+            cormat_samples[i,,] <- cov2cor(sigma_samples[i,,])
         }
     }
     return(cormat_samples)
