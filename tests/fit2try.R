@@ -12,7 +12,6 @@ get_datamatrix <- function(dat, area_mass) {
     use_rxp <- switch(area_mass, area = area_rxp, mass = mass_rxp)
     data_df <- dat %>% 
         dplyr::select(pft, dplyr::matches(use_rxp)) %>% 
-        #dplyr::select(-dplyr::matches('Jmax|Vcmax|Rd')) %>% 
         dplyr::filter_at(dplyr::vars(-pft), dplyr::any_vars(!is.na(.)))
     data_mat <- data_df %>% dplyr::select(-pft) %>% as.matrix() %>% log10()
     data_groups <- data_df %>% dplyr::pull(pft) %>% as.integer()
@@ -30,20 +29,22 @@ ngroup <- length(unique(groups))
 dat_sub <- dat
 
 nparam <- ncol(dat_sub)
-strong_wish <- Wishart_prior_param(1, 1/10000, nparam)
-priors <- list(v_global = strong_wish$v0, S_global = strong_wish$S0,
-               Sigma_global = diag(1/1000, nparam))
+#strong_wish <- Wishart_prior_param(1, 1/10000, nparam)
+#priors <- list(v_global = strong_wish$v0, S_global = strong_wish$S0,
+               #Sigma_global = diag(1/1000, nparam))
+priors <- list()
 
-Sigma0_inv <- solve(priors[['Sigma_global']])
-
+Rprof()
 area_fit_multivariate <- fit_mvnorm(dat_sub, priors = priors, 
                                     niter = niter, nchains = nchain, parallel = parallel)
+Rprof(NULL)
+summaryRprof()
 
-#area_fit_mcmc <- area_fit_multivariate %>% 
-    #add_correlations() %>% 
-    #results2mcmclist(chain2matrix_multi) %>% 
-    #window(start = floor(niter / 2))
-#plot(area_fit_mcmc, ask = TRUE)
+area_fit_mcmc <- area_fit_multivariate %>% 
+    add_correlations() %>% 
+    results2mcmclist(chain2matrix_multi) %>% 
+    window(start = floor(niter / 2))
+plot(area_fit_mcmc, ask = TRUE)
 
 #priors[['v_group']] <- rep(strong_wish$v0, ngroup)
 #priors[['S_group']] <- matrep(strong_wish$S0, ngroup)
