@@ -1,7 +1,7 @@
 #' @useDynLib mvtraits
 #' @export
 fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel = TRUE,
-                       autofit = FALSE) {
+                       autofit = FALSE, max_attempts = 10, threshold = 1.15) {
 
     chainseq <- seq_len(nchains)
 
@@ -59,7 +59,9 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
     }
 
     converged <- FALSE
+    attempt <- 0
     while(!converged) {
+        attempt <- attempt + 1
         if (parallel) {
             curr_results <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
         } else {
@@ -76,7 +78,7 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
         } else {
             rmcmc <- results2mcmclist(results_list, chain2matrix_multi)
             gd <- coda::gelman.diag(rmcmc)[[1]][,1]
-            exceed <- gd > 1.15
+            exceed <- gd > threshold
             converged <- all(!exceed)
             if (!converged) {
                 print('The following parameters have not converged: ')
@@ -87,6 +89,12 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
             }
         }
         if (!autofit) {
+            converged <- TRUE
+        }
+        if (attempt >= max_attempts) {
+            print(paste('Number of attempts', attempt, 
+                        'exceeds max attempts', max_attempts, 
+                        'but still no convergence. Returning samples as is.'))
             converged <- TRUE
         }
         if (!converged) {

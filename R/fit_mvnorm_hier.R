@@ -1,6 +1,6 @@
 #' @export
 fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains = 3, parallel = TRUE,
-                            autofit = FALSE) {
+                            autofit = FALSE, max_attempts = 10, threshold = 1.15) {
 
     stopifnot(is.matrix(dat), length(groups) == nrow(dat))
 
@@ -103,7 +103,9 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
     }
 
     converged <- FALSE
+    attempt <- 0
     while(!converged) {
+        attempt <- attempt + 1
         if (parallel) {
             curr_results <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
         } else {
@@ -131,6 +133,12 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
             }
         }
         if (!autofit) {
+            converged <- TRUE
+        }
+        if (attempt >= max_attempts) {
+            print(paste('Number of attempts', attempt, 
+                        'exceeds max attempts', max_attempts, 
+                        'but still no convergence. Returning samples as is.'))
             converged <- TRUE
         }
         if (!converged) {
