@@ -1,6 +1,6 @@
 #' @export
 fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains = 3, parallel = TRUE,
-                            repeat_until_converged = FALSE) {
+                            autofit = FALSE) {
 
     stopifnot(is.matrix(dat), length(groups) == nrow(dat))
 
@@ -130,7 +130,7 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
                 converged <- TRUE
             }
         }
-        if (!repeat_until_converged) {
+        if (!autofit) {
             converged <- TRUE
         }
         if (!converged) {

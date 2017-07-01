@@ -1,7 +1,7 @@
 #' @useDynLib mvtraits
 #' @export
 fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel = TRUE,
-                       repeat_until_converged = FALSE) {
+                       autofit = FALSE) {
 
     chainseq <- seq_len(nchains)
 
@@ -86,7 +86,7 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
                 converged <- TRUE
             }
         }
-        if (!repeat_until_converged) {
+        if (!autofit) {
             converged <- TRUE
         }
         if (!converged) {

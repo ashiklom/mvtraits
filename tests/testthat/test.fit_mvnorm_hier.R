@@ -15,7 +15,7 @@ parallel <- TRUE
 
 message('Running simple hierarchical...')
 samps_hier <- fit_mvnorm_hier(rand$dat, rand$groups, niter = niter, nchains = nchains, parallel = parallel,
-                              repeat_until_converged = TRUE)
+                              autofit = TRUE)
 message('Done!')
 
 samps_hier_full <- add_correlations(samps_hier)

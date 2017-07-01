@@ -15,7 +15,7 @@ parallel <- TRUE
 
 message('Running simple multivariate...')
 samps_mv <- fit_mvnorm(rand$dat, niter = niter, nchains = nchains, parallel = parallel, 
-                       repeat_until_converged = TRUE)
+                       autofit = TRUE)
 message('Done!')
 
 samps_mv_full <- add_correlations(samps_mv)
