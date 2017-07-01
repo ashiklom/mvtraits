@@ -16,8 +16,8 @@ samp_mu <- colMeans(samp)
 samp_cov <- cov(samp)
 
 test_that('c_random_mvnorm (vector mu) produces reasonable values', {
-             expect_less_than(ss(samp_mu, mu), 0.01)
-             expect_less_than(ss(samp_cov, Sigma), 0.05)
+             expect_lt(ss(samp_mu, mu), 0.01)
+             expect_lt(ss(samp_cov, Sigma), 0.05)
 })
 
 mu_mat <- matrix(mu, n, m, byrow = TRUE)
@@ -26,6 +26,6 @@ samp2_mu <- colMeans(samp2)
 samp2_cov <- cov(samp2)
 
 test_that('c_random_mvnorm (matrix mu) produces reasonable values', {
-             expect_less_than(ss(samp2_mu, mu), 0.01)
-             expect_less_than(ss(samp2_cov, Sigma), 0.05)
+             expect_lt(ss(samp2_mu, mu), 0.01)
+             expect_lt(ss(samp2_cov, Sigma), 0.05)
 })

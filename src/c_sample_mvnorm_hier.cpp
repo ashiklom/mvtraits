@@ -26,6 +26,8 @@ Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups,
     arma::rowvec ybar(m, arma::fill::zeros);
     int ny;
 
+    Progress p(niter, true);
+
     // Sampling
     for (i = 0; i < niter; i++) {
         Sigma_global_inv = arma::inv_sympd(Sigma_global);
@@ -52,6 +54,7 @@ Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups,
         Sigma_global_samp.slice(i) = Sigma_global;
         mu_group_samp.slice(i) = mu_group;
         Sigma_group_samp(i) = Sigma_group;
+        p.increment();
     }
     return Rcpp::List::create(Rcpp::Named("mu_global") = mu_global_samp,
                               Rcpp::Named("Sigma_global") = Sigma_global_samp,

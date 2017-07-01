@@ -11,6 +11,7 @@ Rcpp::List c_sample_mvnorm(int niter, arma::mat dat,
     arma::mat y(arma::size(dat), arma::fill::zeros);
     arma::mat Sigma_inv = arma::inv_sympd(Sigma);
     arma::rowvec ybar(dat.n_cols, arma::fill::zeros);
+    Progress p(niter, true);
     for (int i = 0; i < niter; i++) {
         y = c_alt_fill_missing(dat, mu, Sigma, setup);
         ybar = arma::mean(y, 0);
@@ -19,6 +20,7 @@ Rcpp::List c_sample_mvnorm(int niter, arma::mat dat,
         Sigma_inv = arma::inv_sympd(Sigma);
         mu_samp.row(i) = mu;
         Sigma_samp.slice(i) = Sigma;
+        p.increment();
     }
     return Rcpp::List::create(Rcpp::Named("mu") = mu_samp,
                               Rcpp::Named("Sigma") = Sigma_samp);

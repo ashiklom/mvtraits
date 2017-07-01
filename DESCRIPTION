@@ -7,8 +7,10 @@ Author: Alexey Shiklomanov, Elizabeth Cowdery, Michael Dietze
 Maintainer: Alexey Shiklomanov <ashiklom@bu.edu>
 Description: Functions for performing MV trait analysis.
 Depends:
-    Rcpp
+    Rcpp,
+    RcppProgress
 Imports:
+    RcppArmadillo,
     rstan,
     dplyr,
     tidyr,
@@ -20,5 +22,5 @@ Imports:
     data.table,
     coda
 License: FreeBSD
-LinkingTo: Rcpp, RcppArmadillo
+LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 RoxygenNote: 6.0.1

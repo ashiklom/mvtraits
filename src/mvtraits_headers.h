@@ -3,6 +3,8 @@
 
 #include <RcppArmadillo.h>
 // [[Rcpp::depends(RcppArmadillo)]]
+#include <progress.hpp>
+// [[Rcpp::depends(RcppProgress)]]
 
 arma::mat c_random_mvnorm(int n, arma::mat mu, arma::mat Sigma);
 

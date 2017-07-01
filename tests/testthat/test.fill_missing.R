@@ -27,8 +27,8 @@ mu_imp <- colMeans(imputed, na.rm = TRUE)
 Sigma_imp <- cov(imputed, use = 'pairwise.complete.obs')
 
 test_that('Imputed values are close to true values', {
-          expect_less_than(ss(mu_imp, mu), 0.05)
-          expect_less_than(ss(mu_imp, mu), 0.01)
+          expect_lt(ss(mu_imp, mu), 0.05)
+          expect_lt(ss(Sigma_imp, Sigma), 0.1)
 })
 
 if (interactive()) {
