@@ -7,58 +7,35 @@ if (interactive()) {
     library(mvtraits)
 }
 
+ss <- function(x, y) {
+    sum((y - x)^2)
+}
+
 # Simulate some data
-niris <- nrow(iris)
-#inmat <- cbind(iris[,-5], rnorm(niris), rnorm(niris, 5), rnorm(niris, -3))
-#colnames(inmat) <- NULL
-inmat <- as.matrix(iris[,-5])
-nparam <- ncol(inmat)
-mu <- colMeans(inmat)
-Sigma <- cov(inmat)
+rand <- random_data(frac_miss = 0.50)
+attach(rand)
+nparam <- length(rand$mu)
 
-N <- 5000
-dat_all <- mvtraits:::c_random_mvnorm(N, t(mu), Sigma)
-
-# Randomly remove a fraction of the data
-dat <- dat_all
-nmiss <- round(length(dat) * 0.5)
-miss <- sample.int(length(dat), size = nmiss)
-dat[miss] <- NA
-#scramble <- 4:1
-#scramble <- c(4,1,2,3)
-#dat <- dat[,scramble]
-#mu_scr <- mu[scramble]
-#Sigma_scr <- Sigma[scramble, scramble]
-
+# Fill in missing data
 setup <- setup_missing(dat)
 dat_filled <- mvtraits:::c_alt_fill_missing(dat, mu, Sigma, setup)
 
 imputed <- dat_filled
 imputed[!is.na(dat)] <- NA
 
-print('True mean')
-print(mu)
-print('Imputed means')
 mu_imp <- colMeans(imputed, na.rm = TRUE)
-print(mu_imp)
-print('Difference')
-print(mu_imp - mu)
-
-print('True sigma')
-print(Sigma)
-print('Imputed sigma')
 Sigma_imp <- cov(imputed, use = 'pairwise.complete.obs')
-print(Sigma_imp)
-print('Difference')
-print(Sigma_imp - Sigma)
+
+test_that('Imputed values are close to true values', {
+          expect_less_than(ss(mu_imp, mu), 0.05)
+          expect_less_than(ss(mu_imp, mu), 0.01)
+})
 
 if (interactive()) {
     testplot <- function(i, j) {
-        plot(dat[,i], dat[,j])
-        points(imputed[,i], imputed[,j], col = 'red')
-        #inds <- scramble[c(i, j)]
-        inds <- c(i,j)
-        mixtools::ellipse(mu = mu[inds], sigma = Sigma[inds, inds], )
+        plot(dat[,i], dat[,j], pch = '.')
+        points(imputed[,i], imputed[,j], pch = '.', col = 'red')
+        mixtools::ellipse(mu = mu[c(i,j)], sigma = Sigma[c(i,j), c(i,j)], )
     }
     par(mfrow = c(nparam, nparam))
     for (i in seq_len(nparam)) {
