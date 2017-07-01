@@ -1,5 +1,5 @@
-#library(mvtraits)
-devtools::load_all('.')
+library(mvtraits)
+#devtools::load_all('.')
 library(tidyverse)
 
 options(digits = 3)
@@ -18,9 +18,9 @@ get_datamatrix <- function(dat, area_mass) {
     return(list(dat = data_mat, groups = data_groups))
 }
 
-niter <- 500
-nchain <- 1
-parallel <- FALSE
+niter <- 1000
+nchain <- 3
+parallel <- TRUE
 
 area_data <- get_datamatrix(trydat, 'area')
 dat <- area_data[['dat']]
@@ -28,17 +28,17 @@ groups <- area_data[['groups']]
 ngroup <- length(unique(groups))
 dat_sub <- dat
 
-nparam <- ncol(dat_sub)
+#nparam <- ncol(dat_sub)
 #strong_wish <- Wishart_prior_param(1, 1/10000, nparam)
 #priors <- list(v_global = strong_wish$v0, S_global = strong_wish$S0,
                #Sigma_global = diag(1/1000, nparam))
 priors <- list()
 
-Rprof()
+message('Starting multivariate simulation')
 area_fit_multivariate <- fit_mvnorm(dat_sub, priors = priors, 
-                                    niter = niter, nchains = nchain, parallel = parallel)
-Rprof(NULL)
-summaryRprof()
+                                    niter = niter, nchains = nchain, parallel = parallel,
+                                    autofit = TRUE)
+message('Done!')
 
 area_fit_mcmc <- area_fit_multivariate %>% 
     add_correlations() %>% 
@@ -46,14 +46,18 @@ area_fit_mcmc <- area_fit_multivariate %>%
     window(start = floor(niter / 2))
 plot(area_fit_mcmc, ask = TRUE)
 
+dir.create('results', showWarnings = FALSE)
+saveRDS(area_fit_mcmc, 'results/multi_global.rds')
+
 #priors[['v_group']] <- rep(strong_wish$v0, ngroup)
 #priors[['S_group']] <- matrep(strong_wish$S0, ngroup)
 
-#t1 <- proc.time()
-#area_fit_hierarchical <- fit_mvnorm_hier(dat_sub, groups = groups[groups %in% 1:4], 
-                                         #niter = niter, nchains = nchain, parallel = parallel)
-#t2 <- proc.time()
-#print(t2 - t1)
+message('Starting hierarchical sampling')
+area_fit_hierarchical <- fit_mvnorm_hier(dat_sub, groups = groups, niter = niter,
+                                         nchains = nchain, parallel = parallel,
+                                         autofit = TRUE)
+message('Done!')
+saveRDS(area_fit_hierarchical, 'results/hier.rds')
 
 #area_fit_mcmc <- area_fit_hierarchical %>% 
     #add_correlations() %>% 
