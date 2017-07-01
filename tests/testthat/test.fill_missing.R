@@ -40,17 +40,17 @@ print('True mean')
 print(mu)
 print('Imputed means')
 mu_imp <- colMeans(imputed, na.rm = TRUE)
-mu_imp
+print(mu_imp)
 print('Difference')
-mu_imp - mu
+print(mu_imp - mu)
 
 print('True sigma')
 print(Sigma)
 print('Imputed sigma')
 Sigma_imp <- cov(imputed, use = 'pairwise.complete.obs')
-Sigma_imp
+print(Sigma_imp)
 print('Difference')
-Sigma_imp - Sigma
+print(Sigma_imp - Sigma)
 
 if (interactive()) {
     testplot <- function(i, j) {
