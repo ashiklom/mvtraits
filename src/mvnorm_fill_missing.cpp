@@ -28,7 +28,6 @@ arma::mat c_alt_fill_missing (arma::mat dat, arma::rowvec mu, arma::mat Sigma, R
     Rcpp::List mlist = setup["mlist"];
     Rcpp::List plist = setup["plist"];
     for (int i = 0; i < npatt; i++) {
-        Rcpp::Rcout << "i: " << i << std::endl;
         arma::uvec rows = indlist[i];
         int nrows = rows.n_elem;
         arma::uvec m = mlist[i];
