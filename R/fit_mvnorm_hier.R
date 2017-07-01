@@ -1,5 +1,6 @@
 #' @export
-fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains = 3, parallel = TRUE) {
+fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains = 3, parallel = TRUE,
+                            repeat_until_converged = FALSE) {
 
     stopifnot(is.matrix(dat), length(groups) == nrow(dat))
 
@@ -99,10 +100,54 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
         ncores <- min(parallel::detectCores() - 1, nchains)
         cl <- parallel::makeCluster(ncores, "FORK")
         parallel::clusterSetRNGStream(cl)
-        results_list <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
+    }
+
+    converged <- FALSE
+    while(!converged) {
+        if (parallel) {
+            curr_results <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
+        } else {
+            curr_results <- lapply(chainseq, samplefun)
+        }
+        if (exists('prev_results')) {
+            results_list <- combine_results(prev_results, curr_results)
+        } else {
+            results_list <- curr_results
+        }
+        if (!(nchains > 1)) {
+            warning('Unable to check convergence because only one chain available.')
+            converged <- TRUE
+        } else {
+            rmcmc <- results2mcmclist(results_list, chain2matrix_hier)
+            gd <- coda::gelman.diag(rmcmc)[[1]][,1]
+            exceed <- gd > 1.15
+            converged <- all(!exceed)
+            if (!converged) {
+                print('The following parameters have not converged: ')
+                print(gd[exceed])
+            } else {
+                print('All parameters have converged')
+                converged <- TRUE
+            }
+        }
+        if (!repeat_until_converged) {
+            converged <- TRUE
+        }
+        if (!converged) {
+            print('Resuming sampling.')
+            prev_results <- results_list
+            for (i in seq_len(nchains)) {
+                sechalf <- seq(floor(niter * 0.75), niter)
+                mu_global[[i]] <- colMeans(results_list[[i]][['mu_global']][sechalf,])
+                Sigma_global[[i]] <- apply(results_list[[i]][['Sigma_global']][sechalf,,], 2:3, mean)
+                mu_group[[i]] <- apply(results_list[[i]][['mu_group']][sechalf,,], 2:3, mean)
+                Sigma_group[[i]] <- apply(results_list[[i]][['Sigma_group']][sechalf,,,], 2:4, mean)
+            }
+        }
+    }
+
+    if (parallel) {
         parallel::stopCluster(cl)
-    } else {
-        results_list <- lapply(chainseq, samplefun)
     }
 
     return(results_list) 

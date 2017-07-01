@@ -9,12 +9,13 @@ if (interactive()) {
 
 rand <- random_data()
 
-niter <- 2000
-nchains <- 1
-parallel <- FALSE
+niter <- 500
+nchains <- 2
+parallel <- TRUE
 
 message('Running simple multivariate...')
-samps_mv <- fit_mvnorm(rand$dat, niter = niter, nchains = nchains, parallel = parallel)
+samps_mv <- fit_mvnorm(rand$dat, niter = niter, nchains = nchains, parallel = parallel, 
+                       repeat_until_converged = TRUE)
 message('Done!')
 
 samps_mv_full <- add_correlations(samps_mv)

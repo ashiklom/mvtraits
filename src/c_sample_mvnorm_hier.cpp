@@ -30,6 +30,11 @@ Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups,
 
     // Sampling
     for (i = 0; i < niter; i++) {
+        if (i % 100 == 0) {
+            if (Progress::check_abort()) {
+                Rcpp::stop("Detected user interrupt.");
+            }
+        }
         Sigma_global_inv = arma::inv_sympd(Sigma_global);
         // Within-group mean
         for (g = 0; g < ngroup; g++) {

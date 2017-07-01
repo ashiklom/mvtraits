@@ -13,6 +13,11 @@ Rcpp::List c_sample_mvnorm(int niter, arma::mat dat,
     arma::rowvec ybar(dat.n_cols, arma::fill::zeros);
     Progress p(niter, true);
     for (int i = 0; i < niter; i++) {
+        if (i % 100 == 0) {
+            if (Progress::check_abort()) {
+                Rcpp::stop("Detected user interrupt.");
+            }
+        }
         y = c_alt_fill_missing(dat, mu, Sigma, setup);
         ybar = arma::mean(y, 0);
         mu = c_draw_mu(ybar, n, Sigma_inv, mu0, Sigma0_inv);
