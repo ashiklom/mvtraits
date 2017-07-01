@@ -17,7 +17,7 @@ mu <- colMeans(inmat)
 Sigma <- cov(inmat)
 
 N <- 5000
-dat_all <- mvtnorm::rmvnorm(N, mu, Sigma)
+dat_all <- mvtraits:::c_random_mvnorm(N, t(mu), Sigma)
 
 # Randomly remove a fraction of the data
 dat <- dat_all
@@ -31,7 +31,7 @@ dat[miss] <- NA
 #Sigma_scr <- Sigma[scramble, scramble]
 
 setup <- setup_missing(dat)
-dat_filled <- alt_fill_missing(dat, mu, Sigma, setup)
+dat_filled <- mvtraits:::c_alt_fill_missing(dat, mu, Sigma, setup)
 
 imputed <- dat_filled
 imputed[!is.na(dat)] <- NA

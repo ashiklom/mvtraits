@@ -1,33 +1,11 @@
 #' @export
-random_mvnorm <- function(n, mu, Sigma) {
-    if (is.matrix(mu)) {
-        stopifnot(nrow(mu) %in% c(1, n))
-        nc <- ncol(mu)
-    } else {
-        nc <- length(mu)
-    }
-    stopifnot(ncol(Sigma) == nc)
-    Sigma_chol <- chol(Sigma)
-    rand <- matrix(rnorm(n * nc), nrow = n, ncol = nc)
-    out_0 <- rand %*% Sigma_chol     # (n x nc) = (n x nc) x (nc x nc)
-    if (!is.matrix(mu) || nrow(mu) == 1) {
-        out <- sweep(out_0, 2, mu, "+")
-    } else if (all(dim(mu) == dim(out_0))) {
-        out <- out_0 + mu
-    } else {
-        stop('Dimension mismatch')
-    }
-    return(out)
-}
-
-#' @export
 setup_missing <- function(dat) {
-    missing_vec <- apply(dat, 1, function(x) which(is.na(x)))
+    missing_vec <- apply(dat, 1, function(x) which(is.na(x)) - 1)
     missing_vec_unique <- unique(missing_vec)
     missing_pattern <- sapply(missing_vec, paste, collapse = '_')
     missing_pattern_unique <- unique(missing_pattern)
-    pattern_inds <- sapply(missing_pattern_unique, function(x) which(missing_pattern == x))
-    present_vec <- apply(dat, 1, function(x) which(!is.na(x)))
+    pattern_inds <- sapply(missing_pattern_unique, function(x) which(missing_pattern == x) - 1)
+    present_vec <- apply(dat, 1, function(x) which(!is.na(x)) - 1)
     present_vec_unique <- unique(present_vec)
     n_pattern <- length(missing_pattern_unique)
     out <- list(npatt = n_pattern, mlist = missing_vec_unique, plist = present_vec_unique,
@@ -55,7 +33,7 @@ alt_fill_missing <- function(dat, mu, Sigma, setup = NULL) {
         p <- setup$plist[[i]]
         if (length(p) == 0) {
             # All values absent. Just do a multivariate normal draw
-            dat[rows, ] <- random_mvnorm(nrows, mu, Sigma)
+            dat[rows, ] <- c_random_mvnorm(nrows, mu, Sigma)
             next
         }
         # Partially missing. Derive parameters for partial draw.
@@ -71,7 +49,7 @@ alt_fill_missing <- function(dat, mu, Sigma, setup = NULL) {
         mu_0_fill <- y_mup %*% Sigma_prod           # (n x m) = (n x p) x (p x m)
         mu_fill <- sweep(mu_0_fill, 2, mu_m, "+")   # (n x m)
         Sigma_fill <- Sigma_mm - Sigma_mp %*% Sigma_prod    # (m x m) = (m x p) x (p x m)
-        dat[rows, m] <- random_mvnorm(nrows, mu_fill, Sigma_fill)
+        dat[rows, m] <- c_random_mvnorm(nrows, mu_fill, Sigma_fill)
     }
     return(dat)
 }

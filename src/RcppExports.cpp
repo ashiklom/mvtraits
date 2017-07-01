@@ -19,9 +19,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// c_alt_fill_missing
+arma::mat c_alt_fill_missing(arma::mat dat, arma::rowvec mu, arma::mat Sigma, Rcpp::List setup);
+RcppExport SEXP mvtraits_c_alt_fill_missing(SEXP datSEXP, SEXP muSEXP, SEXP SigmaSEXP, SEXP setupSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type dat(datSEXP);
+    Rcpp::traits::input_parameter< arma::rowvec >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Sigma(SigmaSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type setup(setupSEXP);
+    rcpp_result_gen = Rcpp::wrap(c_alt_fill_missing(dat, mu, Sigma, setup));
+    return rcpp_result_gen;
+END_RCPP
+}
+// c_random_mvnorm
+arma::mat c_random_mvnorm(int n, arma::mat mu, arma::mat Sigma);
+RcppExport SEXP mvtraits_c_random_mvnorm(SEXP nSEXP, SEXP muSEXP, SEXP SigmaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Sigma(SigmaSEXP);
+    rcpp_result_gen = Rcpp::wrap(c_random_mvnorm(n, mu, Sigma));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"mvtraits_mvnorm_fill_missing", (DL_FUNC) &mvtraits_mvnorm_fill_missing, 3},
+    {"mvtraits_c_alt_fill_missing", (DL_FUNC) &mvtraits_c_alt_fill_missing, 4},
+    {"mvtraits_c_random_mvnorm", (DL_FUNC) &mvtraits_c_random_mvnorm, 3},
     {NULL, NULL, 0}
 };
 

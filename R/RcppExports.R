@@ -5,3 +5,11 @@ mvnorm_fill_missing <- function(y, mu, Sigma_chol) {
     .Call('mvtraits_mvnorm_fill_missing', PACKAGE = 'mvtraits', y, mu, Sigma_chol)
 }
 
+c_alt_fill_missing <- function(dat, mu, Sigma, setup) {
+    .Call('mvtraits_c_alt_fill_missing', PACKAGE = 'mvtraits', dat, mu, Sigma, setup)
+}
+
+c_random_mvnorm <- function(n, mu, Sigma) {
+    .Call('mvtraits_c_random_mvnorm', PACKAGE = 'mvtraits', n, mu, Sigma)
+}
+
