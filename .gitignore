@@ -4,3 +4,5 @@
 Rprof.out
 figures/
 callgrind.out.*
+progress
+results

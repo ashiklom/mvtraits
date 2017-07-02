@@ -1,6 +1,7 @@
 #' @export
 fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains = 3, parallel = TRUE,
-                            autofit = FALSE, max_attempts = 10, threshold = 1.15) {
+                            autofit = FALSE, max_attempts = 10, threshold = 1.15, 
+                            save_progress = NULL) {
 
     stopifnot(is.matrix(dat), length(groups) == nrow(dat))
 
@@ -98,6 +99,10 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
             curr_results <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
         } else {
             curr_results <- lapply(chainseq, samplefun)
+        }
+        if (!is.null(save_progress)) {
+            save_fname <- sprintf('%s.%03d', save_progress, attempt)
+            saveRDS(curr_results, save_fname)
         }
         if (exists('prev_results')) {
             results_list <- combine_results(prev_results, curr_results)

@@ -6,8 +6,14 @@ options(digits = 3)
 
 trydat <- readRDS('~/Projects/new-phytologist-traits/np_trait_analysis/traits_analysis.rds')
 
+results_dir <- 'results'
+dir.create(results_dir, showWarnings = FALSE)
+
+progress_dir <- 'progress'
+dir.create(progress_dir, showWarnings = FALSE)
+
 get_datamatrix <- function(dat, area_mass) {
-    area_rxp <- 'leaf_lifespan|LMA|area'
+    area_rxp <- 'leaf_lifespan|SLA|area'
     mass_rxp <- 'leaf_lifespan|SLA|mass'
     use_rxp <- switch(area_mass, area = area_rxp, mass = mass_rxp)
     data_df <- dat %>% 
@@ -37,8 +43,12 @@ priors <- list()
 message('Starting multivariate simulation')
 area_fit_multivariate <- fit_mvnorm(dat_sub, priors = priors, 
                                     niter = niter, nchains = nchain, parallel = parallel,
-                                    autofit = TRUE)
+                                    autofit = TRUE, 
+                                    save_progress = file.path(progress_dir, 'area_multi_global'))
 message('Done!')
+
+save_path <- file.path(results_dir, 'area_multi_global.rds')
+saveRDS(area_fit_multivariate, save_path)
 
 area_fit_mcmc <- area_fit_multivariate %>% 
     add_correlations() %>% 
@@ -46,8 +56,6 @@ area_fit_mcmc <- area_fit_multivariate %>%
     window(start = floor(niter / 2))
 plot(area_fit_mcmc, ask = TRUE)
 
-dir.create('results', showWarnings = FALSE)
-saveRDS(area_fit_mcmc, 'results/multi_global.rds')
 
 #priors[['v_group']] <- rep(strong_wish$v0, ngroup)
 #priors[['S_group']] <- matrep(strong_wish$S0, ngroup)
