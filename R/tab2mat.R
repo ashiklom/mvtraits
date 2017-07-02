@@ -8,7 +8,7 @@ tab2mat <- function(dat, colname = "Mean", ...) {
 }
 
 #' @export
-lowerdiag2mat <- function(vec, corr = FALSE, colorder = NULL) {
+lowerdiag2mat <- function(vec, corr = FALSE, colorder = NULL, hier = FALSE) {
     nvec <- length(vec)
     stopifnot(nvec %% 1 == 0)
     nmat <- 0.5 * (sqrt(8 * nvec + 1) - 1)
@@ -16,6 +16,11 @@ lowerdiag2mat <- function(vec, corr = FALSE, colorder = NULL) {
     if (corr) nmat <- nmat + 1
     namesvec <- names(vec)
     splitnames <- strsplit(namesvec, split = varsep_esc)
+    if (hier) {
+        group <- unique(sapply(splitnames, '[', 1))
+        stopifnot(length(group) == 1)
+        splitnames <- lapply(splitnames, '[', -1)     # Drop group name
+    }
     allpars <- unique(unlist(splitnames))
     stopifnot(length(allpars) == nmat)
     mat <- matrix(numeric(), nmat, nmat)
@@ -27,6 +32,9 @@ lowerdiag2mat <- function(vec, corr = FALSE, colorder = NULL) {
     if (corr) diag(mat) <- 1
     if (!is.null(colorder)){
         mat <- mat[colorder, colorder]
+    }
+    if (hier) {
+        rownames(mat) <- colnames(mat) <- paste(group, allpars, sep = varsep)
     }
     return(mat)
 }

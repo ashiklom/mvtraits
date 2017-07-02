@@ -9,9 +9,9 @@ if (interactive()) {
 
 rand <- random_data()
 
-niter <- 500
+niter <- 100
 nchains <- 2
-parallel <- TRUE
+parallel <- FALSE
 
 message('Running simple multivariate...')
 samps_mv <- fit_mvnorm(rand$dat, niter = niter, nchains = nchains, parallel = parallel, 

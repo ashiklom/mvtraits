@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // c_sample_mvnorm_hier
-Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups, arma::rowvec mu_global, arma::mat Sigma_global, arma::mat mu_group, arma::cube Sigma_group, arma::rowvec mu0_global, arma::mat Sigma0_global_inv, arma::mat mu0_group, arma::cube Sigma0_group_inv, double v0_global, arma::mat S0_global, arma::vec v0_group, arma::cube S0_group, arma::mat mu_global_samp, arma::cube Sigma_global_samp, arma::cube mu_group_samp, arma::field<arma::cube> Sigma_group_samp, Rcpp::List setup_bygroup);
-RcppExport SEXP mvtraits_c_sample_mvnorm_hier(SEXP niterSEXP, SEXP datSEXP, SEXP groupsSEXP, SEXP mu_globalSEXP, SEXP Sigma_globalSEXP, SEXP mu_groupSEXP, SEXP Sigma_groupSEXP, SEXP mu0_globalSEXP, SEXP Sigma0_global_invSEXP, SEXP mu0_groupSEXP, SEXP Sigma0_group_invSEXP, SEXP v0_globalSEXP, SEXP S0_globalSEXP, SEXP v0_groupSEXP, SEXP S0_groupSEXP, SEXP mu_global_sampSEXP, SEXP Sigma_global_sampSEXP, SEXP mu_group_sampSEXP, SEXP Sigma_group_sampSEXP, SEXP setup_bygroupSEXP) {
+Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups, arma::rowvec mu_global, arma::mat Sigma_global, arma::mat mu_group, arma::cube Sigma_group, arma::rowvec mu0_global, arma::mat Sigma0_global_inv, arma::mat mu0_group, arma::cube Sigma0_group_inv, double v0_global, arma::mat S0_global, arma::vec v0_group, arma::cube S0_group, Rcpp::List setup_bygroup);
+RcppExport SEXP mvtraits_c_sample_mvnorm_hier(SEXP niterSEXP, SEXP datSEXP, SEXP groupsSEXP, SEXP mu_globalSEXP, SEXP Sigma_globalSEXP, SEXP mu_groupSEXP, SEXP Sigma_groupSEXP, SEXP mu0_globalSEXP, SEXP Sigma0_global_invSEXP, SEXP mu0_groupSEXP, SEXP Sigma0_group_invSEXP, SEXP v0_globalSEXP, SEXP S0_globalSEXP, SEXP v0_groupSEXP, SEXP S0_groupSEXP, SEXP setup_bygroupSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -27,12 +27,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type S0_global(S0_globalSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type v0_group(v0_groupSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type S0_group(S0_groupSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type mu_global_samp(mu_global_sampSEXP);
-    Rcpp::traits::input_parameter< arma::cube >::type Sigma_global_samp(Sigma_global_sampSEXP);
-    Rcpp::traits::input_parameter< arma::cube >::type mu_group_samp(mu_group_sampSEXP);
-    Rcpp::traits::input_parameter< arma::field<arma::cube> >::type Sigma_group_samp(Sigma_group_sampSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type setup_bygroup(setup_bygroupSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_sample_mvnorm_hier(niter, dat, groups, mu_global, Sigma_global, mu_group, Sigma_group, mu0_global, Sigma0_global_inv, mu0_group, Sigma0_group_inv, v0_global, S0_global, v0_group, S0_group, mu_global_samp, Sigma_global_samp, mu_group_samp, Sigma_group_samp, setup_bygroup));
+    rcpp_result_gen = Rcpp::wrap(c_sample_mvnorm_hier(niter, dat, groups, mu_global, Sigma_global, mu_group, Sigma_group, mu0_global, Sigma0_global_inv, mu0_group, Sigma0_group_inv, v0_global, S0_global, v0_group, S0_group, setup_bygroup));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -107,26 +103,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// store_covmat
-arma::rowvec store_covmat(arma::mat X);
-RcppExport SEXP mvtraits_store_covmat(SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(store_covmat(X));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"mvtraits_c_sample_mvnorm_hier", (DL_FUNC) &mvtraits_c_sample_mvnorm_hier, 20},
+    {"mvtraits_c_sample_mvnorm_hier", (DL_FUNC) &mvtraits_c_sample_mvnorm_hier, 16},
     {"mvtraits_c_sample_mvnorm", (DL_FUNC) &mvtraits_c_sample_mvnorm, 9},
     {"mvtraits_mvnorm_fill_missing", (DL_FUNC) &mvtraits_mvnorm_fill_missing, 3},
     {"mvtraits_c_alt_fill_missing", (DL_FUNC) &mvtraits_c_alt_fill_missing, 4},
     {"mvtraits_c_random_mvnorm", (DL_FUNC) &mvtraits_c_random_mvnorm, 3},
     {"mvtraits_rwishart", (DL_FUNC) &mvtraits_rwishart, 2},
-    {"mvtraits_store_covmat", (DL_FUNC) &mvtraits_store_covmat, 1},
     {NULL, NULL, 0}
 };
 

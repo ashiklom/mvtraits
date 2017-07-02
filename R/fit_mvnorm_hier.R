@@ -51,16 +51,6 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
     Sigma0_group_inv <- vapply(seq_len(ngroup), function(x) solve(Sigma0_group[x,,]), Sigma0_global_inv)
     Sigma0_group_inv <- aperm(Sigma0_group_inv, c(3, 1, 2))
 
-    # Setup storage
-    mu_global_samp <- matrix(NA_real_, nrow = niter, ncol = nparam)
-    dimnames(mu_global_samp) <- list(NULL, param_names)
-    Sigma_global_samp <- array(NA_real_, c(niter, nparam, nparam))
-    dimnames(Sigma_global_samp) <- list(NULL, param_names, param_names)
-    mu_group_samp <- array(NA_real_, c(niter, ngroup, nparam))
-    dimnames(mu_group_samp) <- list(NULL, group_names, param_names)
-    Sigma_group_samp <- array(NA_real_, c(niter, ngroup, nparam, nparam))
-    dimnames(Sigma_group_samp) <- list(NULL, group_names, param_names, param_names)
-
     # Draw initial conditions from priors
     mu_global <- list()
     Sigma_global <- list()
@@ -72,9 +62,9 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
         Sigma_global[[n]] <- solve(rWishart(1, v0_global + nparam + 1, S0_global)[,,1])
         dimnames(Sigma_global[[n]]) <- list(param_names, param_names)
 
-        mu_group[[n]] <- mu_group_samp[1,,]
+        mu_group[[n]] <- matrix(NA_real_, nrow = ngroup, ncol = nparam)
         dimnames(mu_group[[n]]) <- list(group_names, param_names)
-        Sigma_group[[n]] <- Sigma_group_samp[1,,,]
+        Sigma_group[[n]] <- array(NA_real_, c(ngroup, nparam, nparam))
         dimnames(Sigma_group[[n]]) <- list(group_names, param_names, param_names)
         for (i in seq_len(ngroup)) {
             mu_group[[n]][i,] <- mvtnorm::rmvnorm(1, mu0_group[i,], Sigma0_group[i,,])
@@ -91,8 +81,6 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
                            mu0_group, Sigma0_group_inv,
                            v0_global, S0_global,
                            v0_group, S0_group,
-                           mu_global_samp, Sigma_global_samp,
-                           mu_group_samp, Sigma_group_samp,
                            setup_bygroup)
     }
 
@@ -120,7 +108,7 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
             warning('Unable to check convergence because only one chain available.')
             converged <- TRUE
         } else {
-            rmcmc <- results2mcmclist(results_list, chain2matrix_hier)
+            rmcmc <- results2mcmclist(results_list, 'hier')
             gd <- coda::gelman.diag(rmcmc)[[1]][,1]
             exceed <- gd > 1.15
             converged <- all(!exceed)
@@ -147,9 +135,20 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
             for (i in seq_len(nchains)) {
                 sechalf <- seq(floor(niter * 0.75), niter)
                 mu_global[[i]] <- colMeans(results_list[[i]][['mu_global']][sechalf,])
-                Sigma_global[[i]] <- apply(results_list[[i]][['Sigma_global']][sechalf,,], 2:3, mean)
-                mu_group[[i]] <- apply(results_list[[i]][['mu_group']][sechalf,,], 2:3, mean)
-                Sigma_group[[i]] <- apply(results_list[[i]][['Sigma_group']][sechalf,,,], 2:4, mean)
+                Sigma_global_vec <- colMeans(results_list[[i]][['Sigma_global']][sechalf,])
+                Sigma_global[[i]] <- lowerdiag2mat(Sigma_global_vec)
+                mu_group_vec <- colMeans(results_list[[i]][['mu_group']][sechalf,])
+                mu_group[[i]] <- matrix(mu_group_vec, ngroup, nparam)
+                colnames(mu_group[[i]]) <- param_names
+                rownames(mu_group[[i]]) <- group_names
+                Sigma_group_vec <- colMeans(results_list[[i]][['Sigma_group']][sechalf,])
+                nvec <- length(Sigma_group_vec) / ngroup
+                for (j in seq_len(ngroup)) {
+                    b <- j * nvec
+                    a <- b - nvec + 1
+                    ab <- seq(a, b)
+                    Sigma_group[[i]][j,,] <- lowerdiag2mat(Sigma_group_vec[ab], hier = TRUE)
+                }
             }
         }
     }

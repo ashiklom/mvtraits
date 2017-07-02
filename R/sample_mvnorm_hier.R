@@ -5,8 +5,6 @@ sample_mvnorm_hier <- function(niter, dat, groups,
                                mu0_group, Sigma0_group_inv,
                                v0_global, S0_global,
                                v0_group, S0_group,
-                               mu_global_samp, Sigma_global_samp,
-                               mu_group_samp, Sigma_group_samp,
                                setup_bygroup
                                ) {
 
@@ -14,10 +12,6 @@ sample_mvnorm_hier <- function(niter, dat, groups,
     c_Sigma_group <- aperm(Sigma_group, c(2, 3, 1))
     c_Sigma0_group_inv <- aperm(Sigma0_group_inv, c(2, 3, 1))
     c_S0_group <- aperm(S0_group, c(2, 3, 1))
-    c_Sigma_global_samp <- aperm(Sigma_global_samp, c(2, 3, 1))
-    c_mu_group_samp <- aperm(mu_group_samp, c(2, 3, 1))
-    c_Sigma_group_samp <- aperm(Sigma_group_samp, c(1, 3, 4, 2))
-    c_Sigma_group_samp <- array2field(Sigma_group_samp)
 
     # Run sampler
     result <- c_sample_mvnorm_hier(niter, dat, groups,
@@ -27,20 +21,24 @@ sample_mvnorm_hier <- function(niter, dat, groups,
                                    mu0_group, c_Sigma0_group_inv,
                                    v0_global, S0_global,
                                    v0_group, c_S0_group,
-                                   mu_global_samp, c_Sigma_global_samp,
-                                   c_mu_group_samp, c_Sigma_group_samp,
                                    setup_bygroup)
 
-    # Convert back dimensions
-    result$mu_group <- aperm(result$mu_group, c(3, 1, 2))
-    result$Sigma_global <- aperm(result$Sigma_global, c(3, 1, 2))
-    result$Sigma_group <- aperm(field2array(result$Sigma_group), c(1, 4, 2, 3))
-
-    # Add names
-    dimnames(result$mu_global) <- dimnames(mu_global_samp)
-    dimnames(result$Sigma_global) <- dimnames(Sigma_global_samp)
-    dimnames(result$mu_group) <- dimnames(mu_group_samp)
-    dimnames(result$Sigma_group) <- dimnames(Sigma_group_samp)
+    ## Add names
+    params <- names(mu_global)
+    nparams <- length(params)
+    ugroups <- rownames(mu_group)
+    ngroups <- length(ugroups)
+    params_rep <- rep(params, each = ngroups)
+    groups_rep <- rep(ugroups, nparams)
+    params_groups <- paste(groups_rep, params_rep, sep = varsep)
+    sigma_params <- lowertri_names(params, diag = TRUE)
+    sigma_params_rep <- rep(sigma_params, ngroups)
+    sigma_groups_rep <- rep(ugroups, each = length(sigma_params))
+    sigma_params_groups <- paste(sigma_groups_rep, sigma_params_rep, sep = varsep)
+    colnames(result$mu_global) <- params
+    colnames(result$Sigma_global) <- sigma_params
+    colnames(result$mu_group) <- params_groups
+    colnames(result$Sigma_group) <- sigma_params_groups
     return(result)
 }
 

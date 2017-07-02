@@ -6,13 +6,18 @@ Rcpp::List c_sample_mvnorm(int niter, arma::mat dat,
                            arma::rowvec mu0, arma::mat Sigma0_inv,
                            double v0, arma::mat S0,
                            Rcpp::List setup) {
-    int n = dat.n_rows;
-    int m = dat.n_cols;
-    arma::mat mu_samp(niter, m);
-    arma::mat Sigma_samp(niter, m * (m + 1) / 2);       // Store lower triangle of covariance matrix
+    unsigned int n = dat.n_rows;
+    unsigned int m = dat.n_cols;
+    unsigned int mf = m * (m + 1) / 2;
     arma::mat y(arma::size(dat), arma::fill::zeros);
     arma::mat Sigma_inv = arma::inv_sympd(Sigma);
     arma::rowvec ybar(dat.n_cols, arma::fill::zeros);
+
+    // Storage matrices
+    arma::mat mu_samp(niter, m, arma::fill::zeros);
+    // Store lower triangle of covariance matrix
+    arma::mat Sigma_samp(niter, mf, arma::fill::zeros); 
+
     Progress p(niter, true);
     for (int i = 0; i < niter; i++) {
         if (i % 100 == 0) {

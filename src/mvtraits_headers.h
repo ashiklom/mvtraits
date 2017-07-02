@@ -21,5 +21,6 @@ arma::mat c_draw_Sigma(arma::mat x, arma::rowvec mu, double v0, arma::mat S0);
 arma::mat c_alt_fill_missing (arma::mat dat, arma::rowvec mu, arma::mat Sigma, Rcpp::List setup);
 
 arma::rowvec store_covmat(arma::mat X);
+arma::rowvec store_covgrouparray(arma::cube X);
 
 #endif

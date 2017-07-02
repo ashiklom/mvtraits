@@ -97,7 +97,8 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
             for (i in seq_len(nchains)) {
                 sechalf <- seq(floor(niter * 0.75), niter)
                 mu[[i]] <- colMeans(results_list[[i]][['mu']][sechalf,])
-                Sigma[[i]] <- apply(results_list[[i]][['Sigma']][sechalf,,], 2:3, mean)
+                Sigma_vec <- colMeans(results_list[[i]][['Sigma']][sechalf,])
+                Sigma[[i]] <- lowerdiag2mat(Sigma_vec)
             }
         }
     }

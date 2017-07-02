@@ -8,14 +8,16 @@ Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups,
                                 arma::mat mu0_group, arma::cube Sigma0_group_inv,
                                 double v0_global, arma::mat S0_global,
                                 arma::vec v0_group, arma::cube S0_group,
-                                arma::mat mu_global_samp, arma::cube Sigma_global_samp,
-                                arma::cube mu_group_samp, arma::field<arma::cube> Sigma_group_samp,
                                 Rcpp::List setup_bygroup) {
     arma::uvec ugroups = arma::unique(groups);
-    int ngroup = ugroups.n_elem;
-    int n = dat.n_rows;
-    int m = dat.n_cols;
-    int i; int g;
+    unsigned int ngroup = ugroups.n_elem;
+    unsigned int n = dat.n_rows;
+    unsigned int m = dat.n_cols;
+    unsigned int mf = m * (m + 1) / 2;
+    unsigned int mg = m * ngroup;
+    unsigned int mfg = mf * ngroup;
+
+    unsigned int i; unsigned int g;
 
     // Initialize values
     arma::mat Sigma_global_inv(n, m, arma::fill::zeros);
@@ -25,6 +27,12 @@ Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups,
     arma::mat Sigma_inv(m, m, arma::fill::zeros);
     arma::rowvec ybar(m, arma::fill::zeros);
     int ny;
+
+    // Initialize storage
+    arma::mat mu_global_samp(niter, m, arma::fill::zeros);
+    arma::mat Sigma_global_samp(niter, mf, arma::fill::zeros); 
+    arma::mat mu_group_samp(niter, mg, arma::fill::zeros);
+    arma::mat Sigma_group_samp(niter, mfg, arma::fill::zeros); 
 
     Progress p(niter, true);
 
@@ -56,9 +64,9 @@ Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups,
 
         // Store outputs
         mu_global_samp.row(i) = mu_global;
-        Sigma_global_samp.slice(i) = Sigma_global;
-        mu_group_samp.slice(i) = mu_group;
-        Sigma_group_samp(i) = Sigma_group;
+        Sigma_global_samp.row(i) = store_covmat(Sigma_global);
+        mu_group_samp.row(i) = arma::trans(arma::vectorise(mu_group));
+        Sigma_group_samp.row(i) = store_covgrouparray(Sigma_group);
         p.increment();
     }
     return Rcpp::List::create(Rcpp::Named("mu_global") = mu_global_samp,
