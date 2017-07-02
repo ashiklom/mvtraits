@@ -30,12 +30,6 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
 
     Sigma0_inv <- solve(Sigma0)
 
-    # Setup storage
-    mu_samp <- matrix(NA_real_, nrow = niter, ncol = nparam)
-    colnames(mu_samp) <- param_names
-    Sigma_samp <- array(NA_real_, c(niter, nparam, nparam))
-    dimnames(Sigma_samp) <- list(NULL, param_names, param_names)
-
     # Draw initial conditions from priors
     mu <- list()
     Sigma <- list()
@@ -49,7 +43,7 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
     samplefun <- function(n) {
         sample_mvnorm(niter, dat, mu[[n]], Sigma[[n]],
                       mu0, Sigma0_inv, v0, S0,
-                      mu_samp, Sigma_samp, setup)
+                      setup)
     }
 
     if (parallel) {
@@ -76,7 +70,7 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
             warning('Unable to check convergence because only one chain available.')
             converged <- TRUE
         } else {
-            rmcmc <- results2mcmclist(results_list, chain2matrix_multi)
+            rmcmc <- results2mcmclist(results_list, 'multi')
             gd <- coda::gelman.diag(rmcmc)[[1]][,1]
             exceed <- gd > threshold
             converged <- all(!exceed)

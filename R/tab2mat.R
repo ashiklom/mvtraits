@@ -15,7 +15,7 @@ lowerdiag2mat <- function(vec, corr = FALSE, colorder = NULL) {
     stopifnot(nmat %% 1 == 0)
     if (corr) nmat <- nmat + 1
     namesvec <- names(vec)
-    splitnames <- strsplit(namesvec, split="\\.")
+    splitnames <- strsplit(namesvec, split = varsep_esc)
     allpars <- unique(unlist(splitnames))
     stopifnot(length(allpars) == nmat)
     mat <- matrix(numeric(), nmat, nmat)

@@ -1,5 +1,12 @@
 #' @export
-results2mcmclist <- function(results_list, chainfun) {
+results2mcmclist <- function(results_list, type) {
+    if (type == 'multi') {
+        chainfun <- chain2matrix_multi
+    } else if (type == 'hier') {
+        chainfun <- chain2matrix_hier
+    } else {
+        stop('Unknown type ', type)
+    }
     matrified <- lapply(results_list, chainfun)
     matrix_mcmc <- lapply(matrified, coda::as.mcmc)
     mcmc_list <- coda::as.mcmc.list(matrix_mcmc)
@@ -10,16 +17,30 @@ results2mcmclist <- function(results_list, chainfun) {
 chain2matrix_multi <- function(chain) {
     mu_mat <- chain[['mu']]
     colnames(mu_mat) <- paste('mu', colnames(mu_mat), sep = varsep)
-    sigma_mat <- flatten_sigma(chain[['Sigma']])
+    sigma_mat <- chain[['Sigma']]
     colnames(sigma_mat) <- paste('Sigma', colnames(sigma_mat), sep = varsep)
     if ('Corr' %in% names(chain)) {
-        corr_mat <- flatten_sigma(chain[['Corr']], diag = FALSE)
+        corr_mat <- chain[['Corr']]
         colnames(corr_mat) <- paste('Corr', colnames(corr_mat), sep = varsep)
         params_mat <- cbind(mu_mat, sigma_mat, corr_mat)
     } else {
         params_mat <- cbind(mu_mat, sigma_mat)
     }
     return(params_mat)
+}
+
+lowertri_names <- function(col_names, diag = TRUE) {
+    n <- length(col_names)
+    tri_inds <- which(lower.tri(diag(n), diag = diag), arr.ind = TRUE)
+    vec_names <- paste(col_names[tri_inds[,'row']], col_names[tri_inds[,'col']], sep = varsep)
+    return(vec_names)
+}
+
+flatten_matrix <- function(mat, diag = TRUE) {
+    stopifnot(nrow(mat) == ncol(mat))
+    vec <- mat[lower.tri(mat, diag = diag)]
+    names(vec) <- lowertri_names(colnames(mat), diag = diag)
+    return(vec)
 }
 
 flatten_sigma <- function(sigma_samples, diag = TRUE) {

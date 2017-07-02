@@ -5,8 +5,8 @@ c_sample_mvnorm_hier <- function(niter, dat, groups, mu_global, Sigma_global, mu
     .Call('mvtraits_c_sample_mvnorm_hier', PACKAGE = 'mvtraits', niter, dat, groups, mu_global, Sigma_global, mu_group, Sigma_group, mu0_global, Sigma0_global_inv, mu0_group, Sigma0_group_inv, v0_global, S0_global, v0_group, S0_group, mu_global_samp, Sigma_global_samp, mu_group_samp, Sigma_group_samp, setup_bygroup)
 }
 
-c_sample_mvnorm <- function(niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, mu_samp, Sigma_samp, setup) {
-    .Call('mvtraits_c_sample_mvnorm', PACKAGE = 'mvtraits', niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, mu_samp, Sigma_samp, setup)
+c_sample_mvnorm <- function(niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, setup) {
+    .Call('mvtraits_c_sample_mvnorm', PACKAGE = 'mvtraits', niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, setup)
 }
 
 mvnorm_fill_missing <- function(y, mu, Sigma_chol) {
@@ -23,5 +23,9 @@ c_random_mvnorm <- function(n, mu, Sigma) {
 
 rwishart <- function(df, S) {
     .Call('mvtraits_rwishart', PACKAGE = 'mvtraits', df, S)
+}
+
+store_covmat <- function(X) {
+    .Call('mvtraits_store_covmat', PACKAGE = 'mvtraits', X)
 }
 

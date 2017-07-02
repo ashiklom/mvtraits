@@ -37,8 +37,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // c_sample_mvnorm
-Rcpp::List c_sample_mvnorm(int niter, arma::mat dat, arma::rowvec mu, arma::mat Sigma, arma::rowvec mu0, arma::mat Sigma0_inv, double v0, arma::mat S0, arma::mat mu_samp, arma::cube Sigma_samp, Rcpp::List setup);
-RcppExport SEXP mvtraits_c_sample_mvnorm(SEXP niterSEXP, SEXP datSEXP, SEXP muSEXP, SEXP SigmaSEXP, SEXP mu0SEXP, SEXP Sigma0_invSEXP, SEXP v0SEXP, SEXP S0SEXP, SEXP mu_sampSEXP, SEXP Sigma_sampSEXP, SEXP setupSEXP) {
+Rcpp::List c_sample_mvnorm(int niter, arma::mat dat, arma::rowvec mu, arma::mat Sigma, arma::rowvec mu0, arma::mat Sigma0_inv, double v0, arma::mat S0, Rcpp::List setup);
+RcppExport SEXP mvtraits_c_sample_mvnorm(SEXP niterSEXP, SEXP datSEXP, SEXP muSEXP, SEXP SigmaSEXP, SEXP mu0SEXP, SEXP Sigma0_invSEXP, SEXP v0SEXP, SEXP S0SEXP, SEXP setupSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -50,10 +50,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type Sigma0_inv(Sigma0_invSEXP);
     Rcpp::traits::input_parameter< double >::type v0(v0SEXP);
     Rcpp::traits::input_parameter< arma::mat >::type S0(S0SEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type mu_samp(mu_sampSEXP);
-    Rcpp::traits::input_parameter< arma::cube >::type Sigma_samp(Sigma_sampSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type setup(setupSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_sample_mvnorm(niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, mu_samp, Sigma_samp, setup));
+    rcpp_result_gen = Rcpp::wrap(c_sample_mvnorm(niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, setup));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -109,14 +107,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// store_covmat
+arma::rowvec store_covmat(arma::mat X);
+RcppExport SEXP mvtraits_store_covmat(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(store_covmat(X));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"mvtraits_c_sample_mvnorm_hier", (DL_FUNC) &mvtraits_c_sample_mvnorm_hier, 20},
-    {"mvtraits_c_sample_mvnorm", (DL_FUNC) &mvtraits_c_sample_mvnorm, 11},
+    {"mvtraits_c_sample_mvnorm", (DL_FUNC) &mvtraits_c_sample_mvnorm, 9},
     {"mvtraits_mvnorm_fill_missing", (DL_FUNC) &mvtraits_mvnorm_fill_missing, 3},
     {"mvtraits_c_alt_fill_missing", (DL_FUNC) &mvtraits_c_alt_fill_missing, 4},
     {"mvtraits_c_random_mvnorm", (DL_FUNC) &mvtraits_c_random_mvnorm, 3},
     {"mvtraits_rwishart", (DL_FUNC) &mvtraits_rwishart, 2},
+    {"mvtraits_store_covmat", (DL_FUNC) &mvtraits_store_covmat, 1},
     {NULL, NULL, 0}
 };
 

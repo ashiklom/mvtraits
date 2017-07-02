@@ -19,7 +19,7 @@ samps_mv <- fit_mvnorm(rand$dat, niter = niter, nchains = nchains, parallel = pa
 message('Done!')
 
 samps_mv_full <- add_correlations(samps_mv)
-samps_mv_mcmc <- results2mcmclist(samps_mv_full, chain2matrix_multi)
+samps_mv_mcmc <- results2mcmclist(samps_mv_full, 'multi')
 samps_mv_burned <- window(samps_mv_mcmc, start = floor(niter / 2))
 mv_sum <- summary_df(samps_mv_burned, group = NULL)
 
