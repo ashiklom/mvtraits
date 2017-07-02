@@ -5,6 +5,9 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <progress.hpp>
 // [[Rcpp::depends(RcppProgress)]]
+#include <Ziggurat.h>
+
+static Ziggurat::Ziggurat::Ziggurat zigg;
 
 arma::mat c_random_mvnorm(int n, arma::mat mu, arma::mat Sigma);
 

@@ -3,3 +3,4 @@
 *.so
 Rprof.out
 figures/
+callgrind.out.*

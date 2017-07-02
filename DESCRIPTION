@@ -8,7 +8,8 @@ Maintainer: Alexey Shiklomanov <ashiklom@bu.edu>
 Description: Functions for performing MV trait analysis.
 Depends:
     Rcpp,
-    RcppProgress
+    RcppProgress,
+    RcppZiggurat
 Imports:
     RcppArmadillo,
     rstan,
@@ -22,5 +23,5 @@ Imports:
     data.table,
     coda
 License: FreeBSD
-LinkingTo: Rcpp, RcppArmadillo, RcppProgress
+LinkingTo: Rcpp, RcppArmadillo, RcppProgress, RcppZiggurat
 RoxygenNote: 6.0.1
