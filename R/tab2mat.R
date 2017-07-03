@@ -8,33 +8,34 @@ tab2mat <- function(dat, colname = "Mean", ...) {
 }
 
 #' @export
-lowerdiag2mat <- function(vec, corr = FALSE, colorder = NULL, hier = FALSE) {
+lowerdiag2mat <- function(vec, col_names = TRUE, corr = FALSE, colorder = NULL, hier = FALSE) {
+    # Determine matrix dimensions
     nvec <- length(vec)
-    stopifnot(nvec %% 1 == 0)
     nmat <- 0.5 * (sqrt(8 * nvec + 1) - 1)
     stopifnot(nmat %% 1 == 0)
     if (corr) nmat <- nmat + 1
-    namesvec <- names(vec)
-    splitnames <- strsplit(namesvec, split = varsep_esc)
-    if (hier) {
-        group <- unique(sapply(splitnames, '[', 1))
-        stopifnot(length(group) == 1)
-        splitnames <- lapply(splitnames, '[', -1)     # Drop group name
+
+    # Populate matrix
+    mat <- diag(nmat)
+    mat[lower.tri(mat, diag = !corr)] <- vec
+    mat <- mat + t(mat) - diag(diag(mat))
+
+    # Try to figure out matrix dimnames from vector names
+    if (isTRUE(col_names)) {
+        splitnames <- do.call(rbind, strsplit(names(vec), split = varsep_esc))
+        if (hier) {
+            group <- unique(splitnames[,1])
+            stopifnot(length(group) == 1)
+            pars <- splitnames[seq_len(nmat), 2]
+            col_names <- paste(group, pars, sep = varsep)
+        } else {
+            col_names <- splitnames[seq_len(nmat), 1]
+        }
     }
-    allpars <- unique(unlist(splitnames))
-    stopifnot(length(allpars) == nmat)
-    mat <- matrix(numeric(), nmat, nmat)
-    rownames(mat) <- colnames(mat) <- allpars
-    for (i in seq_along(splitnames)) {
-        mat[splitnames[[i]][1],splitnames[[i]][2]] <- vec[namesvec[i]]
-        mat[splitnames[[i]][2],splitnames[[i]][1]] <- vec[namesvec[i]]
-    }
-    if (corr) diag(mat) <- 1
+    stopifnot(length(col_names) == nmat)
+    rownames(mat) <- colnames(mat) <- col_names
     if (!is.null(colorder)){
         mat <- mat[colorder, colorder]
-    }
-    if (hier) {
-        rownames(mat) <- colnames(mat) <- paste(group, allpars, sep = varsep)
     }
     return(mat)
 }

@@ -6,6 +6,17 @@
 
 using namespace Rcpp;
 
+// c_cov2cor
+arma::mat c_cov2cor(arma::mat m);
+RcppExport SEXP mvtraits_c_cov2cor(SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type m(mSEXP);
+    rcpp_result_gen = Rcpp::wrap(c_cov2cor(m));
+    return rcpp_result_gen;
+END_RCPP
+}
 // c_sample_mvnorm_hier
 Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups, arma::rowvec mu_global, arma::mat Sigma_global, arma::mat mu_group, arma::cube Sigma_group, arma::rowvec mu0_global, arma::mat Sigma0_global_inv, arma::mat mu0_group, arma::cube Sigma0_group_inv, double v0_global, arma::mat S0_global, arma::vec v0_group, arma::cube S0_group, Rcpp::List setup_bygroup);
 RcppExport SEXP mvtraits_c_sample_mvnorm_hier(SEXP niterSEXP, SEXP datSEXP, SEXP groupsSEXP, SEXP mu_globalSEXP, SEXP Sigma_globalSEXP, SEXP mu_groupSEXP, SEXP Sigma_groupSEXP, SEXP mu0_globalSEXP, SEXP Sigma0_global_invSEXP, SEXP mu0_groupSEXP, SEXP Sigma0_group_invSEXP, SEXP v0_globalSEXP, SEXP S0_globalSEXP, SEXP v0_groupSEXP, SEXP S0_groupSEXP, SEXP setup_bygroupSEXP) {
@@ -105,6 +116,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"mvtraits_c_cov2cor", (DL_FUNC) &mvtraits_c_cov2cor, 1},
     {"mvtraits_c_sample_mvnorm_hier", (DL_FUNC) &mvtraits_c_sample_mvnorm_hier, 16},
     {"mvtraits_c_sample_mvnorm", (DL_FUNC) &mvtraits_c_sample_mvnorm, 9},
     {"mvtraits_mvnorm_fill_missing", (DL_FUNC) &mvtraits_mvnorm_fill_missing, 3},
