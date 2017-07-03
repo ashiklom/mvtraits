@@ -39,7 +39,10 @@ lowertri_names <- function(col_names, diag = TRUE) {
 flatten_matrix <- function(mat, diag = TRUE) {
     stopifnot(nrow(mat) == ncol(mat))
     vec <- mat[lower.tri(mat, diag = diag)]
-    names(vec) <- lowertri_names(colnames(mat), diag = diag)
+    vnames <- colnames(mat)
+    if (!is.null(vnames)) {
+        names(vec) <- lowertri_names(vnames, diag = diag)
+    }
     return(vec)
 }
 
