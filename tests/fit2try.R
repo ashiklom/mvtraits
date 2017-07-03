@@ -4,7 +4,7 @@ library(tidyverse)
 
 options(digits = 3)
 
-trydat <- readRDS('~/Projects/new-phytologist-traits/np_trait_analysis/traits_analysis.rds')
+trydat <- readRDS('/projectnb/dietzelab/ashiklom/new_phytologist_traits/np_trait_analysis/traits_analysis.rds')
 
 results_dir <- 'results'
 dir.create(results_dir, showWarnings = FALSE)
@@ -25,12 +25,12 @@ get_datamatrix <- function(dat, area_mass) {
 }
 
 niter <- 1000
-nchain <- 3
+nchain <- 5
 parallel <- TRUE
 
-area_data <- get_datamatrix(trydat, 'area')
-dat <- area_data[['dat']]
-groups <- area_data[['groups']]
+mass_data <- get_datamatrix(trydat, 'area')
+dat <- mass_data[['dat']]
+groups <- mass_data[['groups']]
 ngroup <- length(unique(groups))
 dat_sub <- dat
 
@@ -40,32 +40,26 @@ dat_sub <- dat
                #Sigma_global = diag(1/1000, nparam))
 priors <- list()
 
-message('Starting multivariate simulation')
-area_fit_multivariate <- fit_mvnorm(dat_sub, priors = priors, 
-                                    niter = niter, nchains = nchain, parallel = parallel,
-                                    autofit = TRUE, 
-                                    save_progress = file.path(progress_dir, 'area_multi_global'))
-message('Done!')
+#message('Starting multivariate simulation')
+#area_fit_multivariate <- fit_mvnorm(dat_sub, priors = priors, 
+                                    #niter = niter, nchains = nchain, parallel = parallel,
+                                    #autofit = TRUE, 
+                                    #save_progress = file.path(progress_dir, 'area_multi_global'))
+#message('Done!')
 
-save_path <- file.path(results_dir, 'area_multi_global.rds')
-saveRDS(area_fit_multivariate, save_path)
-
-area_fit_mcmc <- area_fit_multivariate %>% 
-    add_correlations() %>% 
-    results2mcmclist(chain2matrix_multi) %>% 
-    window(start = floor(niter / 2))
-plot(area_fit_mcmc, ask = TRUE)
-
+#save_path <- file.path(results_dir, 'area_multi_global.rds')
+#saveRDS(area_fit_multivariate, save_path)
 
 #priors[['v_group']] <- rep(strong_wish$v0, ngroup)
 #priors[['S_group']] <- matrep(strong_wish$S0, ngroup)
 
 message('Starting hierarchical sampling')
-area_fit_hierarchical <- fit_mvnorm_hier(dat_sub, groups = groups, niter = niter,
+mass_fit_hierarchical <- fit_mvnorm_hier(dat, groups = groups, niter = niter,
                                          nchains = nchain, parallel = parallel,
-                                         autofit = TRUE)
+                                         autofit = TRUE, max_attempts = 200, 
+                                         save_progress = file.path(progress_dir, 'area_hier'))
 message('Done!')
-saveRDS(area_fit_hierarchical, 'results/hier.rds')
+saveRDS(mass_fit_hierarchical, file.path(results_dir, 'area_hier.rds'))
 
 #area_fit_mcmc <- area_fit_hierarchical %>% 
     #add_correlations() %>% 
