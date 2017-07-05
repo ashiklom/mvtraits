@@ -13,12 +13,8 @@ c_sample_mvnorm <- function(niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, setu
     .Call('mvtraits_c_sample_mvnorm', PACKAGE = 'mvtraits', niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, setup)
 }
 
-mvnorm_fill_missing <- function(y, mu, Sigma_chol) {
-    .Call('mvtraits_mvnorm_fill_missing', PACKAGE = 'mvtraits', y, mu, Sigma_chol)
-}
-
-c_alt_fill_missing <- function(dat, mu, Sigma, setup) {
-    .Call('mvtraits_c_alt_fill_missing', PACKAGE = 'mvtraits', dat, mu, Sigma, setup)
+c_mvnorm_fill_missing <- function(dat, mu, Sigma, setup) {
+    .Call('mvtraits_c_mvnorm_fill_missing', PACKAGE = 'mvtraits', dat, mu, Sigma, setup)
 }
 
 c_random_mvnorm <- function(n, mu, Sigma) {
@@ -27,5 +23,9 @@ c_random_mvnorm <- function(n, mu, Sigma) {
 
 rwishart <- function(df, S) {
     .Call('mvtraits_rwishart', PACKAGE = 'mvtraits', df, S)
+}
+
+set_R_seed <- function() {
+    invisible(.Call('mvtraits_set_R_seed', PACKAGE = 'mvtraits'))
 }
 

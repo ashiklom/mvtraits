@@ -62,22 +62,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// mvnorm_fill_missing
-arma::mat mvnorm_fill_missing(arma::mat y, arma::vec mu, arma::mat Sigma_chol);
-RcppExport SEXP mvtraits_mvnorm_fill_missing(SEXP ySEXP, SEXP muSEXP, SEXP Sigma_cholSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type Sigma_chol(Sigma_cholSEXP);
-    rcpp_result_gen = Rcpp::wrap(mvnorm_fill_missing(y, mu, Sigma_chol));
-    return rcpp_result_gen;
-END_RCPP
-}
-// c_alt_fill_missing
-arma::mat c_alt_fill_missing(arma::mat dat, arma::rowvec mu, arma::mat Sigma, Rcpp::List setup);
-RcppExport SEXP mvtraits_c_alt_fill_missing(SEXP datSEXP, SEXP muSEXP, SEXP SigmaSEXP, SEXP setupSEXP) {
+// c_mvnorm_fill_missing
+arma::mat c_mvnorm_fill_missing(arma::mat dat, arma::rowvec mu, arma::mat Sigma, Rcpp::List setup);
+RcppExport SEXP mvtraits_c_mvnorm_fill_missing(SEXP datSEXP, SEXP muSEXP, SEXP SigmaSEXP, SEXP setupSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -85,7 +72,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::rowvec >::type mu(muSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Sigma(SigmaSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type setup(setupSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_alt_fill_missing(dat, mu, Sigma, setup));
+    rcpp_result_gen = Rcpp::wrap(c_mvnorm_fill_missing(dat, mu, Sigma, setup));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -114,15 +101,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// set_R_seed
+void set_R_seed();
+RcppExport SEXP mvtraits_set_R_seed() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    set_R_seed();
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"mvtraits_c_cov2cor", (DL_FUNC) &mvtraits_c_cov2cor, 1},
     {"mvtraits_c_sample_mvnorm_hier", (DL_FUNC) &mvtraits_c_sample_mvnorm_hier, 16},
     {"mvtraits_c_sample_mvnorm", (DL_FUNC) &mvtraits_c_sample_mvnorm, 9},
-    {"mvtraits_mvnorm_fill_missing", (DL_FUNC) &mvtraits_mvnorm_fill_missing, 3},
-    {"mvtraits_c_alt_fill_missing", (DL_FUNC) &mvtraits_c_alt_fill_missing, 4},
+    {"mvtraits_c_mvnorm_fill_missing", (DL_FUNC) &mvtraits_c_mvnorm_fill_missing, 4},
     {"mvtraits_c_random_mvnorm", (DL_FUNC) &mvtraits_c_random_mvnorm, 3},
     {"mvtraits_rwishart", (DL_FUNC) &mvtraits_rwishart, 2},
+    {"mvtraits_set_R_seed", (DL_FUNC) &mvtraits_set_R_seed, 0},
     {NULL, NULL, 0}
 };
 

@@ -1,4 +1,4 @@
-#include "mvtraits_headers.h"
+#include "mvtraits_common.h"
 
 arma::rowvec store_covmat(arma::mat X) {
     arma::vec xvec_full = arma::vectorise(arma::trimatl(X));

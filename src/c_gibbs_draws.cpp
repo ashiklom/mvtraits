@@ -1,4 +1,4 @@
-#include "mvtraits_headers.h"
+#include "mvtraits_distributions.h"
 
 arma::rowvec c_draw_mu(arma::rowvec xbar, int nx, arma::mat Sigma_inv,
         arma::rowvec mu0, arma::mat Sigma_0_inv) {

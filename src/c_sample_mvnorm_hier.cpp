@@ -1,4 +1,6 @@
-#include "mvtraits_headers.h"
+#include "mvtraits_samplers.h"
+
+//[[Rcpp::depends(RcppProgress)]]
 
 //[[Rcpp::export]]
 Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups,
@@ -51,7 +53,7 @@ Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups,
             Sigma = Sigma_group.slice(g);
             Sigma_inv = arma::inv_sympd(Sigma);
             arma::mat dat_sub = dat.rows(arma::find(groups == (g + 1)));
-            arma::mat y = c_alt_fill_missing(dat_sub, mu, Sigma, setup);
+            arma::mat y = c_mvnorm_fill_missing(dat_sub, mu, Sigma, setup);
             ybar = arma::mean(y, 0);
             mu_group.row(g) = c_draw_mu(ybar, y.n_rows, Sigma_inv, mu0_group.row(g), Sigma0_group_inv.slice(g));
             Sigma_group.slice(g) = c_draw_Sigma(y, mu_group.row(g), v0_group(g), S0_group.slice(g));

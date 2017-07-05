@@ -1,4 +1,4 @@
-#include "mvtraits_headers.h"
+#include "mvtraits_common.h"
 
 //[[Rcpp::export]]
 arma::mat c_cov2cor(arma::mat m) {

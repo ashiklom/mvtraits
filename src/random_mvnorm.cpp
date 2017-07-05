@@ -1,4 +1,4 @@
-#include "mvtraits_headers.h"
+#include "mvtraits_zigg.h"
 
 // [[Rcpp::export]]
 arma::mat c_random_mvnorm(int n, arma::mat mu, arma::mat Sigma) {

@@ -18,7 +18,7 @@ nparam <- length(rand$mu)
 
 # Fill in missing data
 setup <- setup_missing(dat)
-dat_filled <- mvtraits:::c_alt_fill_missing(dat, mu, Sigma, setup)
+dat_filled <- mvtraits:::c_mvnorm_fill_missing(dat, mu, Sigma, setup)
 
 imputed <- dat_filled
 imputed[!is.na(dat)] <- NA

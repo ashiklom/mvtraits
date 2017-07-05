@@ -1,4 +1,4 @@
-#include "mvtraits_headers.h"
+#include "mvtraits_samplers.h"
 
 //[[Rcpp::export]]
 Rcpp::List c_sample_mvnorm(int niter, arma::mat dat,
@@ -25,7 +25,7 @@ Rcpp::List c_sample_mvnorm(int niter, arma::mat dat,
                 Rcpp::stop("Detected user interrupt.");
             }
         }
-        y = c_alt_fill_missing(dat, mu, Sigma, setup);
+        y = c_mvnorm_fill_missing(dat, mu, Sigma, setup);
         ybar = arma::mean(y, 0);
         mu = c_draw_mu(ybar, n, Sigma_inv, mu0, Sigma0_inv);
         Sigma = c_draw_Sigma(y, mu, v0, S0);

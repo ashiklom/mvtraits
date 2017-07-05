@@ -1,4 +1,4 @@
-#include "mvtraits_headers.h"
+#include "mvtraits_zigg.h"
 
 // [[Rcpp::export]]
 arma::mat rwishart(double df, arma::mat S){
