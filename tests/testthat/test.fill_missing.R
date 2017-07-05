@@ -1,11 +1,7 @@
 rm(list = ls())
 
 library(testthat)
-if (interactive()) {
-    devtools::load_all('.')
-} else {
-    library(mvtraits)
-}
+library(mvtraits)
 
 ss <- function(x, y) {
     sum((y - x)^2)
@@ -30,7 +26,7 @@ test_that('Imputed values are close to true values', {
           expect_lt(ss(Sigma_imp, Sigma), 0.1)
 })
 
-if (interactive()) {
+if (exists('doplot')) {
     testplot <- function(i, j) {
         plot(dat[,i], dat[,j], pch = '.')
         points(imputed[,i], imputed[,j], pch = '.', col = 'red')

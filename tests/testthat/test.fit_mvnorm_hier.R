@@ -1,11 +1,7 @@
 rm(list = ls())
 
 library(testthat)
-if (interactive()) {
-    devtools::load_all('.')
-} else {
-    library(mvtraits)
-}
+library(mvtraits)
 
 global_mean <- c(-5, 0, 5)
 nparam <- length(global_mean)
@@ -44,7 +40,7 @@ samps_hier_mcmc <- results2mcmclist(samps_hier_full, 'hier')
 samps_hier_burned <- window(samps_hier_mcmc, start = floor(niter / 2))
 hier_sum <- summary_df(samps_hier_burned, group = TRUE)
 
-if (interactive()) {
+if (exists('doplot')) {
     library(ggplot2)
     ggplot(dplyr::filter(hier_sum, variable == 'Corr')) + 
         aes(x = group, y = Mean, ymin = `2.5%`, ymax = `97.5%`, color = group) + 

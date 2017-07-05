@@ -1,9 +1,5 @@
 library(testthat)
-if (interactive()) {
-    devtools::load_all('.')
-} else {
-    library(mvtraits)
-}
+library(mvtraits)
 
 cv <- cov(iris[,-5])
 flat <- flatten_matrix(cv)

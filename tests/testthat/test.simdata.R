@@ -1,11 +1,7 @@
 rm(list = ls())
 
 library(testthat)
-if (interactive()) {
-    devtools::load_all('.')
-} else {
-    library(mvtraits)
-}
+library(mvtraits)
 
 # Simulate some data
 rand <- random_data()

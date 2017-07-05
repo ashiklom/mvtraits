@@ -1,5 +1,5 @@
 library(testthat)
-devtools::load_all('.')
+library(mvtraits)
 
 ss <- function(x, y) {
     sum((y - x)^2)
@@ -11,7 +11,7 @@ Sigma <- cov(iris[,-5])
 n <- 5000
 m <- length(mu)
 
-samp <- mvtraits:::c_random_mvnorm(n, t(mu), Sigma)
+samp <- random_mvnorm(n, t(mu), Sigma)
 samp_mu <- colMeans(samp)
 samp_cov <- cov(samp)
 
