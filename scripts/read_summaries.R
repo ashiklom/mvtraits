@@ -34,8 +34,8 @@ grid_corr_plot <- function(dat, ...) {
 fig_dir <- file.path('figures', 'gibbs')
 dir.create(fig_dir, showWarnings = FALSE)
 
-(mass_plt <- grid_corr_plot(proc_mass))
+mass_plt <- grid_corr_plot(proc_mass)
 ggsave(filename = file.path(fig_dir, 'mass_corrmat.pdf'), plot = mass_plt, width = 10, height = 8)
 
-(area_plt <- grid_corr_plot(proc_area, facet_list = list(facets = ~yparam + xparam)))
+area_plt <- grid_corr_plot(proc_area, facet_list = list(facets = ~yparam + xparam))
 ggsave(filename = file.path(fig_dir, 'area_corrmat.pdf'), plot = area_plt, width = 10, height = 8)
