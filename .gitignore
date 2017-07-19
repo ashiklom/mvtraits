@@ -6,3 +6,6 @@ figures/
 callgrind.out.*
 progress
 results
+*.Rproj
+.Rproj.user
+.Rhistory
