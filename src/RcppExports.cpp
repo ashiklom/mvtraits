@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // c_cov2cor
 arma::mat c_cov2cor(arma::mat m);
-RcppExport SEXP mvtraits_c_cov2cor(SEXP mSEXP) {
+RcppExport SEXP _mvtraits_c_cov2cor(SEXP mSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -19,7 +19,7 @@ END_RCPP
 }
 // c_sample_mvnorm_hier
 Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups, arma::rowvec mu_global, arma::mat Sigma_global, arma::mat mu_group, arma::cube Sigma_group, arma::rowvec mu0_global, arma::mat Sigma0_global_inv, arma::mat mu0_group, arma::cube Sigma0_group_inv, double v0_global, arma::mat S0_global, arma::vec v0_group, arma::cube S0_group, Rcpp::List setup_bygroup);
-RcppExport SEXP mvtraits_c_sample_mvnorm_hier(SEXP niterSEXP, SEXP datSEXP, SEXP groupsSEXP, SEXP mu_globalSEXP, SEXP Sigma_globalSEXP, SEXP mu_groupSEXP, SEXP Sigma_groupSEXP, SEXP mu0_globalSEXP, SEXP Sigma0_global_invSEXP, SEXP mu0_groupSEXP, SEXP Sigma0_group_invSEXP, SEXP v0_globalSEXP, SEXP S0_globalSEXP, SEXP v0_groupSEXP, SEXP S0_groupSEXP, SEXP setup_bygroupSEXP) {
+RcppExport SEXP _mvtraits_c_sample_mvnorm_hier(SEXP niterSEXP, SEXP datSEXP, SEXP groupsSEXP, SEXP mu_globalSEXP, SEXP Sigma_globalSEXP, SEXP mu_groupSEXP, SEXP Sigma_groupSEXP, SEXP mu0_globalSEXP, SEXP Sigma0_global_invSEXP, SEXP mu0_groupSEXP, SEXP Sigma0_group_invSEXP, SEXP v0_globalSEXP, SEXP S0_globalSEXP, SEXP v0_groupSEXP, SEXP S0_groupSEXP, SEXP setup_bygroupSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -45,7 +45,7 @@ END_RCPP
 }
 // c_sample_mvnorm
 Rcpp::List c_sample_mvnorm(int niter, arma::mat dat, arma::rowvec mu, arma::mat Sigma, arma::rowvec mu0, arma::mat Sigma0_inv, double v0, arma::mat S0, Rcpp::List setup);
-RcppExport SEXP mvtraits_c_sample_mvnorm(SEXP niterSEXP, SEXP datSEXP, SEXP muSEXP, SEXP SigmaSEXP, SEXP mu0SEXP, SEXP Sigma0_invSEXP, SEXP v0SEXP, SEXP S0SEXP, SEXP setupSEXP) {
+RcppExport SEXP _mvtraits_c_sample_mvnorm(SEXP niterSEXP, SEXP datSEXP, SEXP muSEXP, SEXP SigmaSEXP, SEXP mu0SEXP, SEXP Sigma0_invSEXP, SEXP v0SEXP, SEXP S0SEXP, SEXP setupSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -64,7 +64,7 @@ END_RCPP
 }
 // c_mvnorm_fill_missing
 arma::mat c_mvnorm_fill_missing(arma::mat dat, arma::rowvec mu, arma::mat Sigma, Rcpp::List setup);
-RcppExport SEXP mvtraits_c_mvnorm_fill_missing(SEXP datSEXP, SEXP muSEXP, SEXP SigmaSEXP, SEXP setupSEXP) {
+RcppExport SEXP _mvtraits_c_mvnorm_fill_missing(SEXP datSEXP, SEXP muSEXP, SEXP SigmaSEXP, SEXP setupSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -78,7 +78,7 @@ END_RCPP
 }
 // c_random_mvnorm
 arma::mat c_random_mvnorm(int n, arma::mat mu, arma::mat Sigma);
-RcppExport SEXP mvtraits_c_random_mvnorm(SEXP nSEXP, SEXP muSEXP, SEXP SigmaSEXP) {
+RcppExport SEXP _mvtraits_c_random_mvnorm(SEXP nSEXP, SEXP muSEXP, SEXP SigmaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -91,7 +91,7 @@ END_RCPP
 }
 // rwishart
 arma::mat rwishart(double df, arma::mat S);
-RcppExport SEXP mvtraits_rwishart(SEXP dfSEXP, SEXP SSEXP) {
+RcppExport SEXP _mvtraits_rwishart(SEXP dfSEXP, SEXP SSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -103,7 +103,7 @@ END_RCPP
 }
 // set_R_seed
 void set_R_seed();
-RcppExport SEXP mvtraits_set_R_seed() {
+RcppExport SEXP _mvtraits_set_R_seed() {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     set_R_seed();
@@ -112,13 +112,13 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"mvtraits_c_cov2cor", (DL_FUNC) &mvtraits_c_cov2cor, 1},
-    {"mvtraits_c_sample_mvnorm_hier", (DL_FUNC) &mvtraits_c_sample_mvnorm_hier, 16},
-    {"mvtraits_c_sample_mvnorm", (DL_FUNC) &mvtraits_c_sample_mvnorm, 9},
-    {"mvtraits_c_mvnorm_fill_missing", (DL_FUNC) &mvtraits_c_mvnorm_fill_missing, 4},
-    {"mvtraits_c_random_mvnorm", (DL_FUNC) &mvtraits_c_random_mvnorm, 3},
-    {"mvtraits_rwishart", (DL_FUNC) &mvtraits_rwishart, 2},
-    {"mvtraits_set_R_seed", (DL_FUNC) &mvtraits_set_R_seed, 0},
+    {"_mvtraits_c_cov2cor", (DL_FUNC) &_mvtraits_c_cov2cor, 1},
+    {"_mvtraits_c_sample_mvnorm_hier", (DL_FUNC) &_mvtraits_c_sample_mvnorm_hier, 16},
+    {"_mvtraits_c_sample_mvnorm", (DL_FUNC) &_mvtraits_c_sample_mvnorm, 9},
+    {"_mvtraits_c_mvnorm_fill_missing", (DL_FUNC) &_mvtraits_c_mvnorm_fill_missing, 4},
+    {"_mvtraits_c_random_mvnorm", (DL_FUNC) &_mvtraits_c_random_mvnorm, 3},
+    {"_mvtraits_rwishart", (DL_FUNC) &_mvtraits_rwishart, 2},
+    {"_mvtraits_set_R_seed", (DL_FUNC) &_mvtraits_set_R_seed, 0},
     {NULL, NULL, 0}
 };
 

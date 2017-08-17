@@ -4,7 +4,7 @@ library(tidyverse)
 
 options(digits = 3)
 
-trydat <- readRDS('/projectnb/dietzelab/ashiklom/new_phytologist_traits/np_trait_analysis/traits_analysis.rds')
+trydat <- readRDS('extdata/traits_analysis.rds')
 
 results_dir <- 'results'
 dir.create(results_dir, showWarnings = FALSE)
