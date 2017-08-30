@@ -26,7 +26,7 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
     ugroups <- sort(unique(igroups))
 
     ndat <- nrow(dat)
-    setup_bygroup <- lapply(ugroups, function(x) setup_missing(dat[groups == x,]))
+    setup_bygroup <- lapply(ugroups, function(x) setup_missing(dat[igroups == x,]))
 
     # Where missing, use default priors
     default_priors <- gibbs_default_priors(nparam, ngroup)
@@ -115,7 +115,7 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
         } else {
             rmcmc <- results2mcmclist(results_list, 'hier')
             gd <- coda::gelman.diag(rmcmc)[[1]][,1]
-            exceed <- gd > 1.15
+            exceed <- gd > threshold
             converged <- all(!exceed)
             if (!converged) {
                 print('The following parameters have not converged: ')
