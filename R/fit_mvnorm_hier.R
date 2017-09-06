@@ -141,15 +141,19 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
             keep_seq <- seq(start, curr_niter)
             prev_results <- rapply(results_list, function(x) x[keep_seq, , drop = FALSE], how = 'replace')
             for (i in seq_len(nchains)) {
-                sechalf <- seq(floor(niter * 0.75), niter)
-                mu_global[[i]] <- colMeans(results_list[[i]][['mu_global']][sechalf,])
-                Sigma_global_vec <- colMeans(results_list[[i]][['Sigma_global']][sechalf,])
+                # sechalf <- seq(floor(niter * 0.75), niter)
+                # mu_global[[i]] <- colMeans(results_list[[i]][['mu_global']][sechalf,])
+                mu_global[[i]] <- results_list[[i]][['mu_global']][curr_niter,]
+                # Sigma_global_vec <- colMeans(results_list[[i]][['Sigma_global']][sechalf,])
+                Sigma_global_vec <- results_list[[i]][['Sigma_global']][curr_niter,]
                 Sigma_global[[i]] <- lowerdiag2mat(Sigma_global_vec)
-                mu_group_vec <- colMeans(results_list[[i]][['mu_group']][sechalf,])
+                # mu_group_vec <- colMeans(results_list[[i]][['mu_group']][sechalf,])
+                mu_group_vec <- results_list[[i]][['mu_group']][curr_niter,]
                 mu_group[[i]] <- matrix(mu_group_vec, ngroup, nparam)
                 colnames(mu_group[[i]]) <- param_names
                 rownames(mu_group[[i]]) <- group_names
-                Sigma_group_vec <- colMeans(results_list[[i]][['Sigma_group']][sechalf,])
+                # Sigma_group_vec <- colMeans(results_list[[i]][['Sigma_group']][sechalf,])
+                Sigma_group_vec <- results_list[[i]][['Sigma_group']][curr_niter,]
                 nvec <- length(Sigma_group_vec) / ngroup
                 for (j in seq_len(ngroup)) {
                     b <- j * nvec

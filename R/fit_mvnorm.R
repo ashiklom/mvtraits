@@ -102,9 +102,11 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
             keep_seq <- seq(start, curr_niter)
             prev_results <- rapply(results_list, function(x) x[keep_seq, , drop = FALSE], how = 'replace')
             for (i in seq_len(nchains)) {
-                sechalf <- seq(floor(niter * 0.75), niter)
-                mu[[i]] <- colMeans(results_list[[i]][['mu']][sechalf,])
-                Sigma_vec <- colMeans(results_list[[i]][['Sigma']][sechalf,])
+                # sechalf <- seq(floor(niter * 0.75), niter)
+                # mu[[i]] <- colMeans(results_list[[i]][['mu']][sechalf,])
+                # Sigma_vec <- colMeans(results_list[[i]][['Sigma']][sechalf,])
+                mu[[i]] <- results_list[[i]][['mu']][curr_niter,]
+                Sigma_vec <- results_list[[i]][['Sigma']][curr_niter,]
                 Sigma[[i]] <- lowerdiag2mat(Sigma_vec)
             }
         }
