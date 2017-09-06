@@ -2,6 +2,7 @@ rm(list = ls())
 
 library(testthat)
 library(mvtraits)
+plt <- FALSE
 
 global_mean <- c(-5, 0, 5)
 nparam <- length(global_mean)
@@ -26,13 +27,13 @@ for (i in seq_len(ndat)) {
     dat[i,] <- random_mvnorm(1, group_mu[groups[i],], group_sigma)
 }
 
-niter <- 500
+niter <- 100
 nchains <- 2
 parallel <- TRUE
 
 message('Running simple hierarchical...')
 samps_hier <- fit_mvnorm_hier(dat, groups, niter = niter, nchains = nchains, parallel = parallel,
-                              autofit = TRUE)
+                              autofit = TRUE, keep_samples = 75)
 message('Done!')
 
 samps_hier_full <- add_correlations(samps_hier, hier = TRUE, ngroups = ngroup)
@@ -42,8 +43,8 @@ hier_sum <- summary_df(samps_hier_burned, group = TRUE)
 
 if (exists('doplot')) {
     library(ggplot2)
-    ggplot(dplyr::filter(hier_sum, variable == 'Corr')) + 
-        aes(x = group, y = Mean, ymin = `2.5%`, ymax = `97.5%`, color = group) + 
+    ggplot(dplyr::filter(hier_sum, variable == 'Corr')) +
+        aes(x = group, y = Mean, ymin = `2.5%`, ymax = `97.5%`, color = group) +
         geom_pointrange() +
         facet_wrap(~index)
 }

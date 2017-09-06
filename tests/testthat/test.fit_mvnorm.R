@@ -2,7 +2,6 @@ rm(list = ls())
 
 library(testthat)
 library(mvtraits)
-plt <- FALSE
 
 rand <- random_data()
 
@@ -11,8 +10,9 @@ nchains <- 2
 parallel <- FALSE
 
 message('Running simple multivariate...')
-samps_mv <- fit_mvnorm(rand$dat, niter = niter, nchains = nchains, parallel = parallel, 
-                       autofit = TRUE)
+debugonce(fit_mvnorm)
+samps_mv <- fit_mvnorm(rand$dat, niter = niter, nchains = nchains, parallel = parallel,
+                       autofit = TRUE, keep_samples = 500)
 message('Done!')
 
 samps_mv_full <- add_correlations(samps_mv)

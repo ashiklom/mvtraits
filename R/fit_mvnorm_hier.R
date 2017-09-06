@@ -1,6 +1,6 @@
 #' @export
 fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains = 3, parallel = TRUE,
-                            autofit = FALSE, max_attempts = 10, threshold = 1.15, 
+                            autofit = FALSE, max_attempts = 10, keep_samples = Inf, threshold = 1.15,
                             save_progress = NULL) {
 
     stopifnot(is.matrix(dat), length(groups) == nrow(dat))
@@ -71,7 +71,7 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
             mu_group[[n]][i,] <- mvtnorm::rmvnorm(1, mu0_group[i,], Sigma0_group[i,,])
             #Sigma_group[[n]][i,,] <- solve(rWishart(1, v0_group[i] + nparam + 1, S0_group[i,,])[,,1])
             Sigma_group[[n]][i,,] <- diag(1, nparam)
-        } 
+        }
     }
 
     samplefun <- function(n) {
@@ -93,7 +93,7 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
 
     converged <- FALSE
     attempt <- 0
-    while(!converged) {
+    while (!converged) {
         attempt <- attempt + 1
         if (parallel) {
             curr_results <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
@@ -129,14 +129,17 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
             converged <- TRUE
         }
         if (attempt >= max_attempts) {
-            print(paste('Number of attempts', attempt, 
-                        'exceeds max attempts', max_attempts, 
+            print(paste('Number of attempts', attempt,
+                        'exceeds max attempts', max_attempts,
                         'but still no convergence. Returning samples as is.'))
             converged <- TRUE
         }
         if (!converged) {
             print('Resuming sampling.')
-            prev_results <- results_list
+            curr_niter <- nrow(results_list[[1]][[1]])
+            start <- pmax(curr_niter - keep_samples, 1)
+            keep_seq <- seq(start, curr_niter)
+            prev_results <- rapply(results_list, function(x) x[keep_seq, , drop = FALSE], how = 'replace')
             for (i in seq_len(nchains)) {
                 sechalf <- seq(floor(niter * 0.75), niter)
                 mu_global[[i]] <- colMeans(results_list[[i]][['mu_global']][sechalf,])
@@ -162,5 +165,5 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), nchains 
         parallel::stopCluster(cl)
     }
 
-    return(results_list) 
+    return(results_list)
 }

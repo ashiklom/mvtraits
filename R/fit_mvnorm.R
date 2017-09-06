@@ -1,7 +1,7 @@
 #' @useDynLib mvtraits
 #' @export
 fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel = TRUE,
-                       autofit = FALSE, max_attempts = 10, threshold = 1.15, save_progress = NULL) {
+                       autofit = FALSE, max_attempts = 10, keep_samples = Inf, threshold = 1.15, save_progress = NULL) {
 
     chainseq <- seq_len(nchains)
 
@@ -54,7 +54,7 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
 
     converged <- FALSE
     attempt <- 0
-    while(!converged) {
+    while (!converged) {
         attempt <- attempt + 1
         if (parallel) {
             curr_results <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
@@ -90,14 +90,17 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
             converged <- TRUE
         }
         if (attempt >= max_attempts) {
-            print(paste('Number of attempts', attempt, 
-                        'exceeds max attempts', max_attempts, 
+            print(paste('Number of attempts', attempt,
+                        'exceeds max attempts', max_attempts,
                         'but still no convergence. Returning samples as is.'))
             converged <- TRUE
         }
         if (!converged) {
             print('Resuming sampling.')
-            prev_results <- results_list
+            curr_niter <- nrow(results_list[[1]][[1]])
+            start <- pmax(curr_niter - keep_samples, 1)
+            keep_seq <- seq(start, curr_niter)
+            prev_results <- rapply(results_list, function(x) x[keep_seq, , drop = FALSE], how = 'replace')
             for (i in seq_len(nchains)) {
                 sechalf <- seq(floor(niter * 0.75), niter)
                 mu[[i]] <- colMeans(results_list[[i]][['mu']][sechalf,])
