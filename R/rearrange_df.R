@@ -50,7 +50,7 @@ reorder_df <- function(dat, params, value_cols) {
     out <- dat_split %>%
         dplyr::select_if(is.double) %>%
         lapply(dfcol2df, xvar = dat_split[['xvar']], yvar = dat_split[['yvar']], params) %>%
-        Reduce(f = function(x, y) dplyr::left_join(x, y, by = c('xparam', 'yparam')), x = .)
+        Reduce(f = function(x, y) dplyr::full_join(x, y, by = c('xparam', 'yparam')), x = .)
     colnames(out)[grep('value', colnames(out))] <- value_cols
     return(out)
 }
@@ -59,12 +59,13 @@ dfcol2df <- function(column, xvar, yvar, params) {
     mat <- dfcol2mat(column, xvar, yvar, params)
     vec <- flatten_matrix(mat)
     new_vars <- strsplit(names(vec), split = varsep_esc)
-    xparam <- sapply(new_vars, '[[', 1) %>% factor(levels = params[-1])
-    yparam <- sapply(new_vars, '[[', 2) %>% factor(levels = params[-length(params)])
+    xparam <- sapply(new_vars, '[[', 1)# %>% factor(levels = params[-1])
+    yparam <- sapply(new_vars, '[[', 2)# %>% factor(levels = params[-length(params)])
     out <- tibble::tibble(xparam = xparam, yparam = yparam, value = vec)
     return(out)
 }
 
+#' @export
 dfcol2mat <- function(column, xvar, yvar, params) {
     m <- length(params)
     n <- length(column)
@@ -74,7 +75,7 @@ dfcol2mat <- function(column, xvar, yvar, params) {
         xx <- xvar[i]
         yy <- yvar[i]
         mat[xx, yy] <- column[i]
-        if (xx != yy) mat[yy, xx] <- column[i]
+        mat[yy, xx] <- column[i]
     }
     return(mat)
 }

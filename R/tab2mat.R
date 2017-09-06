@@ -1,13 +1,4 @@
 #' @export
-tab2mat <- function(dat, colname = "Mean", ...) {
-    stopifnot(data.table::is.data.table(dat))
-    vec <- dat[[colname]]
-    names(vec) <- dat[["trait"]]
-    mat <- lowerdiag2mat(vec, ...)
-    return(mat)
-}
-
-#' @export
 lowerdiag2mat <- function(vec, col_names = TRUE, corr = FALSE, colorder = NULL, hier = FALSE) {
     # Determine matrix dimensions
     nvec <- length(vec)
