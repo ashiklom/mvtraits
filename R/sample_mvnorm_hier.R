@@ -42,23 +42,3 @@ sample_mvnorm_hier <- function(niter, dat, groups,
     return(result)
 }
 
-array2field <- function(a) {
-    dims <- dim(a)
-    ndims <- length(dims)
-    stopifnot(ndims <= 4)
-    cube_list <- lapply(seq_len(dims[1]), function(x) a[x,,,])
-    out <- matrix(cube_list, dims[1], 1)
-    return(out)
-}
-
-field2array <- function(f) {
-    d1 <- nrow(f)
-    d2p <- dim(f[[1]])
-    dims <- c(d1, d2p)
-    a <- array(NA_real_, dims)
-    for (i in seq_len(d1)) {
-        a[i,,,] <- f[[i]]
-    }
-    return(a)
-}
-
