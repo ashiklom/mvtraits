@@ -1,6 +1,6 @@
 #' @useDynLib mvtraits
 #' @export
-fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel = TRUE,
+fit_mvnorm <- function(dat, niter = 5000, priors = list(), inits = list(), nchains = 3, parallel = TRUE,
                        autofit = FALSE, max_attempts = 10, keep_samples = Inf, threshold = 1.15, save_progress = NULL) {
 
     chainseq <- seq_len(nchains)
@@ -30,7 +30,7 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
 
     Sigma0_inv <- solve(Sigma0)
 
-    # Draw initial conditions from priors
+    # Draw default initial conditions from priors
     mu <- list()
     Sigma <- list()
     for (n in chainseq) {
@@ -39,82 +39,28 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), nchains = 3, parallel
         Sigma[[n]] <- solve(rWishart(1, v0 + nparam + 1, S0)[,,1])
         dimnames(Sigma[[n]]) <- list(param_names, param_names)
     }
+    default_inits <- list(mu = mu, Sigma = Sigma)
+    if (!is.null(inits)) {
+        inits <- modifyList(default_inits, inits)
+    } else {
+        inits <- default_inits
+    }
 
-    samplefun <- function(n) {
-        sample_mvnorm(niter, dat, mu[[n]], Sigma[[n]],
+    samplefun <- function(n, inits) {
+        sample_mvnorm(niter, dat, inits$mu[[n]], inits$Sigma[[n]],
                       mu0, Sigma0_inv, v0, S0,
                       setup)
     }
 
-    if (parallel) {
-        ncores <- min(parallel::detectCores() - 1, nchains)
-        cl <- parallel::makeCluster(ncores, "FORK")
-        parallel::clusterSetRNGStream(cl)
-    }
-
-    converged <- FALSE
-    attempt <- 0
-    while (!converged) {
-        attempt <- attempt + 1
-        if (parallel) {
-            curr_results <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun)
-        } else {
-            curr_results <- lapply(chainseq, samplefun)
-        }
-        if (!is.null(save_progress)) {
-            save_fname <- sprintf('%s.%03d', save_progress, attempt)
-            saveRDS(curr_results, save_fname)
-        }
-        if (exists('prev_results')) {
-            results_list <- combine_results(prev_results, curr_results)
-        } else {
-            results_list <- curr_results
-        }
-        if (!(nchains > 1)) {
-            warning('Unable to check convergence because only one chain available.')
-            converged <- TRUE
-        } else {
-            rmcmc <- results2mcmclist(results_list, 'multi')
-            gd <- coda::gelman.diag(rmcmc)[[1]][,1]
-            exceed <- gd > threshold
-            converged <- all(!exceed)
-            if (!converged) {
-                print('The following parameters have not converged: ')
-                print(gd[exceed])
-            } else {
-                print('All parameters have converged')
-                converged <- TRUE
-            }
-        }
-        if (!autofit) {
-            converged <- TRUE
-        }
-        if (attempt >= max_attempts) {
-            print(paste('Number of attempts', attempt,
-                        'exceeds max attempts', max_attempts,
-                        'but still no convergence. Returning samples as is.'))
-            converged <- TRUE
-        }
-        if (!converged) {
-            print('Resuming sampling.')
-            curr_niter <- nrow(results_list[[1]][[1]])
-            start <- pmax(curr_niter - keep_samples, 1)
-            keep_seq <- seq(start, curr_niter)
-            prev_results <- rapply(results_list, function(x) x[keep_seq, , drop = FALSE], how = 'replace')
-            for (i in seq_len(nchains)) {
-                # sechalf <- seq(floor(niter * 0.75), niter)
-                # mu[[i]] <- colMeans(results_list[[i]][['mu']][sechalf,])
-                # Sigma_vec <- colMeans(results_list[[i]][['Sigma']][sechalf,])
-                mu[[i]] <- results_list[[i]][['mu']][curr_niter,]
-                Sigma_vec <- results_list[[i]][['Sigma']][curr_niter,]
-                Sigma[[i]] <- lowerdiag2mat(Sigma_vec)
-            }
-        }
-    }
-
-    if (parallel) {
-        parallel::stopCluster(cl)
-    }
-
-    return(results_list)
+    raw_samples <- run_until_converged(samplefun = samplefun,
+                                       model_type = 'multi',
+                                       inits = inits,
+                                       nchains = nchains,
+                                       parallel = parallel,
+                                       max_attempts = max_attempts,
+                                       save_progress = save_progress,
+                                       threshold = threshold,
+                                       keep_samples = keep_samples,
+                                       autofit = autofit)
+    return(raw_samples)
 }
