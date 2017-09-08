@@ -1,4 +1,5 @@
 #include "mvtraits_samplers.h"
+#include "mvtraits_seed.h"
 
 //[[Rcpp::export]]
 Rcpp::List c_sample_mvnorm(int niter, arma::mat dat,
@@ -16,7 +17,10 @@ Rcpp::List c_sample_mvnorm(int niter, arma::mat dat,
     // Storage matrices
     arma::mat mu_samp(niter, m, arma::fill::zeros);
     // Store lower triangle of covariance matrix
-    arma::mat Sigma_samp(niter, mf, arma::fill::zeros); 
+    arma::mat Sigma_samp(niter, mf, arma::fill::zeros);
+
+    // Initialize seed
+    set_R_seed();
 
     Progress p(niter, true);
     for (int i = 0; i < niter; i++) {

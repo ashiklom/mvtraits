@@ -8,7 +8,6 @@ void set_R_seed() {
     Rcpp::NumericVector rseed_vec = glob[".Random.seed"];
     unsigned int index = 2 + R::runif(0, 1) * (rseed_vec.size() - 2);
     unsigned long rseed = rseed_vec[index];
-    Rcpp::Rcout << "Using seed: " << rseed << std::endl;
     zigg.setSeed(rseed);
     return;
 }

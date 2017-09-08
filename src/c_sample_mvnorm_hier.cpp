@@ -1,4 +1,5 @@
 #include "mvtraits_samplers.h"
+#include "mvtraits_seed.h"
 
 //[[Rcpp::depends(RcppProgress)]]
 
@@ -32,9 +33,12 @@ Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups,
 
     // Initialize storage
     arma::mat mu_global_samp(niter, m, arma::fill::zeros);
-    arma::mat Sigma_global_samp(niter, mf, arma::fill::zeros); 
+    arma::mat Sigma_global_samp(niter, mf, arma::fill::zeros);
     arma::mat mu_group_samp(niter, mg, arma::fill::zeros);
-    arma::mat Sigma_group_samp(niter, mfg, arma::fill::zeros); 
+    arma::mat Sigma_group_samp(niter, mfg, arma::fill::zeros);
+
+    // Initialize seed
+    set_R_seed();
 
     Progress p(niter, true);
 
