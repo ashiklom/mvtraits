@@ -17,25 +17,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// c_sample_mvnorm
-Rcpp::List c_sample_mvnorm(int niter, arma::mat dat, arma::rowvec mu, arma::mat Sigma, arma::rowvec mu0, arma::mat Sigma0_inv, double v0, arma::mat S0, Rcpp::List setup);
-RcppExport SEXP _mvtraits_c_sample_mvnorm(SEXP niterSEXP, SEXP datSEXP, SEXP muSEXP, SEXP SigmaSEXP, SEXP mu0SEXP, SEXP Sigma0_invSEXP, SEXP v0SEXP, SEXP S0SEXP, SEXP setupSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type niter(niterSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type dat(datSEXP);
-    Rcpp::traits::input_parameter< arma::rowvec >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type Sigma(SigmaSEXP);
-    Rcpp::traits::input_parameter< arma::rowvec >::type mu0(mu0SEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type Sigma0_inv(Sigma0_invSEXP);
-    Rcpp::traits::input_parameter< double >::type v0(v0SEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type S0(S0SEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type setup(setupSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_sample_mvnorm(niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, setup));
-    return rcpp_result_gen;
-END_RCPP
-}
 // c_sample_mvnorm_hier
 Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups, arma::rowvec mu_global, arma::mat Sigma_global, arma::mat mu_group, arma::cube Sigma_group, arma::rowvec mu0_global, arma::mat Sigma0_global_inv, arma::mat mu0_group, arma::cube Sigma0_group_inv, double v0_global, arma::mat S0_global, arma::vec v0_group, arma::cube S0_group, Rcpp::List setup_bygroup);
 RcppExport SEXP _mvtraits_c_sample_mvnorm_hier(SEXP niterSEXP, SEXP datSEXP, SEXP groupsSEXP, SEXP mu_globalSEXP, SEXP Sigma_globalSEXP, SEXP mu_groupSEXP, SEXP Sigma_groupSEXP, SEXP mu0_globalSEXP, SEXP Sigma0_global_invSEXP, SEXP mu0_groupSEXP, SEXP Sigma0_group_invSEXP, SEXP v0_globalSEXP, SEXP S0_globalSEXP, SEXP v0_groupSEXP, SEXP S0_groupSEXP, SEXP setup_bygroupSEXP) {
@@ -59,6 +40,25 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::cube >::type S0_group(S0_groupSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type setup_bygroup(setup_bygroupSEXP);
     rcpp_result_gen = Rcpp::wrap(c_sample_mvnorm_hier(niter, dat, groups, mu_global, Sigma_global, mu_group, Sigma_group, mu0_global, Sigma0_global_inv, mu0_group, Sigma0_group_inv, v0_global, S0_global, v0_group, S0_group, setup_bygroup));
+    return rcpp_result_gen;
+END_RCPP
+}
+// c_sample_mvnorm
+Rcpp::List c_sample_mvnorm(int niter, arma::mat dat, arma::rowvec mu, arma::mat Sigma, arma::rowvec mu0, arma::mat Sigma0_inv, double v0, arma::mat S0, Rcpp::List setup);
+RcppExport SEXP _mvtraits_c_sample_mvnorm(SEXP niterSEXP, SEXP datSEXP, SEXP muSEXP, SEXP SigmaSEXP, SEXP mu0SEXP, SEXP Sigma0_invSEXP, SEXP v0SEXP, SEXP S0SEXP, SEXP setupSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type niter(niterSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type dat(datSEXP);
+    Rcpp::traits::input_parameter< arma::rowvec >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Sigma(SigmaSEXP);
+    Rcpp::traits::input_parameter< arma::rowvec >::type mu0(mu0SEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Sigma0_inv(Sigma0_invSEXP);
+    Rcpp::traits::input_parameter< double >::type v0(v0SEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type S0(S0SEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type setup(setupSEXP);
+    rcpp_result_gen = Rcpp::wrap(c_sample_mvnorm(niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, setup));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -101,6 +101,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// store_covmat
+arma::rowvec store_covmat(arma::mat X);
+RcppExport SEXP _mvtraits_store_covmat(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(store_covmat(X));
+    return rcpp_result_gen;
+END_RCPP
+}
 // set_R_seed
 void set_R_seed();
 RcppExport SEXP _mvtraits_set_R_seed() {
@@ -113,11 +124,12 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mvtraits_c_cov2cor", (DL_FUNC) &_mvtraits_c_cov2cor, 1},
-    {"_mvtraits_c_sample_mvnorm", (DL_FUNC) &_mvtraits_c_sample_mvnorm, 9},
     {"_mvtraits_c_sample_mvnorm_hier", (DL_FUNC) &_mvtraits_c_sample_mvnorm_hier, 16},
+    {"_mvtraits_c_sample_mvnorm", (DL_FUNC) &_mvtraits_c_sample_mvnorm, 9},
     {"_mvtraits_c_mvnorm_fill_missing", (DL_FUNC) &_mvtraits_c_mvnorm_fill_missing, 4},
     {"_mvtraits_c_random_mvnorm", (DL_FUNC) &_mvtraits_c_random_mvnorm, 3},
     {"_mvtraits_rwishart", (DL_FUNC) &_mvtraits_rwishart, 2},
+    {"_mvtraits_store_covmat", (DL_FUNC) &_mvtraits_store_covmat, 1},
     {"_mvtraits_set_R_seed", (DL_FUNC) &_mvtraits_set_R_seed, 0},
     {NULL, NULL, 0}
 };

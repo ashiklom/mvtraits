@@ -5,15 +5,22 @@ library(mvtraits)
 
 rand <- random_data()
 
-niter <- 100
+niter <- 10000
 nchains <- 2
 parallel <- FALSE
+keep_samples <- Inf
+max_attempts <- 20
 
 message('Running simple multivariate...')
-debugonce(fit_mvnorm)
+# debugonce(fit_mvnorm)
+rand$dat[,4] <- NA
 samps_mv <- fit_mvnorm(rand$dat, niter = niter, nchains = nchains, parallel = parallel,
-                       autofit = TRUE, keep_samples = 500)
+                       autofit = FALSE, keep_samples = keep_samples, max_attempts = max_attempts)
+samps_mcmc <- results2mcmclist(samps_mv, 'multi')
+plot(samps_mcmc[,"Sigma..Petal.Width..Petal.Length"])
+
 message('Done!')
+
 
 samps_mv_full <- add_correlations(samps_mv)
 samps_mv_mcmc <- results2mcmclist(samps_mv_full, 'multi')

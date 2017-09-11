@@ -1,8 +1,23 @@
 #include "mvtraits_common.h"
 
+// [[Rcpp::export]]
 arma::rowvec store_covmat(arma::mat X) {
-    arma::vec xvec_full = arma::vectorise(arma::trimatl(X));
-    arma::vec xvec = arma::nonzeros(xvec_full);
+    unsigned int i;
+    unsigned int j;
+    unsigned int k;
+    unsigned int mf = X.n_rows * (X.n_rows + 1) / 2;
+    arma::vec xvec(mf);
+    k = 0;
+    for (j = 0; j < X.n_rows; j++) {
+        for (i = j; i < X.n_rows; i++) {
+            xvec(k) = X(i, j);
+            k++;
+        }
+    }
+    // for (i = 0; i < X.n_rows; i++) {
+    // }
+    // arma::vec xvec_full = arma::vectorise(arma::trimatl(X));
+    // arma::vec xvec = arma::nonzeros(xvec_full);
     return xvec.t();
 }
 
