@@ -1,12 +1,12 @@
 #include "mvtraits_zigg.h"
 
 // [[Rcpp::export]]
-arma::mat c_random_mvnorm(int n, arma::mat mu, arma::mat Sigma) {
-    int m = mu.n_cols;
+arma::mat c_random_mvnorm(unsigned int n, arma::mat mu, arma::mat Sigma) {
+    unsigned int m = mu.n_cols;
     arma::mat Sigma_chol = chol(Sigma);
     arma::mat rand(n, m);
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < m; j++) {
+    for (unsigned int i = 0; i < n; i++) {
+        for (unsigned int j = 0; j < m; j++) {
             rand(i, j) = zigg.norm();
         }
     }

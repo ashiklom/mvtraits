@@ -4,7 +4,7 @@
 //[[Rcpp::depends(RcppProgress)]]
 
 //[[Rcpp::export]]
-Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups,
+Rcpp::List c_sample_mvnorm_hier(unsigned int niter, arma::mat dat, arma::uvec groups,
                                 arma::rowvec mu_global, arma::mat Sigma_global,
                                 arma::mat mu_group, arma::cube Sigma_group,
                                 arma::rowvec mu0_global, arma::mat Sigma0_global_inv,
@@ -29,7 +29,7 @@ Rcpp::List c_sample_mvnorm_hier(int niter, arma::mat dat, arma::uvec groups,
     arma::mat Sigma(m, m, arma::fill::zeros);
     arma::mat Sigma_inv(m, m, arma::fill::zeros);
     arma::rowvec ybar(m, arma::fill::zeros);
-    int ny;
+    unsigned int ny;
 
     // Initialize storage
     arma::mat mu_global_samp(niter, m, arma::fill::zeros);

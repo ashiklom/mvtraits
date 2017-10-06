@@ -2,13 +2,13 @@
 
 // [[Rcpp::export]]
 arma::mat c_mvnorm_fill_missing (arma::mat dat, arma::rowvec mu, arma::mat Sigma, Rcpp::List setup) {
-    int npatt = setup["npatt"];
+    unsigned int npatt = setup["npatt"];
     Rcpp::List indlist = setup["indlist"];
     Rcpp::List mlist = setup["mlist"];
     Rcpp::List plist = setup["plist"];
-    for (int i = 0; i < npatt; i++) {
+    for (unsigned int i = 0; i < npatt; i++) {
         arma::uvec rows = indlist[i];
-        int nrows = rows.n_elem;
+        unsigned int nrows = rows.n_elem;
         arma::uvec m = mlist[i];
         if (m.n_elem == 0) {
             // All values present. Proceed to next pattern.
