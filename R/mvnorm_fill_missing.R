@@ -1,7 +1,14 @@
 #' @export
 setup_missing <- function(dat) {
     # Use -1 throughout to make indices work with C code
+
     all_missing <- which(apply(dat, 2, function(x) all(is.na(x)))) - 1
+    m <- ncol(dat) - 1
+    missing_tail <- seq(1 + m - length(all_missing), m)
+    orig_order <- seq_len(m + 1) - 1
+    new_order <- c(orig_order[!orig_order %in% all_missing], all_missing)
+    revert_order <- order(new_order) - 1
+
     missing_vec <- apply(dat, 1, function(x) which(is.na(x)) - 1)
     missing_vec_unique <- unique(missing_vec)
     missing_pattern <- sapply(missing_vec, paste, collapse = '_')
@@ -10,9 +17,18 @@ setup_missing <- function(dat) {
     present_vec <- apply(dat, 1, function(x) which(!is.na(x)) - 1)
     present_vec_unique <- unique(present_vec)
     n_pattern <- length(missing_pattern_unique)
-    out <- list(npatt = n_pattern, mlist = missing_vec_unique, plist = present_vec_unique,
-                indlist = pattern_inds, all_missing = all_missing)
-    return(out)
+
+    list(
+        npatt = n_pattern,
+        mlist = missing_vec_unique,
+        plist = present_vec_unique,
+        indlist = pattern_inds,
+        all_missing = all_missing,
+        missing_tail = missing_tail,
+        new_order = new_order,
+        revert_order = revert_order
+    )
+
 }
 
 #' @export
