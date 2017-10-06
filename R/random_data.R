@@ -2,7 +2,7 @@
 random_data <- function(mu = colMeans(iris[,-5]), Sigma = cov(iris[,-5]),
                         N = 5000, ngroup = 7, frac_miss = 0.75) {
     Cor <- cov2cor(Sigma)
-    dat_all <- mvtnorm::rmvnorm(N, mu, Sigma)
+    dat_all <- random_mvnorm(N, mu, Sigma)
     groups <- sample.int(ngroup, N, replace = TRUE)
     dat <- dat_all
     nmiss <- round(length(dat) * frac_miss)

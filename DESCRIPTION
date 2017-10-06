@@ -12,16 +12,16 @@ Depends:
     RcppZiggurat
 Imports:
     RcppArmadillo,
-    rstan,
+    abind,
+    coda,
+    parallel,
     dplyr,
     tidyr,
     purrr,
     tibble,
     magrittr,
     MASS,
-    corrplot,
-    data.table,
-    coda
+    corrplot
 License: FreeBSD
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress, RcppZiggurat
 RoxygenNote: 6.0.1

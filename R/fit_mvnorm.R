@@ -34,7 +34,7 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), inits = list(), nchai
     mu <- list()
     Sigma <- list()
     for (n in chainseq) {
-        mu[[n]] <- mvtnorm::rmvnorm(1, mu0, Sigma0)[1,]
+        mu[[n]] <- random_mvnorm(1, mu0, Sigma0)[1,]
         names(mu[[n]]) <- param_names
         Sigma[[n]] <- solve(rWishart(1, v0 + nparam + 1, S0)[,,1])
         dimnames(Sigma[[n]]) <- list(param_names, param_names)
