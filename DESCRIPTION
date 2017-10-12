@@ -15,6 +15,7 @@ Imports:
     abind,
     coda,
     parallel,
+    rlang,
     dplyr,
     tidyr,
     purrr,

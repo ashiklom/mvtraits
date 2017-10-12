@@ -52,15 +52,44 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), inits = list(), nchai
                       setup)
     }
 
-    raw_samples <- run_until_converged(samplefun = samplefun,
-                                       model_type = 'multi',
-                                       inits = inits,
-                                       nchains = nchains,
-                                       parallel = parallel,
-                                       max_attempts = max_attempts,
-                                       save_progress = save_progress,
-                                       threshold = threshold,
-                                       keep_samples = keep_samples,
-                                       autofit = autofit)
-    return(raw_samples)
+    message("Running sampler...")
+    raw_samples <- run_until_converged(
+      samplefun = samplefun,
+      model_type = 'multi',
+      inits = inits,
+      nchains = nchains,
+      parallel = parallel,
+      max_attempts = max_attempts,
+      save_progress = save_progress,
+      threshold = threshold,
+      keep_samples = keep_samples,
+      autofit = autofit
+    )
+
+    message("Calculating correlation matrices...")
+    raw_samples_corr <- add_correlations(raw_samples)
+    rm(raw_samples)
+
+    message("Converting samples to coda mcmc.list object...")
+    samples_mcmc <- results2mcmclist(raw_samples_corr, type = "multi")
+    rm(raw_samples_corr)
+
+    niter <- coda::niter(x = samples_mcmc)
+
+    message("Preparing summary table...")
+    summary_table <- summary_df(window(samples_mcmc, start = floor(niter / 2)), group = NULL)
+
+    mu_means <- summary2vec_multi(summary_table)
+    Sigma_means <- summary2mat_multi(summary_table, variable = "Sigma")
+    Corr_means <- summary2mat_multi(summary_table, variable = "Corr")
+
+    list(
+      summary_table = summary_table,
+      means = list(
+        mu = mu_means,
+        Sigma = Sigma_means,
+        Corr = Corr_means
+      ),
+      samples = samples_mcmc
+    )
 }
