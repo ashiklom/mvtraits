@@ -31,7 +31,7 @@ calc_correlations <- function(sigma_samples, hier = FALSE, ngroups = NULL) {
     ii <- 1 + add
     jj <- 2 + add
     param_names <- apply(names_split[seq_len(nc), -jj, drop = FALSE], 1, paste, collapse = varsep) 
-    corr_names_mat <- names_split[names_split[,ii] != names_split[,jj],]
+    corr_names_mat <- names_split[names_split[,ii] != names_split[,jj], , drop = FALSE]
     corr_names <- apply(corr_names_mat, 1, paste, collapse = varsep)
     for (i in seq_len(dims[1])) {
         if (hier) {

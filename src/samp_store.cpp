@@ -21,6 +21,7 @@ arma::rowvec store_covmat(arma::mat X) {
     return xvec.t();
 }
 
+// [[Rcpp::export]]
 arma::rowvec store_covgrouparray(arma::cube X) {
     unsigned int ngroup = X.n_slices;
     unsigned int m = X.n_rows;

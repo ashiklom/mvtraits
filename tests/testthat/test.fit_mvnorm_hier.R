@@ -29,11 +29,13 @@ for (i in seq_len(ndat)) {
 
 niter <- 100
 nchains <- 2
-parallel <- TRUE
+parallel <- FALSE
+autofit <- TRUE
+keep_samples <- 75
 
 message('Running simple hierarchical...')
 samps_hier <- fit_mvnorm_hier(dat, groups, niter = niter, nchains = nchains, parallel = parallel,
-                              autofit = TRUE, keep_samples = 75)
+                              autofit = autofit, keep_samples = keep_samples)
 message('Done!')
 
 samps_hier_full <- add_correlations(samps_hier, hier = TRUE, ngroups = ngroup)
@@ -41,10 +43,10 @@ samps_hier_mcmc <- results2mcmclist(samps_hier_full, 'hier')
 samps_hier_burned <- window(samps_hier_mcmc, start = floor(niter / 2))
 hier_sum <- summary_df(samps_hier_burned, group = TRUE)
 
-if (exists('doplot')) {
+#if (exists('doplot')) {
     library(ggplot2)
     ggplot(dplyr::filter(hier_sum, variable == 'Corr')) +
         aes(x = group, y = Mean, ymin = `2.5%`, ymax = `97.5%`, color = group) +
         geom_pointrange() +
         facet_wrap(~index)
-}
+#}

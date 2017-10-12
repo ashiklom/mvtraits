@@ -13,12 +13,12 @@ c_draw_Sigma <- function(x, mu, v0, S0) {
     .Call('_mvtraits_c_draw_Sigma', PACKAGE = 'mvtraits', x, mu, v0, S0)
 }
 
-c_sample_mvnorm <- function(niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, setup) {
-    .Call('_mvtraits_c_sample_mvnorm', PACKAGE = 'mvtraits', niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, setup)
-}
-
 c_sample_mvnorm_hier <- function(niter, dat, groups, mu_global, Sigma_global, mu_group, Sigma_group, mu0_global, Sigma0_global_inv, mu0_group, Sigma0_group_inv, v0_global, S0_global, v0_group, S0_group, setup_bygroup) {
     .Call('_mvtraits_c_sample_mvnorm_hier', PACKAGE = 'mvtraits', niter, dat, groups, mu_global, Sigma_global, mu_group, Sigma_group, mu0_global, Sigma0_global_inv, mu0_group, Sigma0_group_inv, v0_global, S0_global, v0_group, S0_group, setup_bygroup)
+}
+
+c_sample_mvnorm <- function(niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, setup) {
+    .Call('_mvtraits_c_sample_mvnorm', PACKAGE = 'mvtraits', niter, dat, mu, Sigma, mu0, Sigma0_inv, v0, S0, setup)
 }
 
 c_mvnorm_fill_missing <- function(dat, mu, Sigma, setup) {
@@ -35,6 +35,10 @@ rwishart <- function(df, S) {
 
 store_covmat <- function(X) {
     .Call('_mvtraits_store_covmat', PACKAGE = 'mvtraits', X)
+}
+
+store_covgrouparray <- function(X) {
+    .Call('_mvtraits_store_covgrouparray', PACKAGE = 'mvtraits', X)
 }
 
 set_R_seed <- function() {
