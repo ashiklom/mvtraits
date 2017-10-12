@@ -2,18 +2,20 @@
 #' @export
 magrittr::`%>%`
 
-#' @importFrom rlang UQ
+#' @importFrom rlang UQ UQS
 
-summary2vec_multi <- function(summary_table, variable = "mu") {
-  tab_sub <- dplyr::filter(summary_table, variable == UQ(variable))
+summary2vec <- function(summary_table, ...) {
+  filterq <- rlang::quos(...)
+  tab_sub <- dplyr::filter(summary_table, UQS(filterq))
   mean_vals <- tab_sub[["Mean"]]
   names(mean_vals) <- tab_sub[["index"]]
   mean_vals
 }
 
-summary2mat_multi <- function(summary_table, variable = 'Sigma') {
+summary2mat <- function(summary_table, ...) {
+  filterq <- rlang::quos(...)
   tab_sub <- summary_table %>% 
-    dplyr::filter(variable == UQ(variable)) %>% 
+    dplyr::filter(UQS(filterq)) %>% 
     tidyr::separate(index, c("var1", "var2"), sep = "\\.\\.") %>% 
     dplyr::select(var1, var2, Mean)
   if (is.factor(tab_sub$var1)) {
@@ -22,18 +24,4 @@ summary2mat_multi <- function(summary_table, variable = 'Sigma') {
     params <- union(unique(tab_sub$var1), unique(tab_sub$var2))
   }
   with(tab_sub, dfcol2mat(column = Mean, xvar = var1, yvar = var2, params = params))
-}
-
-summary2mu_global <- function(summary_table) {
-  tab_sub <- dplyr::filter(summary_table, variable == 'mu')
-  mean_vals <- tab_sub[["Mean"]]
-  names(mean_vals) <- tab_sub[["index"]]
-  mean_vals
-}
-
-summary2mu_group <- function(summary_table) {
-  tab_sub <- dplyr::filter(summary_table, variable == 'mu')
-  mean_vals <- tab_sub[["Mean"]]
-  names(mean_vals) <- tab_sub[["index"]]
-  mean_vals
 }

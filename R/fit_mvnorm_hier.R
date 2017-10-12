@@ -94,16 +94,58 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), inits = 
                            setup_bygroup)
     }
 
-    raw_samples <- run_until_converged(samplefun = samplefun,
-                                       model_type = 'hier',
-                                       inits = inits,
-                                       nchains = nchains,
-                                       parallel = parallel,
-                                       max_attempts = max_attempts,
-                                       save_progress = save_progress,
-                                       threshold = threshold,
-                                       keep_samples = keep_samples,
-                                       autofit = autofit)
+    message("Running sampler...")
+    raw_samples <- run_until_converged(
+      samplefun = samplefun,
+      model_type = 'hier',
+      inits = inits,
+      nchains = nchains,
+      parallel = parallel,
+      max_attempts = max_attempts,
+      save_progress = save_progress,
+      threshold = threshold,
+      keep_samples = keep_samples,
+      autofit = autofit
+    )
 
-    return(raw_samples)
+    message("Calculating correlation matrices...")
+    raw_samples_corr <- add_correlations(raw_samples, hier = TRUE, ngroups = ngroup)
+
+    message("Converting samples to coda mcmc.list object...")
+    samples_mcmc <- results2mcmclist(raw_samples_corr, type = "hier")
+
+    niter <- coda::niter(samples_mcmc)
+
+    message("Preparing summary table...")
+    summary_table <- summary_df(window(samples_mcmc, start = floor(niter / 2)), group = TRUE)
+
+    mu_global_means <- summary2vec(summary_table, variable == "mu", group == "global")
+    Sigma_global_means <- summary2mat(summary_table, variable == "Sigma", group == "global")
+    Corr_global_means <- summary2mat(summary_table, variable == "Corr", group == "global")
+
+    get_mu_group <- function(grp) {
+      summary2vec(summary_table, variable == "mu", group == grp)
+    }
+
+    get_mat_group <- function(grp, var) {
+      summary2mat(summary_table, variable == var, group == grp)
+    }
+
+    mu_group_means <- lapply(group_names, get_mu_group)
+    Sigma_group_means <- lapply(group_names, get_mat_group, var = "Sigma")
+    Corr_group_means <- lapply(group_names, get_mat_group, var = "Corr")
+    names(mu_group_means) <- names(Sigma_group_means) <- names(Corr_group_means) <- group_names
+
+    list(
+      summary_table = summary_table,
+      means = list(
+        mu_global = mu_global_means,
+        Sigma_global = Sigma_global_means,
+        Corr_global = Corr_global_means,
+        mu_group = mu_group_means,
+        Sigma_group = Sigma_group_means,
+        Corr_group = Corr_group_means
+      ),
+      samples = samples_mcmc
+    )
 }

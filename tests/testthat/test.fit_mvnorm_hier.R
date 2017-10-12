@@ -27,21 +27,17 @@ for (i in seq_len(ndat)) {
     dat[i,] <- random_mvnorm(1, group_mu[groups[i],], group_sigma)
 }
 
-niter <- 100
+niter <- 5000
 nchains <- 2
 parallel <- FALSE
 autofit <- TRUE
-keep_samples <- 75
+keep_samples <- 2000
 
 message('Running simple hierarchical...')
-samps_hier <- fit_mvnorm_hier(dat, groups, niter = niter, nchains = nchains, parallel = parallel,
+result <- fit_mvnorm_hier(dat, groups, niter = niter, nchains = nchains, parallel = parallel,
                               autofit = autofit, keep_samples = keep_samples)
 message('Done!')
 
-samps_hier_full <- add_correlations(samps_hier, hier = TRUE, ngroups = ngroup)
-samps_hier_mcmc <- results2mcmclist(samps_hier_full, 'hier')
-samps_hier_burned <- window(samps_hier_mcmc, start = floor(niter / 2))
-hier_sum <- summary_df(samps_hier_burned, group = TRUE)
 
 #if (exists('doplot')) {
     library(ggplot2)
