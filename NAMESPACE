@@ -3,6 +3,7 @@
 export("%>%")
 export(Wishart_prior_param)
 export(add_correlations)
+export(bar_plot_matrix)
 export(calc_correlations)
 export(chain2matrix_hier)
 export(chain2matrix_multi)

@@ -4,6 +4,7 @@
 #' @param dat_upper Data for upper triangle
 #' @param param_order Character vector of parameter values indicating order
 #' @param ... Additional arguments to [single_bar_plot]
+#' @export
 bar_plot_matrix <- function(dat_lower, dat_upper,
                             param_order = NULL, significant_only = TRUE,
                             diag_cex = 2, ...) {
