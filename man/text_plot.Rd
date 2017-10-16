@@ -4,9 +4,16 @@
 \alias{text_plot}
 \title{Simple text panel}
 \usage{
-text_plot(x = 0, y = 0, labels, ...)
+text_plot(labels, x = 0, y = 0, ...)
 }
 \arguments{
+\item{labels}{a character vector or \link{expression} specifying
+    the \emph{text} to be written.  An attempt is made to coerce other
+    language objects (names and calls) to expressions, and vectors and
+    other classed objects to character vectors by \code{\link{as.character}}.
+    If \code{labels} is longer than \code{x} and
+    \code{y}, the coordinates are recycled to the length of \code{labels}.}
+
 \item{x}{numeric vectors of coordinates where the text
     \code{labels} should be written.  If the length of \code{x} and
     \code{y} differs, the shorter one is recycled.}
@@ -14,13 +21,6 @@ text_plot(x = 0, y = 0, labels, ...)
 \item{y}{numeric vectors of coordinates where the text
     \code{labels} should be written.  If the length of \code{x} and
     \code{y} differs, the shorter one is recycled.}
-
-\item{labels}{a character vector or \link{expression} specifying
-    the \emph{text} to be written.  An attempt is made to coerce other
-    language objects (names and calls) to expressions, and vectors and
-    other classed objects to character vectors by \code{\link{as.character}}.
-    If \code{labels} is longer than \code{x} and
-    \code{y}, the coordinates are recycled to the length of \code{labels}.}
 
 \item{...}{further \link{graphical parameters} (from \code{\link{par}}),
     such as \code{srt}, \code{family} and \code{xpd}.}

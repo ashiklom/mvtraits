@@ -9,7 +9,7 @@ single_bar_plot(dat, significant_only = TRUE, ...)
 \arguments{
 \item{dat}{Data for panel}
 
-\item{significant_only}{If `TRUE`, hide columns that are not significantly 
+\item{significant_only}{If `TRUE`, hide columns that are not significantly
 difference from zero.}
 }
 \description{

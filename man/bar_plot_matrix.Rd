@@ -5,7 +5,7 @@
 \title{Draw matrix of correlation bar plots}
 \usage{
 bar_plot_matrix(dat_lower, dat_upper, param_order = NULL,
-  significant_only = TRUE, ...)
+  significant_only = TRUE, diag_cex = 2, ...)
 }
 \arguments{
 \item{dat_lower}{Data for lower triangle}
