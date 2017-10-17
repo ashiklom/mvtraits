@@ -2,7 +2,6 @@ rm(list = ls())
 
 library(testthat)
 library(mvtraits)
-plt <- FALSE
 
 # Fit iris data by species
 dat_full <- list(

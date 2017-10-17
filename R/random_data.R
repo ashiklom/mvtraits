@@ -42,9 +42,9 @@ cor_group_same <- lapply(
 )
 
 cor_group_diff <- list(
-    a = matrix(c(1, 0.9, 0.9, 1), nrow = 2),
+    a = matrix(c(1, 0.75, 0.75, 1), nrow = 2),
     b = matrix(c(1, 0, 0, 1), nrow = 2),
-    c = matrix(c(1, -0.9, -0.9, 1), nrow = 2)
+    c = matrix(c(1, -0.75, -0.75, 1), nrow = 2)
 )
 
 cor2cov <- function(cor, sdvec) {
@@ -80,7 +80,7 @@ random_data_hier <- function(mu_global = def_mu_global,
     samps_list <- Map(
         random_mvnorm,
         mu = mu_group,
-        Sigma = def_sigma_group,
+        Sigma = sigma_group,
         n = ceiling(n / ngroups)
     )
     stopifnot(
