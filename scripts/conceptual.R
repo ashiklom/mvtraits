@@ -58,7 +58,7 @@ purrr::walk(1:3,
   ~lines(
     ellipse_diff[[.]]$ellipse_x,
     ellipse_diff[[.]]$ellipse_y,
-    col = ellipse_diff[[.]]$group + 1,
+    col = "black",
     lwd = 4
   )
 )
