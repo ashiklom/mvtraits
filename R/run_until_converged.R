@@ -55,18 +55,30 @@ run_until_converged <- function(samplefun,
     if (parallel) {
         ncores <- min(parallel::detectCores() - 1, nchains)
         cl <- parallel::makeCluster(ncores, "FORK")
+        on.exit(parallel::stopCluster(cl))
     } else {
         cl <- NULL
     }
+    handle_interrupt <- function(e) {
+        message("Caught user interrupt. Returning last stored results.")
+        TRUE
+    }
     converged <- FALSE
     attempt <- 0
+    interrupted <- FALSE
     while (!converged) {
         attempt <- attempt + 1
-        curr_results <- run_chains(samplefun = samplefun,
-                                   inits = inits,
-                                   nchains = nchains,
-                                   parallel = parallel,
-                                   cl = cl)
+        interrupted <- tryCatch({
+            curr_results <- run_chains(samplefun = samplefun,
+                                       inits = inits,
+                                       nchains = nchains,
+                                       parallel = parallel,
+                                       cl = cl)
+            FALSE   # Value for interruption
+        }, interrupt = handle_interrupt)
+        if (interrupted) {
+            return(results_list)
+        }
         if (!is.null(save_progress)) {
             save_fname <- sprintf('%s.%03d', save_progress, attempt)
             saveRDS(curr_results, save_fname)
@@ -134,10 +146,6 @@ run_until_converged <- function(samplefun,
             } # end loop over chains
         } # end assign inits
     } # end while not converged
-
-    if (parallel) {
-        parallel::stopCluster(cl)
-    }
 
     return(results_list)
 } # end function `run_until_converged``
