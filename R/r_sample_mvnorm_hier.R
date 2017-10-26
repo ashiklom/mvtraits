@@ -8,13 +8,12 @@ r_sample_mvnorm_hier <- function(
 
     ugroup <- unique(groups)
     ngroup <- length(ugroup)
-    n <- nrow(dat)
     m <- ncol(dat)
     mf <- m * (m + 1) / 2
     mg <- m * ngroup
     mfg <- mf * ngroup
 
-    Sigma0_global <- solve(Sigma0_global_inv)
+    Sigma_global_inv <- solve(Sigma_global)
 
     Sigma_group_inv <- array(0, c(m, m, ngroup))
     Sigma0_group <- array(0, c(m, m, ngroup))
@@ -32,7 +31,6 @@ r_sample_mvnorm_hier <- function(
     Sigma_group_samp <- matrix(NA_real_, niter, mfg)
 
     for (i in seq_len(niter)) {
-      Sigma_global_inv <- solve(Sigma_global)
 
       # Within-group fit
       for (g in seq_len(ngroup)) {
@@ -93,7 +91,7 @@ r_sample_mvnorm_hier <- function(
 
       # Store outputs
       mu_global_samp[i,] <- mu_global
-      Sigma_global_samp[i,] <- store_covmat(Sigma)
+      Sigma_global_samp[i,] <- store_covmat(Sigma_global)
       mu_group_samp[i,] <- c(mu_group)
       Sigma_group_samp[i,] <- store_covgrouparray(Sigma_group)
       setTxtProgressBar(pb, i / niter)

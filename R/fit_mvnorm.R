@@ -79,16 +79,32 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), inits = list(), nchai
     message("Preparing summary table...")
     summary_table <- summary_df(window(samples_mcmc, start = floor(niter / 2)), group = NULL)
 
-    mu_means <- summary2vec(summary_table, variable == "mu")
-    Sigma_means <- summary2mat(summary_table, variable == "Sigma")
-    Corr_means <- summary2mat(summary_table, variable == "Corr")
+    stats <- c("Mean", "2.5%", "97.5%")
+    mu_stats <- sapply(
+      stats,
+      function(x) summary2vec(summary_table, x, variable == "mu"),
+      simplify = FALSE,
+      USE.NAMES = TRUE
+    )
+    Sigma_stats <- sapply(
+      stats,
+      function(x) summary2mat(summary_table, x, variable == "Sigma"),
+      simplify = FALSE,
+      USE.NAMES = TRUE
+    )
+    Corr_stats <- sapply(
+      stats,
+      function(x) summary2mat(summary_table, x, variable == "Corr"),
+      simplify = FALSE,
+      USE.NAMES = TRUE
+    )
 
     list(
       summary_table = summary_table,
-      means = list(
-        mu = mu_means,
-        Sigma = Sigma_means,
-        Corr = Corr_means
+      stats = list(
+        mu = mu_stats,
+        Sigma = Sigma_stats,
+        Corr = Corr_stats
       ),
       samples = samples_mcmc
     )

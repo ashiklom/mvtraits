@@ -1,7 +1,7 @@
 library(testthat)
 library(mvtraits)
 
-rand <- random_data_multi()
+dat <- as.matrix(iris[,-5])
 
 niter <- 10000
 nchains <- 2
@@ -12,7 +12,7 @@ autofit <- TRUE
 
 message("Running simple multivariate...")
 result <- fit_mvnorm(
-  rand$dat, niter = niter, nchains = nchains, parallel = parallel,
+  dat, niter = niter, nchains = nchains, parallel = parallel,
   autofit = autofit, keep_samples = keep_samples, max_attempts = max_attempts
 )
 message("Done!")
@@ -20,10 +20,10 @@ message("Done!")
 # R main, C functions: 11 seconds
 # All C:
 
-param <- c("par01", "par02")
-ellipse_dat <- ellipse_axes(
-  mean = result$means$mu[param],
-  cov = result$means$Sigma[param, param]
-)
-draw_ellipse(ellipse_dat)
-draw_majoraxis(ellipse_dat)
+#param <- c("par01", "par02")
+#ellipse_dat <- ellipse_axes(
+  #mean = result$means$mu[param],
+  #cov = result$means$Sigma[param, param]
+#)
+#draw_ellipse(ellipse_dat)
+#draw_majoraxis(ellipse_dat)

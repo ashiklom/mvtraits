@@ -4,10 +4,10 @@ library(testthat)
 library(mvtraits)
 
 # Simulate some data
-rand <- random_data()
-attach(rand)
+#rand <- random_data()
+#attach(rand)
 
-custom_inputs <- list()
+#custom_inputs <- list()
 
 #fit_uni <- runModel('uni', dat[groups == 1,], iter = 100, max.attempts = 1)
 #fit_multi <- runModel('multi', dat[groups == 1,], iter = 100, max.attempts = 1)

@@ -119,32 +119,59 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), inits = 
     message("Preparing summary table...")
     summary_table <- summary_df(window(samples_mcmc, start = floor(niter / 2)), group = TRUE)
 
-    mu_global_means <- summary2vec(summary_table, variable == "mu", group == "global")
-    Sigma_global_means <- summary2mat(summary_table, variable == "Sigma", group == "global")
-    Corr_global_means <- summary2mat(summary_table, variable == "Corr", group == "global")
+    stats <- c("Mean", "2.5%", "97.5%")
+    mu_global_stats <- sapply(
+      stats,
+      function(x) summary2vec(summary_table, x, variable == "mu", group == "global"),
+      simplify = FALSE,
+      USE.NAMES = TRUE
+    )
+
+    Sigma_global_stats <- sapply(
+      stats,
+      function(x) summary2mat(summary_table, x, variable == "Sigma", group == "global"),
+      simplify = FALSE,
+      USE.NAMES = TRUE
+    )
+
+    Corr_global_stats <- sapply(
+      stats,
+      function(x) summary2mat(summary_table, x, variable == "Corr", group == "global"),
+      simplify = FALSE,
+      USE.NAMES = TRUE
+    )
 
     get_mu_group <- function(grp) {
-      summary2vec(summary_table, variable == "mu", group == grp)
+      sapply(
+        stats,
+        function(x) summary2vec(summary_table, x, variable == "mu", group == grp),
+        simplify = FALSE,
+        USE.NAMES = TRUE
+      )
     }
 
     get_mat_group <- function(grp, var) {
-      summary2mat(summary_table, variable == var, group == grp)
+      sapply(
+        stats,
+        function(x) summary2mat(summary_table, x, variable == var, group == grp),
+        simplify = FALSE,
+        USE.NAMES = TRUE
+      )
     }
 
-    mu_group_means <- lapply(group_names, get_mu_group)
-    Sigma_group_means <- lapply(group_names, get_mat_group, var = "Sigma")
-    Corr_group_means <- lapply(group_names, get_mat_group, var = "Corr")
-    names(mu_group_means) <- names(Sigma_group_means) <- names(Corr_group_means) <- group_names
+    mu_group_stats <- sapply(group_names, get_mu_group, simplify = FALSE, USE.NAMES = TRUE)
+    Sigma_group_stats <- sapply(group_names, get_mat_group, var = "Sigma", simplify = FALSE, USE.NAMES = TRUE)
+    Corr_group_stats <- sapply(group_names, get_mat_group, var = "Corr", simplify = FALSE, USE.NAMES = TRUE)
 
     list(
       summary_table = summary_table,
-      means = list(
-        mu_global = mu_global_means,
-        Sigma_global = Sigma_global_means,
-        Corr_global = Corr_global_means,
-        mu_group = mu_group_means,
-        Sigma_group = Sigma_group_means,
-        Corr_group = Corr_group_means
+      stats = list(
+        mu_global = mu_global_stats,
+        Sigma_global = Sigma_global_stats,
+        Corr_global = Corr_global_stats,
+        mu_group = mu_group_stats,
+        Sigma_group = Sigma_group_stats,
+        Corr_group = Corr_group_stats
       ),
       samples = samples_mcmc
     )
