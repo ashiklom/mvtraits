@@ -1,0 +1,80 @@
+---
+title: "The mvtraits package"
+author: "Alexey Shiklomanov"
+---
+
+# Multivariate model
+
+Start with the iris dataset.
+
+```{r}
+library(mvtraits)
+iris <- tibble::as_tibble(iris)
+iris
+```
+
+Fit a simple multivariate model.
+
+```{r}
+iris_mat <- as.matrix(iris[, -5])   # Drop the species column
+iris_fit <- fit_mvnorm(iris_mat)
+```
+
+Compare summary statistics to sample estimates.
+
+```{r}
+iris_fit$stats$mu$Mean
+# Sepal.Length  Sepal.Width Petal.Length  Petal.Width 
+#     5.781918     3.063649     3.629532     1.145987 
+colMeans(iris_mat)
+# Sepal.Length  Sepal.Width Petal.Length  Petal.Width 
+#     5.843333     3.057333     3.758000     1.199333 
+iris_fit$stats$Sigma$Mean
+#              Sepal.Length Sepal.Width Petal.Length Petal.Width
+# Sepal.Length   0.69905594 -0.04294515    1.2872097   0.5215427
+# Sepal.Width   -0.04294515  0.19679519   -0.3304277  -0.1218010
+# Petal.Length   1.28720968 -0.33042765    3.1464284   1.3047208
+# Petal.Width    0.52154265 -0.12180102    1.3047208   0.5910824
+cov(iris_mat)
+#              Sepal.Length Sepal.Width Petal.Length Petal.Width
+# Sepal.Length    0.6856935  -0.0424340    1.2743154   0.5162707
+# Sepal.Width    -0.0424340   0.1899794   -0.3296564  -0.1216394
+# Petal.Length    1.2743154  -0.3296564    3.1162779   1.2956094
+# Petal.Width     0.5162707  -0.1216394    1.2956094   0.5810063
+```
+
+# Hierarchical model
+
+Extract the group column. Note that it must be a factor or integer.
+
+```{r}
+species <- iris[["Species"]]
+iris_hier <- fit_mvnorm_hier(iris_mat, species)
+```
+
+Examine summary statistics.
+
+```{r}
+iris_hier$stats$mu_global$Mean
+# Sepal.Length  Sepal.Width Petal.Length  Petal.Width 
+#   1.43731894   0.97100427  -0.06915593  -0.15839915 
+iris_hier$stats$mu_group$setosa$Mean
+# Sepal.Length  Sepal.Width Petal.Length  Petal.Width 
+#    4.9849705    3.4070773    1.4572325    0.2441596 
+iris_hier$stats$Sigma_group$setosa$Mean
+#              Sepal.Length Sepal.Width Petal.Length Petal.Width
+# Sepal.Length   0.14533214 0.099459340  0.016145770 0.010472789
+# Sepal.Width    0.09945934 0.164968078  0.011336066 0.009407176
+# Petal.Length   0.01614577 0.011336066  0.050583865 0.006005744
+# Petal.Width    0.01047279 0.009407176  0.006005744 0.031577003
+```
+
+Draw a "stick" plot for sepal length vs. sepal width
+
+```{r}
+default_stickplot(
+  iris_hier$stats$mu_global, iris_hier$stats$Sigma_global,
+  iris_hier$stats$mu_group, iris_hier$stats$Sigma_group,
+  "Sepal.Length", "Sepal.Width", levels(species)
+)
+```

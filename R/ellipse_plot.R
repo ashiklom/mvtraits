@@ -1,46 +1,22 @@
-#' Prepare covariance ellipse for plotting
+#' Retrieve covariance ellipse for single result
 #'
 #' @param mu List of mean coefficient statistics (see [fit_mvnorm()] and 
 #' [fit_mvnorm_hier()])
 #' @param Sigma List of variance-covariance matrix statistics (see 
 #' [fit_mvnorm()] and [fit_mvnorm_hier()])
 #' @inheritParams test_significant
-#' @param lty_s Line type for significant correlations
-#' @param lty_n Line type for insignificant correlations
-#' @param lwd_s Line width for significant correlations
-#' @param lwd_n Line width for insignificant correlations
-#' @param pch_s Point shape for significant correlations
-#' @param pch_n Point shape for insignificant correlations
-#' @param hide_insignificant If TRUE, set coordinates for insignificant 
-#' correlations to `NA`
-prep_ellipse <- function(mu, Sigma,
-                          xvar, yvar,
-                          lty_s = "solid", lty_n = "dashed",
-                          lwd_s = 2.0, lwd_n = 0.5,
-                          pch_s = 19, pch_n = 4,
-                          hide_insignificant = FALSE) {
+#' @export
+get_ellipse <- function(mu, Sigma, xvar, yvar) {
   xy <- c(xvar, yvar)
   mu_mean <- mu[["Mean"]][xy]
   Sigma_mean <- Sigma[["Mean"]][xy, xy]
 
-  is_significant_global <- test_significant(Sigma, xvar, yvar)
   eps <- ellipse_axes(Sigma_mean, mu_mean)
-  if (is_significant_global) {
-    eps$lty <- lty_s
-    eps$lwd <- lwd_s
-    eps$pch <- pch_s
-  } else {
-    if (hide_insignificant) {
-      eps$x1 <- eps$x2 <- eps$y1 <- eps$y2 <- NA
-    }
-    eps$lty <- lty_n
-    eps$lwd <- lwd_n
-    eps$pch <- pch_n
-  }
+  eps$significant <- test_significant(Sigma, xvar, yvar)
   eps
 }
 
-#' Stick plot for comparing group means and covariances
+#' Retrieve all covariance ellipse data for plotting
 #'
 #' @param mu_global List of global mean statistics
 #' @param Sigma_global List of global variance-covariance matrix statistics
@@ -48,6 +24,55 @@ prep_ellipse <- function(mu, Sigma,
 #' @param Sigma_group List of group variance-covariance matrix statistics
 #' @param group_names Names of each group. Must match order in `mu_group` and 
 #' `Sigma_group`.
+#' @inheritParams get_ellipse
+#' @export
+prep_stickplot <- function(mu_global, Sigma_global, mu_group, Sigma_group,
+                           xvar, yvar, group_names, global_name = "global") {
+  xy <- c(xvar, yvar)
+
+  eps_list <- Map(
+    get_ellipse,
+    mu = mu_group,  # apply over list
+    Sigma = Sigma_group,  # apply over list
+    xvar = xvar,
+    yvar = yvar
+  )
+  eps_global <- get_ellipse(mu_global, Sigma_global, xvar, yvar)
+  eps_dat <- dplyr::bind_rows(eps_global, eps_list)
+  eps_dat$group <- c(global_name, group_names)
+  eps_dat
+}
+
+#' Calculate x and y limits from ellipse data
+#'
+#' @param eps_dat Covariance ellipse data frame (see [prep_stickplot()])
+#' @export
+get_lims <- function(eps_dat) {
+  xlim <- range(eps_dat$x1, eps_dat$x2)
+  ylim <- range(eps_dat$y1, eps_dat$y2)
+  list(xlim = xlim, ylim = ylim)
+}
+
+#' Draw ellipse covariance axes from ellipse data
+#'
+#' @inheritParams get_lims
+#' @export
+draw_sticks <- function(eps_dat) {
+  cols <- colnames(eps_dat)
+  stopifnot(c("center_x", "center_y", "x1", "x2", "y1", "y2") %in% cols)
+  pch <- if ("pch" %in% cols) eps_dat$pch else 19
+  col <- if ("col" %in% cols) eps_dat$col else "black"
+  lwd <- if ("lwd" %in% cols) eps_dat$lwd else 1
+  lty <- if ("lty" %in% cols) eps_dat$lty else "solid"
+  cex <- if ("cex" %in% cols) eps_dat$cex else 1
+  points(center_y ~ center_x, data = eps_dat,
+         pch = pch, col = col, cex = cex)
+  segments(eps_dat$x1, eps_dat$y1, eps_dat$x2, eps_dat$y2,
+           col = col, lwd = lwd, lty = lty)
+}
+
+#' Stick plot for comparing group means and covariances
+#'
 #' @param par_plot List of graphical parameters for plot
 #' @param par_legend List of graphical parameters for legend
 #' @param cols Colors for group values
@@ -62,88 +87,66 @@ prep_ellipse <- function(mu, Sigma,
 #' @param cex_g Point size for global correlation
 #' @inheritParams prep_ellipse
 #' @export
-stick_plot <- function(mu_global, Sigma_global,
-                       mu_group, Sigma_group,
-                       xvar, yvar, group_names,
-                       par_plot = par(), par_legend = par(),
-                       cols = RColorBrewer::brewer.pal(length(group_names), 
-                                                       "Paired"),
-                       xlab = xvar, ylab = yvar,
-                       hide_insignificant_global = FALSE,
-                       col_g = "black",
-                       pch_g = 8, lty_g = "dotted", lwd_g = 3, cex_g = 2,
-                       hide_insignificant = TRUE,
-                       lty_s = "solid", lty_n = "dashed",
-                       lwd_s = 2.0, lwd_n = 0.5,
-                       pch_s = 19, pch_n = 4) {
-  xy <- c(xvar, yvar)
+default_stickplot <- function(mu_global, Sigma_global,
+                              mu_group, Sigma_group,
+                              xvar, yvar,
+                              group_names, global_name = "global",
+                              par_plot = list(), par_legend = list(),
+                              col_global = "black",
+                              col_group = RColorBrewer::brewer.pal(
+                                length(group_names),
+                                "Paired"
+                              ),
+                              xlab = xvar, ylab = yvar,
+                              pch_g = 8, lty_g = 3, lwd_g = 3, cex_g = 2,
+                              pch_s = 19, lty_s = 1, lwd_s = 2, cex_s = 1,
+                              pch_n = 4, lty_n = 2, lwd_n = 0, cex_n = 1) {
+
   ngroup <- length(group_names)
+  all_colors <- c(col_global, col_group)
+  eps_dat <- prep_stickplot(
+    mu_global, Sigma_global,
+    mu_group, Sigma_group,
+    xvar, yvar,
+    group_names, global_name
+  ) %>%
+    dplyr::mutate(
+      pch = dplyr::case_when(
+        group == global_name ~ pch_g,
+        significant ~ pch_s,
+        TRUE ~ pch_n
+      ),
+      lty = dplyr::case_when(
+        group == global_name ~ lty_g,
+        significant ~ lty_s,
+        TRUE ~ lty_n
+      ),
+      lwd = dplyr::case_when(
+        group == global_name ~ lwd_g,
+        significant ~ lwd_s,
+        TRUE ~ lwd_n
+      ),
+      col = all_colors,
+      cex = 1
+    )
+  lims <- get_lims(eps_dat)
 
-  eps_list <- Map(
-    prep_ellipse,
-    mu = mu_group,  # apply over list
-    Sigma = Sigma_group,  # apply over list
-    xvar = xvar,
-    yvar = yvar,
-    hide_insignificant = hide_insignificant,
-    lty_s = lty_s, lty_n = lty_n,
-    lwd_s = lwd_s, lwd_n = lwd_n,
-    pch_s = pch_s, pch_n = pch_n
-  )
-  eps_dat <- dplyr::bind_rows(eps_list)
-  eps_dat$group <- group_names
-
-  eps_global <- ellipse_axes(
-    Sigma_global$Mean[xy, xy],
-    mu_global$Mean[xy]
-  )
-  if (hide_insignificant_global) {
-    is_significant_global <- test_significant(Sigma_global, xvar, yvar)
-  } else {
-    is_significant_global <- TRUE
-  }
-
-  xlim <- with(eps_dat, c(min(x1, x2, na.rm = TRUE), max(x1, x2, na.rm = TRUE)))
-  ylim <- with(eps_dat, c(min(y1, y2, na.rm = TRUE), max(y1, y2, na.rm = TRUE)))
-
-  layout(matrix(c(1, 2), nrow = 1), widths = c(3, 1))
+  layout(matrix(c(1, 2), 1), widths = c(3, 1))
   par(par_plot)
-  plot(0, 0, type = "n", xlim = xlim, ylim = ylim,
-       xlab = "", ylab = "", axes = FALSE)
-
-  ## Group points
-  with(eps_dat, points(center_x, center_y, pch = pch, col = cols))
-  with(eps_dat, segments(x1, y1, x2, y2, col = cols, lwd = lwd, lty = lty))
-
-  ## Global correlation
-  with(eps_global, points(center_x, center_y,
-                          pch = pch_g, col = col_g, cex = cex_g))
-  if (is_significant_global) {
-    with(eps_global, segments(x1, y1, x2, y2,
-                              col = col_g, lwd = lwd_g, lty = lty_g))
-  }
-
-  labels_l <- c("global", group_names)
-  pch_l <- c(pch_g, rep(pch_s, ngroup))
-  lty_l <- c(lty_g, rep(lty_s, ngroup))
-  col_l <- c(col_g, cols)
-
-  ## Add log10 axis
+  plot(0, 0, type = "n", xlim = lims$xlim, ylim = lims$ylim,
+       xlab = "", ylab = "", axes = FALSE, ann = FALSE)
+  draw_sticks(eps_dat)
   par(append(par_plot, list(new = TRUE)))
-  plot(1, 1, type = "n", xlim = 10 ^ xlim, ylim = 10 ^ ylim,
+  plot(x = 1, y = 1, type = "n",
+       xlim = 10 ^ lims$xlim, ylim = 10 ^ lims$ylim,
        log = "xy", xlab = xlab, ylab = ylab)
 
-  par(par_legend)
-  plot(0:3, 0:3, type = "n", ann = FALSE, axes = FALSE)
-  legend("topleft", labels_l, pch = pch_l, lty = lty_l, col = col_l, 
-         bty = "n")
-
-  if (hide_insignificant) {
-    lty_ln <- NA
-  } else {
-    lty_ln <- lty_n
-  }
-
-  legend("bottomleft", c("significant", "not significant"),
-         lty = c(lty_s, lty_ln), pch = c(pch_s, pch_n), bty = "n")
+  par(append(par_legend, list(new = TRUE)))
+  plot(x = 0, y = 0, type = "n", axes = FALSE, ann = FALSE)
+  with(eps_dat, {
+       legend("top", group, pch = pch, lty = lty,
+              col = col, lwd = lwd, cex = cex)
+       legend("bottom", c("significant", "not significant"),
+              lty = c(lty_s, lty_n), pch = c(pch_s, pch_n))
+       })
 }
