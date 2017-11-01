@@ -2,7 +2,7 @@ Package: mvtraits
 Type: Package
 Title: New Phytologist multivariate trait analysis
 Version: 1.0.0
-Date: 2016-08-10
+Date: 2017-11-01
 Author: Alexey Shiklomanov, Elizabeth Cowdery, Michael Dietze
 Maintainer: Alexey Shiklomanov <ashiklom@bu.edu>
 Description: Functions for performing MV trait analysis.
@@ -20,9 +20,11 @@ Imports:
     tidyr,
     purrr,
     tibble,
-    magrittr,
-    MASS,
-    corrplot
-License: FreeBSD
+    magrittr
+Suggests:
+    RColorBrewer,
+    corrplot,
+    MASS
+License: MIT
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress, RcppZiggurat
 RoxygenNote: 6.0.1
