@@ -7,15 +7,16 @@
 get_ellipse(mu, Sigma, xvar, yvar)
 }
 \arguments{
-\item{mu}{List of mean coefficient statistics (see [fit_mvnorm()] and 
-[fit_mvnorm_hier()])}
+\item{mu}{List of mean coefficient statistics (see \code{\link[=fit_mvnorm]{fit_mvnorm()}} and
+\code{\link[=fit_mvnorm_hier]{fit_mvnorm_hier()}})}
 
-\item{Sigma}{List of variance-covariance matrix statistics (see 
-[fit_mvnorm()] and [fit_mvnorm_hier()])}
+\item{Sigma}{List of variance-covariance matrix statistics (see
+\code{\link[=fit_mvnorm]{fit_mvnorm()}} and \code{\link[=fit_mvnorm_hier]{fit_mvnorm_hier()}})}
 
-\item{xvar}{Name of x variable as string (must match row name in `matlist`)}
+\item{xvar}{Name of x variable as string (must match row name in \code{matlist})}
 
-\item{yvar}{Name of y variable as string (must match column name in `matlist`)}
+\item{yvar}{Name of y variable as string (must match column name in
+\code{matlist})}
 }
 \description{
 Retrieve covariance ellipse for single result

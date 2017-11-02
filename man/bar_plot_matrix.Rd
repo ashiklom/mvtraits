@@ -14,7 +14,7 @@ bar_plot_matrix(dat_lower, dat_upper, param_order = NULL,
 
 \item{param_order}{Character vector of parameter values indicating order}
 
-\item{...}{Additional arguments to [single_bar_plot]}
+\item{...}{Additional arguments to \link{single_bar_plot}}
 }
 \description{
 Draw matrix of correlation bar plots

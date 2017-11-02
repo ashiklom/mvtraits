@@ -7,14 +7,14 @@
 check_convergence(results_list, model_type, threshold)
 }
 \arguments{
-\item{results_list}{MCMC output of `fit_mvnorm` function}
+\item{results_list}{MCMC output of \code{fit_mvnorm} function}
 
-\item{model_type}{`character(1)`, either `"multi"` or `"hier"`}
+\item{model_type}{\code{character(1)}, either \code{"multi"} or \code{"hier"}}
 
 \item{threshold}{Threshold for convergence of Gelman diagnostic.}
 }
 \value{
-`logical(1)`, TRUE if converged, FALSE if not or failed to calculate
+\code{logical(1)}, TRUE if converged, FALSE if not or failed to calculate
 }
 \description{
 Check convergence of MCMC samples

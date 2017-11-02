@@ -27,4 +27,5 @@ Suggests:
     MASS
 License: MIT
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress, RcppZiggurat
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.0.1

@@ -7,9 +7,9 @@
 draw_ellipse(ellipse_dat, col = 1, lwd = 1, lty = 1, ...)
 }
 \arguments{
-\item{ellipse_dat}{Ellipse data.frame, as returned by [ellipse_axes]}
+\item{ellipse_dat}{Ellipse data.frame, as returned by \link{ellipse_axes}}
 
-\item{...}{Additional arguments to [graphics::plot]}
+\item{...}{Additional arguments to \link[graphics:plot]{graphics::plot}}
 }
 \description{
 Draw ellipse

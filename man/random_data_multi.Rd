@@ -16,7 +16,7 @@ random_data_multi(mu = c(-2, 0, 2), sigma = matrix(c(1, 0.9, 0.6, 0.9, 1,
 
 \item{frac_miss}{Fraction of randomly missing data}
 
-\item{all_missing}{Column containing all missing data. Ignored if `NA`.}
+\item{all_missing}{Column containing all missing data. Ignored if \code{NA}.}
 }
 \description{
 Useful for testing.

@@ -7,7 +7,7 @@
 draw_sticks(eps_dat)
 }
 \arguments{
-\item{eps_dat}{Covariance ellipse data frame (see [prep_stickplot()])}
+\item{eps_dat}{Covariance ellipse data frame (see \code{\link[=prep_stickplot]{prep_stickplot()}})}
 }
 \description{
 Draw ellipse covariance axes from ellipse data

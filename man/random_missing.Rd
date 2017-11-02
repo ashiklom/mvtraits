@@ -7,7 +7,7 @@
 random_missing(dat, frac_miss = 0.75)
 }
 \arguments{
-\item{dat}{Data matrix to which to add `NA`}
+\item{dat}{Data matrix to which to add \code{NA}}
 
 \item{frac_miss}{Fraction of randomly missing data}
 }

@@ -5,14 +5,26 @@
 \title{Stick plot for comparing group means and covariances}
 \usage{
 default_stickplot(mu_global, Sigma_global, mu_group, Sigma_group, xvar, yvar,
-  group_names, global_name = "global", par_plot = par(),
-  par_legend = list(bty = "n"), col_global = "black",
-  col_group = RColorBrewer::brewer.pal(length(group_names), "Paired"),
-  xlab = xvar, ylab = yvar, pch_g = 8, lty_g = 3, lwd_g = 3,
-  cex_g = 2, pch_s = 19, lty_s = 1, lwd_s = 2, cex_s = 1, pch_n = 4,
-  lty_n = 2, lwd_n = 0, cex_n = 1)
+  group_names, par_plot = list(), par_legend = list(), xlab = xvar,
+  ylab = yvar, unlog_axes = FALSE, ...)
 }
 \arguments{
+\item{mu_global}{List of global mean statistics}
+
+\item{Sigma_global}{List of global variance-covariance matrix statistics}
+
+\item{mu_group}{List of group mean statistics}
+
+\item{Sigma_group}{List of group variance-covariance matrix statistics}
+
+\item{xvar}{Name of x variable as string (must match row name in \code{matlist})}
+
+\item{yvar}{Name of y variable as string (must match column name in
+\code{matlist})}
+
+\item{group_names}{Names of each group. Must match order in \code{mu_group} and
+\code{Sigma_group}.}
+
 \item{par_plot}{List of graphical parameters for plot}
 
 \item{par_legend}{List of graphical parameters for legend}
@@ -21,20 +33,9 @@ default_stickplot(mu_global, Sigma_global, mu_group, Sigma_group, xvar, yvar,
 
 \item{ylab}{Label for y variable}
 
-\item{pch_g}{Point shape for global correlation}
+\item{unlog_axes}{If TRUE, apply \code{10^x} transformation to axes}
 
-\item{lty_g}{Line type for global correlation}
-
-\item{lwd_g}{Line width for global correlation}
-
-\item{cex_g}{Point size for global correlation}
-
-\item{cols}{Colors for group values}
-
-\item{col_g}{Color for global values}
-
-\item{hide_insignificant_global}{If TRUE, don't draw global correlation if 
-it isn't statistically significant}
+\item{...}{Additional parameters to \code{\link[=prep_stickplot]{prep_stickplot()}}}
 }
 \description{
 Stick plot for comparing group means and covariances

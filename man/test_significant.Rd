@@ -7,16 +7,17 @@
 test_significant(matlist, xvar, yvar, lo = "2.5\%", hi = "97.5\%")
 }
 \arguments{
-\item{matlist}{List of covariance (or correlation) matrices, such as that 
-returned by [fit_mvnorm()] or [fit_mvnorm_hier()] summary functions.}
+\item{matlist}{List of covariance (or correlation) matrices, such as that
+returned by \code{\link[=fit_mvnorm]{fit_mvnorm()}} or \code{\link[=fit_mvnorm_hier]{fit_mvnorm_hier()}} summary functions.}
 
-\item{xvar}{Name of x variable as string (must match row name in `matlist`)}
+\item{xvar}{Name of x variable as string (must match row name in \code{matlist})}
 
-\item{yvar}{Name of y variable as string (must match column name in `matlist`)}
+\item{yvar}{Name of y variable as string (must match column name in
+\code{matlist})}
 
-\item{lo}{Name of lower significance statistic cutoff (default = "2.5%")}
+\item{lo}{Name of lower significance statistic cutoff (default = "2.5\%")}
 
-\item{hi}{Name of upper significance statistic cutoff (default = "97.5%")}
+\item{hi}{Name of upper significance statistic cutoff (default = "97.5\%")}
 }
 \description{
 Test if pairwise correlations are significant
