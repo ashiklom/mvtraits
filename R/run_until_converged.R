@@ -12,6 +12,12 @@ check_convergence <- function(results_list, model_type, threshold) {
         warning("Unable to calculate gelman diagnostic. Assuming no convergence")
         return(FALSE)
     }
+    bad <- !is.finite(gd)
+    if (any(bad)) {
+        warning("The following parameters had non-finite convergence values: ")
+        print(gd[bad])
+        return(FALSE)
+    }
     exceed <- gd > threshold
     converged <- all(!exceed)
     if (!converged) {
