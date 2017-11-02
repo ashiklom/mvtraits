@@ -49,7 +49,7 @@ prep_stickplot <- function(mu_global, Sigma_global, mu_group, Sigma_group,
                            ),
                            pch_g = 8, lty_g = 3, lwd_g = 3, cex_g = 2,
                            pch_s = 19, lty_s = 1, lwd_s = 2, cex_s = 1,
-                           pch_n = 4, lty_n = 2, lwd_n = 0, cex_n = 1
+                           pch_n = 4, lty_n = 0, lwd_n = 1, cex_n = 1
                            ) {
   xy <- c(xvar, yvar)
 
@@ -78,9 +78,9 @@ prep_stickplot <- function(mu_global, Sigma_global, mu_group, Sigma_group,
   }
 
   eps_global <- get_ellipse(mu_global, Sigma_global, xvar, yvar)
-  eps_dat <- dplyr::bind_rows(eps_global, eps_list)
-  eps_dat$group <- c(global_name, group_names)
-  all_colors <- c(col_global, col_group)
+  eps_dat <- dplyr::bind_rows(eps_list, eps_global)
+  eps_dat$group <- c(group_names, global_name)
+  all_colors <- c(col_group, col_global)
   eps_dat %>%
     dplyr::mutate(
       pch = set_pars(.data, pch_g, pch_s, pch_n, global_name, TRUE),
@@ -100,8 +100,13 @@ prep_stickplot <- function(mu_global, Sigma_global, mu_group, Sigma_group,
 #' @param eps_dat Covariance ellipse data frame (see [prep_stickplot()])
 #' @export
 get_lims <- function(eps_dat) {
-  xlim <- range(eps_dat$x1, eps_dat$x2)
-  ylim <- range(eps_dat$y1, eps_dat$y2)
+  eps_lim <- dplyr::mutate_at(
+    eps_dat,
+    c("x1", "x2", "y1", "y2"),
+    dplyr::funs(dplyr::if_else(significant, ., NA_real_))
+  )
+  xlim <- range(eps_lim$center_x, eps_lim$x1, eps_lim$x2, na.rm = TRUE)
+  ylim <- range(eps_lim$center_y, eps_lim$y1, eps_lim$y2, na.rm = TRUE)
   list(xlim = xlim, ylim = ylim)
 }
 
@@ -112,15 +117,17 @@ get_lims <- function(eps_dat) {
 draw_sticks <- function(eps_dat) {
   cols <- colnames(eps_dat)
   stopifnot(c("center_x", "center_y", "x1", "x2", "y1", "y2") %in% cols)
-  pch <- if ("pch" %in% cols) eps_dat$pch else 19
-  col <- if ("col" %in% cols) eps_dat$col else "black"
-  lwd <- if ("lwd" %in% cols) eps_dat$lwd else 1
-  lty <- if ("lty" %in% cols) eps_dat$lty else "solid"
-  cex <- if ("cex" %in% cols) eps_dat$cex else 1
-  points(center_y ~ center_x, data = eps_dat,
-         pch = pch, col = col, cex = cex)
-  segments(eps_dat$x1, eps_dat$y1, eps_dat$x2, eps_dat$y2,
-           col = col, lwd = lwd, lty = lty)
+  for (i in seq_len(nrow(eps_dat))) {
+    d <- eps_dat[i,]
+    pch <- if ("pch" %in% cols) d$pch else 19
+    col <- if ("col" %in% cols) d$col else "black"
+    lwd <- if ("lwd" %in% cols) d$lwd else 1
+    lty <- if ("lty" %in% cols) d$lty else "solid"
+    cex <- if ("cex" %in% cols) d$cex else 1
+    segments(d$x1, d$y1, d$x2, d$y2,
+             col = col, lwd = lwd, lty = lty)
+    points(d$center_x, d$center_y, pch = pch, col = col, cex = cex)
+  }
 }
 
 #' Stick plot for comparing group means and covariances
@@ -196,6 +203,8 @@ default_stickplot <- function(mu_global, Sigma_global, mu_group, Sigma_group,
 #' @param Sigma_group_upper List of group variance-covariance matrices for upper triangle
 #' @param vars_upper Names of variables for upper triangle
 #' @param par_label List of graphical parameters for diagonal labels
+#' @param par_legplot List of graphical parameters for legend plot box
+#' @param par_legend List of options passed directly to `legend` function
 #' @param screen_split `figs` argument for [graphics::split_screen()] for plot-legend split.
 #' @param ... Additional parameters to [prep_stickplot()]
 #' @export
@@ -208,7 +217,9 @@ stickplot_pairs <- function(mu_global_lower, Sigma_global_lower,
                             mu_group_upper = mu_group_lower,
                             Sigma_group_upper = Sigma_group_lower,
                             vars_upper = vars_lower,
-                            par_plot = list(), par_legend = list(),
+                            par_plot = list(), 
+                            par_legplot = list(),
+                            par_legend = list(),
                             par_label = list(),
                             screen_split = rbind(c(0, 1, 0.2, 1), c(0, 1, 0, 0.2)),
                             ...) {
@@ -256,7 +267,7 @@ stickplot_pairs <- function(mu_global_lower, Sigma_global_lower,
              xlab = "", ylab = "", axes = FALSE, ann = FALSE)
         draw_sticks(eps_dat)
         if (unlog_axes) {
-          screen(k)
+          screen(screens[k])
           plot(x = 1, y = 1, type = "n",
                xlim = 10 ^ lims$xlim, ylim = 10 ^ lims$ylim,
                log = "xy", xlab = "", ylab = "", axes = FALSE, ann = FALSE)
@@ -279,6 +290,7 @@ stickplot_pairs <- function(mu_global_lower, Sigma_global_lower,
   }
   ## Draw legend
   screen(main_screens[2])
+  par(par_legplot)
   plot(0, 0, type = "n", axes = FALSE, ann = FALSE)
   leg_default <- with(eps_dat, list(
     x = "center",
