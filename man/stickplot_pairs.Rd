@@ -10,8 +10,8 @@ stickplot_pairs(mu_global_lower, Sigma_global_lower, mu_group_lower,
   Sigma_global_upper = Sigma_global_lower, mu_group_upper = mu_group_lower,
   Sigma_group_upper = Sigma_group_lower, vars_upper = vars_lower,
   par_plot = list(), par_legplot = list(), par_legend = list(),
-  par_label = list(), screen_split = rbind(c(0, 1, 0.2, 1), c(0, 1, 0,
-  0.2)), ...)
+  par_label = list(), reorder_legend = FALSE, screen_split = rbind(c(0, 1,
+  0.2, 1), c(0, 1, 0, 0.2)), ...)
 }
 \arguments{
 \item{mu_global_lower}{List of global means for lower triangle}
@@ -48,6 +48,8 @@ stickplot_pairs(mu_global_lower, Sigma_global_lower, mu_group_lower,
 \item{par_legend}{List of options passed directly to \code{legend} function}
 
 \item{par_label}{List of graphical parameters for diagonal labels}
+
+\item{reorder_legend}{If \code{TRUE}, put last drawn layer first in legend.}
 
 \item{screen_split}{\code{figs} argument for \code{\link[graphics:split_screen]{graphics::split_screen()}} for plot-legend split.}
 

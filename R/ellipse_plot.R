@@ -205,6 +205,7 @@ default_stickplot <- function(mu_global, Sigma_global, mu_group, Sigma_group,
 #' @param par_label List of graphical parameters for diagonal labels
 #' @param par_legplot List of graphical parameters for legend plot box
 #' @param par_legend List of options passed directly to `legend` function
+#' @param reorder_legend If `TRUE`, put last drawn layer first in legend.
 #' @param screen_split `figs` argument for [graphics::split_screen()] for plot-legend split.
 #' @param ... Additional parameters to [prep_stickplot()]
 #' @export
@@ -221,6 +222,7 @@ stickplot_pairs <- function(mu_global_lower, Sigma_global_lower,
                             par_legplot = list(),
                             par_legend = list(),
                             par_label = list(),
+                            reorder_legend = FALSE,
                             screen_split = rbind(c(0, 1, 0.2, 1), c(0, 1, 0, 0.2)),
                             ...) {
   stopifnot(length(vars_lower) == length(vars_upper))
@@ -292,7 +294,13 @@ stickplot_pairs <- function(mu_global_lower, Sigma_global_lower,
   screen(main_screens[2])
   par(par_legplot)
   plot(0, 0, type = "n", axes = FALSE, ann = FALSE)
-  leg_default <- with(eps_dat, list(
+  if (reorder_legend) {
+    s <- c(nrow(eps_dat), seq(1, nrow(eps_dat) - 1))
+    eps_leg <- eps_dat[s,]
+  } else {
+    eps_leg <- eps_dat
+  }
+  leg_default <- with(eps_leg, list(
     x = "center",
     legend = group,
     col = col,
