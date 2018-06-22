@@ -6,11 +6,10 @@ Date: 2017-11-01
 Author: Alexey Shiklomanov, Elizabeth Cowdery, Michael Dietze
 Maintainer: Alexey Shiklomanov <ashiklom@bu.edu>
 Description: Functions for performing MV trait analysis.
-Depends:
+Imports:
     Rcpp,
     RcppProgress,
-    RcppZiggurat
-Imports:
+    RcppZiggurat,
     RcppArmadillo,
     abind,
     coda,
