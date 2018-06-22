@@ -7,7 +7,7 @@
 #' @export
 draw_mu <- function(data, Sigma, mu0, Sigma0) {
   Sigma_inv <- solve(Sigma)
-  Sigma_0_inv <- solve(Sigma_0)
+  Sigma_0_inv <- solve(Sigma0)
   xbar <- colMeans(data)
   nx <- nrow(data)
   c_draw_mu(xbar, nx, Sigma_inv, mu0, Sigma0)
