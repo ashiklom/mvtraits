@@ -152,15 +152,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// set_R_seed
-void set_R_seed();
-RcppExport SEXP _mvtraits_set_R_seed() {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    set_R_seed();
-    return R_NilValue;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mvtraits_c_cov2cor", (DL_FUNC) &_mvtraits_c_cov2cor, 1},
@@ -173,7 +164,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mvtraits_rwishart", (DL_FUNC) &_mvtraits_rwishart, 2},
     {"_mvtraits_store_covmat", (DL_FUNC) &_mvtraits_store_covmat, 1},
     {"_mvtraits_store_covgrouparray", (DL_FUNC) &_mvtraits_store_covgrouparray, 1},
-    {"_mvtraits_set_R_seed", (DL_FUNC) &_mvtraits_set_R_seed, 0},
     {NULL, NULL, 0}
 };
 

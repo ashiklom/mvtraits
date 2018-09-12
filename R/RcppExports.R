@@ -41,7 +41,3 @@ store_covgrouparray <- function(X) {
     .Call('_mvtraits_store_covgrouparray', PACKAGE = 'mvtraits', X)
 }
 
-set_R_seed <- function() {
-    invisible(.Call('_mvtraits_set_R_seed', PACKAGE = 'mvtraits'))
-}
-
