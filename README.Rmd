@@ -1,0 +1,92 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+# mvtraits
+
+The goal of `mvtraits` is to efficiently fit Bayesian (hierarchical) multivariate models to trait data.
+A key feature is the ability to perform multiple imputation of partially missing data.
+
+## Installation
+
+This package is not currently available on CRAN.
+To install directly from this repository, do the following:
+
+```r
+devtools::install_github("ashiklom/mvtraits")
+```
+
+## Example: The Iris dataset
+
+This is a basic example showing how a multivariate distribution can be fit to the classic Iris dataset.
+
+```{r example}
+library(mvtraits)
+data(iris)
+```
+
+### Multivariate fit
+
+The input data must be a matrix, with each trait in its own column.
+Below, we drop the `Species` column and convert the result to a matrix.
+
+```{r matrix}
+iris_mat <- as.matrix(iris[, !grepl("Species", colnames(iris))])
+```
+
+
+Fit a multivariate distribution with `fit_mvnorm`:
+
+```{r fit}
+iris_fit <- fit_mvnorm(iris_mat, parallel = FALSE)
+str(iris_fit, max.level = 2)
+```
+
+Compare the results to univariate summary statistics.
+
+```{r summarystats}
+iris_fit[[c("stats", "mu", "Mean")]]
+colMeans(iris_mat)
+iris_fit[[c("stats", "Sigma", "Mean")]]
+cov(iris_mat)
+```
+
+### Partial missing data
+
+Fitting models also works with partially missing data.
+Here, we remove half of the data at random.
+
+```{r add_missing}
+iris_mat2 <- iris_mat
+nmat <- length(iris_mat2)
+iris_mat2[sample.int(nmat, floor(nmat / 2))] <- NA
+head(iris_mat2)
+```
+
+Now, re-fit the model.
+
+```{r fit_missing}
+iris_fit2 <- fit_mvnorm(iris_mat2, parallel = FALSE)
+iris_fit2[[c("stats", "mu", "Mean")]]
+iris_fit2[[c("stats", "Sigma", "Mean")]]
+```
+
+### Hierarchical model
+
+`mvtraits` can also fit hierarchical models with the `fit_mvnorm_hier` function.
+The arguments are the same as `fit_mvnorm`, but also need a `group` argument that takes a vector of groups (similar to base R's `tapply`).
+
+```{r fit_hier}
+iris_fit2h <- fit_mvnorm_hier(iris_mat2, iris[["Species"]], parallel = FALSE)
+str(iris_fit2h, max.level = 2)
+```
