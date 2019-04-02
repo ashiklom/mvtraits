@@ -1,24 +1,19 @@
-library(testthat)
-library(mvtraits)
+context("Multivariate fit")
 
-dat <- as.matrix(iris[,-5])
+test_that("Simple multivariate fit", {
+  dat <- as.matrix(iris[, -5])
 
-niter <- 10000
-nchains <- 2
-parallel <- FALSE
-keep_samples <- Inf
-max_attempts <- 20
-autofit <- TRUE
+  niter <- 10000
+  nchains <- 2
+  keep_samples <- Inf
+  max_attempts <- 20
+  autofit <- TRUE
 
-message("Running simple multivariate...")
-result <- fit_mvnorm(
-  dat, niter = niter, nchains = nchains, parallel = parallel,
-  autofit = autofit, keep_samples = keep_samples, max_attempts = max_attempts
-)
-message("Done!")
-# R version: 25 seconds
-# R main, C functions: 11 seconds
-# All C:
+  result <- fit_mvnorm(
+    dat, niter = niter, nchains = nchains,
+    autofit = autofit, keep_samples = keep_samples, max_attempts = max_attempts
+  )
+})
 
 #param <- c("par01", "par02")
 #ellipse_dat <- ellipse_axes(
