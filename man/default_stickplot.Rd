@@ -4,9 +4,9 @@
 \alias{default_stickplot}
 \title{Stick plot for comparing group means and covariances}
 \usage{
-default_stickplot(mu_global, Sigma_global, mu_group, Sigma_group, xvar, yvar,
-  group_names, par_plot = list(), par_legend = list(), xlab = xvar,
-  ylab = yvar, unlog_axes = FALSE, ...)
+default_stickplot(mu_global, Sigma_global, mu_group, Sigma_group, xvar,
+  yvar, group_names, par_plot = list(), par_legend = list(),
+  xlab = xvar, ylab = yvar, unlog_axes = FALSE, ...)
 }
 \arguments{
 \item{mu_global}{List of global mean statistics}

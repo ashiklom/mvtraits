@@ -4,9 +4,10 @@
 \alias{random_data_hier}
 \title{Random hierarchical multivariate data}
 \usage{
-random_data_hier(mu_global = def_mu_global, sigma_global = def_sigma_global,
-  mu_group = def_mu_group, sigma_group = def_sigma_group, n = 5000,
-  frac_miss = 0.75, all_missing_group = 3, all_missing_col = 2)
+random_data_hier(mu_global = def_mu_global,
+  sigma_global = def_sigma_global, mu_group = def_mu_group,
+  sigma_group = def_sigma_group, n = 5000, frac_miss = 0.75,
+  all_missing_group = 3, all_missing_col = 2)
 }
 \arguments{
 \item{mu_global}{Global mean vector}

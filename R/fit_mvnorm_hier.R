@@ -1,7 +1,7 @@
 #' @export
-fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), inits = list(), nchains = 3, parallel = TRUE,
+fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), inits = list(), nchains = 3,
                             autofit = FALSE, max_attempts = 10, keep_samples = Inf, threshold = 1.15,
-                            save_progress = NULL) {
+                            save_progress = NULL, progress = FALSE) {
 
     stopifnot(is.matrix(dat), length(groups) == nrow(dat))
 
@@ -83,24 +83,39 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), inits = 
         inits <- default_inits
     }
 
-    samplefun <- function(n, inits) {
-        sample_mvnorm_hier(niter, dat, igroups,
-                           inits$mu_global[[n]], inits$Sigma_global[[n]],
-                           inits$mu_group[[n]], inits$Sigma_group[[n]],
-                           mu0_global, Sigma0_global,
-                           mu0_group, Sigma0_group_inv,
-                           v0_global, S0_global,
-                           v0_group, S0_group,
-                           setup_bygroup)
-    }
+  sampler <- list(
+    fun = sample_mvnorm_hier,
+    init_fun = function(n, inits) {
+      list(
+        mu_global = inits[["mu_global"]][[n]],
+        Sigma_global = inits[["Sigma_global"]][[n]],
+        mu_group = inits[["mu_group"]][[n]],
+        Sigma_group = inits[["Sigma_group"]][[n]]
+      )
+    },
+    args = list(
+      niter = niter,
+      dat = dat,
+      groups = igroups,
+      mu0_global = mu0_global,
+      Sigma0_global = Sigma0_global,
+      mu0_group = mu0_group,
+      Sigma0_group_inv = Sigma0_group_inv,
+      v0_global = v0_global,
+      S0_global = S0_global,
+      v0_group = v0_group,
+      S0_group = S0_group,
+      setup_bygroup = setup_bygroup,
+      progress = progress
+    )
+  )
 
     message("Running sampler...")
     raw_samples <- run_until_converged(
-      samplefun = samplefun,
+      sampler = sampler,
       model_type = 'hier',
       inits = inits,
       nchains = nchains,
-      parallel = parallel,
       max_attempts = max_attempts,
       save_progress = save_progress,
       threshold = threshold,

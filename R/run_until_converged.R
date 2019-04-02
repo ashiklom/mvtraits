@@ -14,56 +14,56 @@ check_convergence <- function(results_list, model_type, threshold) {
     }
     bad <- !is.finite(gd)
     if (any(bad)) {
-        warning("The following parameters had non-finite convergence values: ")
-        print(gd[bad])
+      warning(
+        "The following parameters had non-finite convergence values:\n",
+        mprint(gd[bad])
+      )
         return(FALSE)
     }
     exceed <- gd > threshold
     converged <- all(!exceed)
     if (!converged) {
-        print('The following parameters have not converged: ')
-        print(gd[exceed])
+      message(
+        "The following parameters have not converged:\n",
+        mprint(gd[exceed])
+      )
     } else {
-        print('All parameters have converged')
+        message("All parameters have converged")
         converged <- TRUE
     }
     return(converged)
 }
 
-run_chains <- function(samplefun, inits, nchains, parallel = FALSE, cl = NULL) {
+run_chains <- function(sampler, inits, nchains) {
     chainseq <- seq_len(nchains)
-    if (parallel) {
-        parallel::clusterSetRNGStream(cl)
-        curr_results <- parallel::parLapply(cl = cl, X = chainseq, fun = samplefun, inits = inits)
-    } else {
-        curr_results <- lapply(chainseq, samplefun, inits = inits)
-    }
-    return(curr_results)
+    expand_inits <- lapply(chainseq, sampler[["init_fun"]], inits = inits)
+    expand_args <- lapply(expand_inits, modifyList, sampler[["args"]])
+    furrr::future_map(expand_args, do.call, what = sampler[["fun"]])
 }
 
-run_until_converged <- function(samplefun,
+run_until_converged <- function(sampler,
                                 model_type,
                                 inits,
                                 nchains,
-                                parallel,
                                 max_attempts,
                                 save_progress,
                                 threshold,
                                 keep_samples,
                                 autofit) {
+
     stopifnot(model_type %in% c('multi', 'hier'))
+  stopifnot(
+    is.list(sampler),
+    all(c("fun", "init_fun", "args") %in% names(sampler)),
+    is.function(sampler[["fun"]]),
+    is.function(sampler[["init_fun"]]),
+    is.list(sampler[["args"]])
+  )
     if (model_type == 'multi') {
         param_names <- colnames(inits[['mu']][[1]])
     } else if (model_type == 'hier') {
         param_names <- colnames(inits[['mu_global']][[1]])
         group_names <- rownames(inits[['mu_group']][[1]])
-    }
-    if (parallel) {
-        ncores <- min(parallel::detectCores() - 1, nchains)
-        cl <- parallel::makeCluster(ncores, "FORK")
-        on.exit(parallel::stopCluster(cl))
-    } else {
-        cl <- NULL
     }
     handle_interrupt <- function(e) {
         message("Caught user interrupt. Returning last stored results.")
@@ -74,17 +74,18 @@ run_until_converged <- function(samplefun,
     interrupted <- FALSE
     while (!converged) {
         attempt <- attempt + 1
-        interrupted <- tryCatch({
-            curr_results <- run_chains(samplefun = samplefun,
-                                       inits = inits,
-                                       nchains = nchains,
-                                       parallel = parallel,
-                                       cl = cl)
-            FALSE   # Value for interruption
-        }, interrupt = handle_interrupt)
-        if (interrupted) {
-            return(results_list)
-        }
+        curr_results <- run_chains(sampler = sampler,
+                                   inits = inits,
+                                   nchains = nchains)
+        ## interrupted <- tryCatch({
+        ##     curr_results <- run_chains(samplefun = samplefun,
+        ##                                inits = inits,
+        ##                                nchains = nchains)
+        ##     FALSE   # Value for interruption
+        ## }, interrupt = handle_interrupt)
+        ## if (interrupted) {
+        ##     return(results_list)
+        ## }
         if (!is.null(save_progress)) {
             save_fname <- sprintf('%s.%03d', save_progress, attempt)
             saveRDS(curr_results, save_fname)
@@ -104,13 +105,13 @@ run_until_converged <- function(samplefun,
             converged <- TRUE
         }
         if (attempt >= max_attempts) {
-            print(paste('Number of attempts', attempt,
+          message(paste('Number of attempts', attempt,
                         'exceeds max attempts', max_attempts,
                         'but still no convergence. Returning samples as is.'))
             converged <- TRUE
         }
         if (!converged) {
-            print('Resuming sampling.')
+            message('Resuming sampling.')
             curr_niter <- nrow(results_list[[1]][[1]])
             start <- pmax(curr_niter - keep_samples, 1)
             keep_seq <- seq(start, curr_niter)

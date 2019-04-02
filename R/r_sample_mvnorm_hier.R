@@ -3,7 +3,8 @@ r_sample_mvnorm_hier <- function(
     mu_global, Sigma_global, mu_group, Sigma_group,
     mu0_global, Sigma0_global_inv, mu0_group, Sigma0_group_inv,
     v0_global, S0_global, v0_group, S0_group,
-    setup_bygroup
+    setup_bygroup,
+    progress = FALSE
     ) {
 
     ugroup <- unique(groups)
@@ -23,8 +24,11 @@ r_sample_mvnorm_hier <- function(
       Sigma0_group[,,g] <- solve(Sigma0_group_inv[,,g])
     }
 
+  if (progress) {
     pb <- txtProgressBar()
-
+    on.exit(close(pb), add = TRUE)
+  }
+  
     mu_global_samp <- matrix(NA_real_, niter, m)
     Sigma_global_samp <- matrix(NA_real_, niter, mf)
     mu_group_samp <- matrix(NA_real_, niter, mg)
@@ -94,7 +98,7 @@ r_sample_mvnorm_hier <- function(
       Sigma_global_samp[i,] <- store_covmat(Sigma_global)
       mu_group_samp[i,] <- c(mu_group)
       Sigma_group_samp[i,] <- store_covgrouparray(Sigma_group)
-      setTxtProgressBar(pb, i / niter)
+      if (progress) setTxtProgressBar(pb, i / niter)
     }
 
     list(

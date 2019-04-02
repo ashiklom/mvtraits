@@ -48,7 +48,7 @@ iris_mat <- as.matrix(iris[, !grepl("Species", colnames(iris))])
 Fit a multivariate distribution with `fit_mvnorm`:
 
 ```{r fit}
-iris_fit <- fit_mvnorm(iris_mat, parallel = FALSE)
+iris_fit <- fit_mvnorm(iris_mat)
 str(iris_fit, max.level = 2)
 ```
 
@@ -76,7 +76,7 @@ head(iris_mat2)
 Now, re-fit the model.
 
 ```{r fit_missing}
-iris_fit2 <- fit_mvnorm(iris_mat2, parallel = FALSE)
+iris_fit2 <- fit_mvnorm(iris_mat2)
 iris_fit2[[c("stats", "mu", "Mean")]]
 iris_fit2[[c("stats", "Sigma", "Mean")]]
 ```
@@ -87,6 +87,6 @@ iris_fit2[[c("stats", "Sigma", "Mean")]]
 The arguments are the same as `fit_mvnorm`, but also need a `group` argument that takes a vector of groups (similar to base R's `tapply`).
 
 ```{r fit_hier}
-iris_fit2h <- fit_mvnorm_hier(iris_mat2, iris[["Species"]], parallel = FALSE)
+iris_fit2h <- fit_mvnorm_hier(iris_mat2, iris[["Species"]])
 str(iris_fit2h, max.level = 2)
 ```

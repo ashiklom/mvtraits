@@ -28,7 +28,6 @@ Rcpp::List c_sample_mvnorm_hier(unsigned int niter, arma::mat dat, arma::uvec gr
     arma::mat Sigma(m, m, arma::fill::zeros);
     arma::mat Sigma_inv(m, m, arma::fill::zeros);
     arma::rowvec ybar(m, arma::fill::zeros);
-    unsigned int ny;
 
     // Initialize storage
     arma::mat mu_global_samp(niter, m, arma::fill::zeros);

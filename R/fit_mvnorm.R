@@ -1,7 +1,9 @@
 #' @useDynLib mvtraits
 #' @export
-fit_mvnorm <- function(dat, niter = 5000, priors = list(), inits = list(), nchains = 3, parallel = TRUE,
-                       autofit = FALSE, max_attempts = 10, keep_samples = Inf, threshold = 1.15, save_progress = NULL) {
+fit_mvnorm <- function(dat, niter = 5000, priors = list(), inits = list(), nchains = 3,
+                       autofit = FALSE, max_attempts = 10, keep_samples = Inf,
+                       threshold = 1.15, save_progress = NULL,
+                       progress = FALSE) {
 
     chainseq <- seq_len(nchains)
 
@@ -46,19 +48,32 @@ fit_mvnorm <- function(dat, niter = 5000, priors = list(), inits = list(), nchai
         inits <- default_inits
     }
 
-    samplefun <- function(n, inits) {
-        sample_mvnorm(niter, dat, inits$mu[[n]], inits$Sigma[[n]],
-                      mu0, Sigma0_inv, v0, S0,
-                      setup)
-    }
+  sampler <- list(
+    fun = sample_mvnorm,
+    init_fun = function(n, inits) {
+      list(
+        mu = inits[["mu"]][[n]],
+        Sigma = inits[["Sigma"]][[n]]
+      )
+    },
+    args = list(
+      niter = niter,
+      dat = dat,
+      mu0 = mu0,
+      Sigma0_inv = Sigma0_inv,
+      v0 = v0,
+      S0 = S0,
+      setup = setup,
+      progress = progress
+    )
+  )
 
     message("Running sampler...")
     raw_samples <- run_until_converged(
-      samplefun = samplefun,
+      sampler = sampler,
       model_type = 'multi',
       inits = inits,
       nchains = nchains,
-      parallel = parallel,
       max_attempts = max_attempts,
       save_progress = save_progress,
       threshold = threshold,

@@ -5,7 +5,8 @@ sample_mvnorm_hier <- function(niter, dat, groups,
                                mu0_group, Sigma0_group_inv,
                                v0_global, S0_global,
                                v0_group, S0_group,
-                               setup_bygroup
+                               setup_bygroup,
+                               progress = FALSE
                                ) {
 
     # Convert dimensions
@@ -21,7 +22,8 @@ sample_mvnorm_hier <- function(niter, dat, groups,
                                    mu0_group, c_Sigma0_group_inv,
                                    v0_global, S0_global,
                                    v0_group, c_S0_group,
-                                   setup_bygroup)
+                                   setup_bygroup,
+                                   progress = progress)
 
     ## Add names
     params <- names(mu_global)

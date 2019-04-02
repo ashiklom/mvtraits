@@ -2,11 +2,12 @@ sample_mvnorm <- function(niter, dat,
                           mu, Sigma,
                           mu0, Sigma0_inv,
                           v0, S0,
-                          setup) {
+                          setup,
+                          progress = FALSE) {
     # Re-arrange dimensions of Sigma_samp to fit C code
     result <- r_sample_mvnorm(niter, dat, mu, Sigma,
                               mu0, Sigma0_inv, v0, S0,
-                              setup)
+                              setup, progress = progress)
     # result <- c_sample_mvnorm(niter, dat, mu, Sigma,
     #                           mu0, Sigma0_inv, v0, S0,
     #                           setup)

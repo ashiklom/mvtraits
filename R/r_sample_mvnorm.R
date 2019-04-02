@@ -1,5 +1,5 @@
 r_sample_mvnorm <- function(niter, dat, mu, Sigma, mu0, Sigma0_inv,
-                            v0, S0, setup) {
+                            v0, S0, setup, progress = FALSE) {
     n <- nrow(dat)
     m <- ncol(dat)
     mf <- m * (m + 1) / 2
@@ -10,7 +10,7 @@ r_sample_mvnorm <- function(niter, dat, mu, Sigma, mu0, Sigma0_inv,
     o21 <- setup[['revert_order']] + 1
     any_all_missing <- length(am) > 0
 
-    Sigma_inv <- solve(Sigma)
+    Sigma_inv <- solve.default(Sigma)
     Sigma0 <- solve(Sigma0_inv)
 
     if (any_all_missing) {
@@ -22,7 +22,10 @@ r_sample_mvnorm <- function(niter, dat, mu, Sigma, mu0, Sigma0_inv,
     mu_samp <- matrix(NA_real_, niter, m)
     Sigma_samp <- matrix(NA_real_, niter, mf)
 
-    pb <- txtProgressBar()
+    if (progress) {
+      pb <- txtProgressBar()
+      on.exit(close(pb), add = TRUE)
+    }
     for (i in seq_len(niter)) {
         y <- c_mvnorm_fill_missing(dat, mu, Sigma, setup)
         ybar <- colMeans(y)
@@ -55,8 +58,7 @@ r_sample_mvnorm <- function(niter, dat, mu, Sigma, mu0, Sigma0_inv,
 
         mu_samp[i,] <- mu
         Sigma_samp[i,] <- store_covmat(Sigma)
-        setTxtProgressBar(pb, i / niter)
+        if (progress) setTxtProgressBar(pb, i / niter)
     }
-    close(pb)
     list(mu = mu_samp, Sigma = Sigma_samp)
 }

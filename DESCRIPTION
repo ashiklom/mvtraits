@@ -1,30 +1,30 @@
 Package: mvtraits
 Type: Package
-Title: New Phytologist multivariate trait analysis
+Title: Fit multivariate models to partially missing trait data
 Version: 1.0.0
 Date: 2017-11-01
 Author: Alexey Shiklomanov, Elizabeth Cowdery, Michael Dietze
-Maintainer: Alexey Shiklomanov <ashiklom@bu.edu>
+Maintainer: Alexey Shiklomanov <alexey.shiklomanov@gmail.com>
 Description: Functions for performing MV trait analysis.
 Imports:
-    Rcpp,
-    RcppProgress,
-    RcppZiggurat,
-    RcppArmadillo,
     abind,
     coda,
-    parallel,
-    rlang,
     dplyr,
-    tidyr,
+    furrr,
+    magrittr,
     purrr,
+    Rcpp,
+    RcppArmadillo,
+    RcppProgress,
+    RcppZiggurat,
+    rlang,
     tibble,
-    magrittr
+    tidyr
 Suggests:
-    RColorBrewer,
     corrplot,
-    MASS
+    MASS,
+    RColorBrewer
 License: MIT
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress, RcppZiggurat
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
