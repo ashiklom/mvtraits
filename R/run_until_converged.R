@@ -83,6 +83,13 @@ run_until_converged <- function(samplefun,
             FALSE   # Value for interruption
         }, interrupt = handle_interrupt)
         if (interrupted) {
+            if (!exists("results_list")) {
+                stop(
+                    "`results_list` not found. ",
+                    "Most likely, `run_chains` hasn't finished ",
+                    "a full iteration yet."
+                )
+            }
             return(results_list)
         }
         if (!is.null(save_progress)) {

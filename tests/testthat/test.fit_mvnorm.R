@@ -16,14 +16,11 @@ result <- fit_mvnorm(
   autofit = autofit, keep_samples = keep_samples, max_attempts = max_attempts
 )
 message("Done!")
-# R version: 25 seconds
-# R main, C functions: 11 seconds
-# All C:
 
-#param <- c("par01", "par02")
-#ellipse_dat <- ellipse_axes(
-  #mean = result$means$mu[param],
-  #cov = result$means$Sigma[param, param]
-#)
-#draw_ellipse(ellipse_dat)
-#draw_majoraxis(ellipse_dat)
+message("Running simple multivariate in parallel...")
+parallel <- TRUE
+result <- fit_mvnorm(
+  dat, niter = niter, nchains = nchains, parallel = parallel,
+  autofit = autofit, keep_samples = keep_samples, max_attempts = max_attempts
+)
+message("Done!")

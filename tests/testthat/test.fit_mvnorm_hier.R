@@ -27,3 +27,11 @@ summary_proc <- result$summary_table %>%
   tidyr::nest(-xvar, -yvar)
 
 bar_plot_matrix(summary_proc, summary_proc, param_order = colnames(iris)[-5], diag_cex = 1)
+
+message("Running simple hierarchical in parallel...")
+parallel <- TRUE
+result <- fit_mvnorm_hier(
+  dat_full$dat, dat_full$groups, niter = niter, nchains = nchains,
+  parallel = parallel, autofit = autofit, keep_samples = keep_samples
+)
+message("Done!")

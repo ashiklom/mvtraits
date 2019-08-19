@@ -4,12 +4,12 @@ sample_mvnorm <- function(niter, dat,
                           v0, S0,
                           setup) {
     # Re-arrange dimensions of Sigma_samp to fit C code
-    result <- r_sample_mvnorm(niter, dat, mu, Sigma,
+    ## result <- r_sample_mvnorm(niter, dat, mu, Sigma,
+    ##                           mu0, Sigma0_inv, v0, S0,
+    ##                           setup)
+    result <- c_sample_mvnorm(niter, dat, mu, Sigma,
                               mu0, Sigma0_inv, v0, S0,
                               setup)
-    # result <- c_sample_mvnorm(niter, dat, mu, Sigma,
-    #                           mu0, Sigma0_inv, v0, S0,
-    #                           setup)
     # Add names to results
     params <- names(mu)
     colnames(result$mu) <- params
