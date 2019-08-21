@@ -1,4 +1,4 @@
-context("Hierarchical fits")
+context("Fit hierarchical model")
 
 test_that("Fit iris data by species", {
   dat_full <- list(

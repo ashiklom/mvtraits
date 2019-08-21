@@ -1,4 +1,4 @@
-context("Multivariate fit")
+context("Fit multivariate model")
 
 dat <- as.matrix(iris[, -5])
 niter <- 10000
@@ -23,11 +23,3 @@ test_that("Multivariate fit, in parallel", {
   )
 
 })
-
-#param <- c("par01", "par02")
-#ellipse_dat <- ellipse_axes(
-  #mean = result$means$mu[param],
-  #cov = result$means$Sigma[param, param]
-#)
-#draw_ellipse(ellipse_dat)
-#draw_majoraxis(ellipse_dat)
