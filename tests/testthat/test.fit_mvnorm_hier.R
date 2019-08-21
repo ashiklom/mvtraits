@@ -11,6 +11,7 @@ test_that("Fit iris data by species", {
   autofit <- TRUE
   keep_samples <- 2000
 
+  future::plan("multiprocess")
   result <- fit_mvnorm_hier(
     dat_full$dat, dat_full$groups, niter = niter, nchains = nchains,
     autofit = autofit, keep_samples = keep_samples

@@ -9,21 +9,21 @@ sample_mvnorm_hier <- function(niter, dat, groups,
                                progress = FALSE
                                ) {
 
+  message("In sample_mvnorm_hier")
     # Convert dimensions
     c_Sigma_group <- aperm(Sigma_group, c(2, 3, 1))
     c_Sigma0_group_inv <- aperm(Sigma0_group_inv, c(2, 3, 1))
     c_S0_group <- aperm(S0_group, c(2, 3, 1))
 
     # Run sampler
-    result <- r_sample_mvnorm_hier(niter, dat, groups,
+    result <- c_sample_mvnorm_hier(niter, dat, groups,
                                    mu_global, Sigma_global,
                                    mu_group, c_Sigma_group,
                                    mu0_global, Sigma0_global_inv,
                                    mu0_group, c_Sigma0_group_inv,
                                    v0_global, S0_global,
                                    v0_group, c_S0_group,
-                                   setup_bygroup,
-                                   progress = progress)
+                                   setup_bygroup)
 
     ## Add names
     params <- names(mu_global)
