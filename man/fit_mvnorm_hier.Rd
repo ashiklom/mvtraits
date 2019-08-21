@@ -5,9 +5,9 @@
 \title{Fit a hierarchical multivariate model to data}
 \usage{
 fit_mvnorm_hier(dat, groups, niter = 5000, priors = list(),
-  inits = list(), nchains = 3, parallel = TRUE, autofit = FALSE,
-  max_attempts = 10, keep_samples = Inf, threshold = 1.15,
-  save_progress = NULL)
+  inits = list(), nchains = 3, autofit = FALSE, max_attempts = 10,
+  keep_samples = Inf, threshold = 1.15, save_progress = NULL,
+  progress = FALSE)
 }
 \arguments{
 \item{dat}{Input data, as a \code{data.frame} or matrix}
@@ -23,8 +23,6 @@ details.}
 \item{inits}{Named list of initial conditions}
 
 \item{nchains}{Number of chains (default = 3)}
-
-\item{parallel}{(Logical) Whether or not to run chains in parallel (default = \code{TRUE})}
 
 \item{autofit}{(Logical) If \code{TRUE}, keep re-trying until model has converged (default = \code{FALSE})}
 

@@ -5,8 +5,9 @@
 \title{Fit multivariate normal distribution to data}
 \usage{
 fit_mvnorm(dat, niter = 5000, priors = list(), inits = list(),
-  nchains = 3, parallel = TRUE, autofit = FALSE, max_attempts = 10,
-  keep_samples = Inf, threshold = 1.15, save_progress = NULL)
+  nchains = 3, autofit = FALSE, max_attempts = 10,
+  keep_samples = Inf, threshold = 1.15, save_progress = NULL,
+  progress = FALSE)
 }
 \arguments{
 \item{dat}{Input data, as a \code{data.frame} or matrix}
@@ -20,8 +21,6 @@ details.}
 
 \item{nchains}{Number of chains (default = 3)}
 
-\item{parallel}{(Logical) Whether or not to run chains in parallel (default = \code{TRUE})}
-
 \item{autofit}{(Logical) If \code{TRUE}, keep re-trying until model has converged (default = \code{FALSE})}
 
 \item{max_attempts}{Maximum number of attempts for \code{autofit} (default = 10)}
@@ -32,6 +31,8 @@ details.}
 
 \item{save_progress}{If not \code{NULL}, path to file in which to save current
 chain status between fitting attempts (default = \code{NULL})}
+
+\item{parallel}{(Logical) Whether or not to run chains in parallel (default = \code{TRUE})}
 }
 \value{
 List containing a tidy summary table of the fitted parameters
