@@ -1,5 +1,7 @@
 #include "mvtraits_samplers.h"
 
+//[[Rcpp::depends(RcppProgress)]]
+
 //[[Rcpp::export]]
 Rcpp::List c_sample_mvnorm(unsigned int niter, arma::mat dat,
                            arma::rowvec mu, arma::mat Sigma,
