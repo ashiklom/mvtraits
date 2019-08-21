@@ -16,7 +16,11 @@ fit_mvnorm_hier <- function(dat,
                             keep_samples = Inf,
                             threshold = 1.15,
                             save_progress = NULL,
-                            progress = FALSE) {
+                            progress = NULL) {
+
+  if (is.null(progress)) {
+    progress <- inherits(future::plan(), "sequential")
+  }
 
   stopifnot(is.matrix(dat), length(groups) == nrow(dat))
 

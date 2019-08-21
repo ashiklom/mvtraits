@@ -22,8 +22,7 @@ function).}
 
 \item{max_attempts}{Maximum number of attempts for \code{autofit} (default = 10)}
 
-\item{save_progress}{If not \code{NULL}, path to file in which to save current
-chain status between fitting attempts (default = \code{NULL})}
+\item{save_progress}{If not \code{NULL}, path to file in which to save current}
 
 \item{threshold}{Gelman PSRF threshold for convergence (default = 1.15)}
 

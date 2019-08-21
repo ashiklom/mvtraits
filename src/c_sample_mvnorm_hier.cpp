@@ -10,7 +10,8 @@ Rcpp::List c_sample_mvnorm_hier(unsigned int niter, arma::mat dat, arma::uvec gr
                                 arma::mat mu0_group, arma::cube Sigma0_group_inv,
                                 double v0_global, arma::mat S0_global,
                                 arma::vec v0_group, arma::cube S0_group,
-                                Rcpp::List setup_bygroup) {
+                                Rcpp::List setup_bygroup,
+                                bool progress) {
     arma::uvec ugroups = arma::unique(groups);
     unsigned int ngroup = ugroups.n_elem;
     unsigned int n = dat.n_rows;
@@ -35,7 +36,7 @@ Rcpp::List c_sample_mvnorm_hier(unsigned int niter, arma::mat dat, arma::uvec gr
     arma::mat mu_group_samp(niter, mg, arma::fill::zeros);
     arma::mat Sigma_group_samp(niter, mfg, arma::fill::zeros);
 
-    Progress p(niter, true);
+    Progress p(niter, progress);
 
     // Sampling
     for (i = 0; i < niter; i++) {

@@ -12,7 +12,9 @@
 #' @param keep_samples Maximum number of samples to keep in results (default = Inf)
 #' @param threshold Gelman PSRF threshold for convergence (default = 1.15)
 #' @param save_progress If not `NULL`, path to file in which to save current
-#'   chain status between fitting attempts (default = `NULL`)
+#' @param progress (Logical) If `TRUE`, display a progress bar while sampling
+#'   chain status between fitting attempts. If `NULL` (default), default to
+#'   `TRUE` if using a sequential `future::plan` and `FALSE`
 #' @return List containing a tidy summary table of the fitted parameters
 #'   (`summary_table`), a list of the summary statistics (`stats`), and the raw
 #'   MCMC samples as an `mcmc.list` (`samples`).
@@ -21,7 +23,12 @@
 fit_mvnorm <- function(dat, niter = 5000, priors = list(), inits = list(), nchains = 3,
                        autofit = FALSE, max_attempts = 10, keep_samples = Inf,
                        threshold = 1.15, save_progress = NULL,
-                       progress = FALSE) {
+                       progress = NULL) {
+
+  # Automatically determine whether or not to print a progress bar
+  if (is.null(progress)) {
+    progress <- inherits(future::plan(), "sequential")
+  }
 
   chainseq <- seq_len(nchains)
 

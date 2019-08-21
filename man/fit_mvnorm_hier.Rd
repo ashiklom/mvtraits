@@ -7,7 +7,7 @@
 fit_mvnorm_hier(dat, groups, niter = 5000, priors = list(),
   inits = list(), nchains = 3, autofit = FALSE, max_attempts = 10,
   keep_samples = Inf, threshold = 1.15, save_progress = NULL,
-  progress = FALSE)
+  progress = NULL)
 }
 \arguments{
 \item{dat}{Input data, as a \code{data.frame} or matrix}
@@ -32,8 +32,11 @@ details.}
 
 \item{threshold}{Gelman PSRF threshold for convergence (default = 1.15)}
 
-\item{save_progress}{If not \code{NULL}, path to file in which to save current
-chain status between fitting attempts (default = \code{NULL})}
+\item{save_progress}{If not \code{NULL}, path to file in which to save current}
+
+\item{progress}{(Logical) If \code{TRUE}, display a progress bar while sampling
+chain status between fitting attempts. If \code{NULL} (default), default to
+\code{TRUE} if using a sequential \code{future::plan} and \code{FALSE}}
 }
 \value{
 List containing a tidy summary table of the fitted parameters
