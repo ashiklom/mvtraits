@@ -42,7 +42,7 @@ fit_mvnorm_hier <- function(dat,
 
   setup_bygroup <- lapply(
     ugroups,
-    function(x) setup_missing(dat[igroups == x,])
+    function(x) setup_missing(dat[igroups == x, ])
   )
 
   # Where missing, use default priors
