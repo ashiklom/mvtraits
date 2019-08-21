@@ -7,8 +7,9 @@
 prep_stickplot(mu_global, Sigma_global, mu_group, Sigma_group, xvar, yvar,
   group_names, global_name = "global", col_global = "black",
   col_group = RColorBrewer::brewer.pal(length(group_names), "Paired"),
-  pch_g = 8, lty_g = 3, lwd_g = 3, cex_g = 2, pch_s = 19, lty_s = 1,
-  lwd_s = 2, cex_s = 1, pch_n = 4, lty_n = 0, lwd_n = 1, cex_n = 1)
+  pch_g = 8, lty_g = 3, lwd_g = 3, cex_g = 2, pch_s = 19,
+  lty_s = 1, lwd_s = 2, cex_s = 1, pch_n = 4, lty_n = 0,
+  lwd_n = 1, cex_n = 1)
 }
 \arguments{
 \item{mu_global}{List of global mean statistics}

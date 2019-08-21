@@ -27,4 +27,5 @@ Suggests:
 License: MIT
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress, RcppZiggurat
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
+Encoding: UTF-8

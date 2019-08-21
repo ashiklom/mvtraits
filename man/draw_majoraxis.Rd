@@ -4,7 +4,8 @@
 \alias{draw_majoraxis}
 \title{Draw ellipse major axis}
 \usage{
-draw_majoraxis(ellipse_dat, col = 1, lwd = 1, lty = 1, pch = 19, ...)
+draw_majoraxis(ellipse_dat, col = 1, lwd = 1, lty = 1, pch = 19,
+  ...)
 }
 \arguments{
 \item{ellipse_dat}{Ellipse data.frame, as returned by \link{ellipse_axes}}

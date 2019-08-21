@@ -4,8 +4,9 @@
 \alias{random_data_multi}
 \title{Random simple multivariate data}
 \usage{
-random_data_multi(mu = c(-2, 0, 2), sigma = matrix(c(1, 0.9, 0.6, 0.9, 1,
-  0.3, 0.6, 0.3, 1), 3, 3), n = 5000, frac_miss = 0.75, all_missing = 3)
+random_data_multi(mu = c(-2, 0, 2), sigma = matrix(c(1, 0.9, 0.6, 0.9,
+  1, 0.3, 0.6, 0.3, 1), 3, 3), n = 5000, frac_miss = 0.75,
+  all_missing = 3)
 }
 \arguments{
 \item{mu}{Vector of means}
