@@ -78,14 +78,10 @@ run_until_converged <- function(sampler,
                              how = "replace")
       for (i in seq_len(nchains)) {
         if (model_type == "multi") {
-          # sechalf <- seq(floor(niter * 0.75), niter)
-          # mu[[i]] <- colMeans(results_list[[i]][['mu']][sechalf,])
-          # Sigma_vec <- colMeans(results_list[[i]][['Sigma']][sechalf,])
           inits$mu[[i]] <- results_list[[i]][["mu"]][curr_niter, ]
           Sigma_vec <- results_list[[i]][["Sigma"]][curr_niter, ]
           inits$Sigma[[i]] <- lowerdiag2mat(Sigma_vec)
         } else if (model_type == "hier") {
-          # sechalf <- seq(floor(niter * 0.75), niter)
           inits$mu_global[[i]] <- results_list[[i]][["mu_global"]][curr_niter, ]
           Sigma_global_vec <- results_list[[i]][["Sigma_global"]][curr_niter, ]
           inits$Sigma_global[[i]] <- lowerdiag2mat(Sigma_global_vec)
