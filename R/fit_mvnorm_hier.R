@@ -78,15 +78,16 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), inits = 
       #Sigma_group[[n]][i,,] <- solve(rWishart(1, v0_group[i] + nparam + 1, S0_group[i,,])[,,1])
       Sigma_group[[n]][i,,] <- diag(1, nparam)
     }
-    default_inits <- list(mu_global = mu_global,
-                          Sigma_global = Sigma_global,
-                          mu_group = mu_group,
-                          Sigma_group = Sigma_group)
-    if (!is.null(inits)) {
-        inits <- modifyList(default_inits, inits)
-    } else {
-        inits <- default_inits
-    }
+  }
+  default_inits <- list(mu_global = mu_global,
+                        Sigma_global = Sigma_global,
+                        mu_group = mu_group,
+                        Sigma_group = Sigma_group)
+  if (!is.null(inits)) {
+    inits <- modifyList(default_inits, inits)
+  } else {
+    inits <- default_inits
+  }
 
   sampler <- list(
     fun = sample_mvnorm_hier,
@@ -115,39 +116,54 @@ fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), inits = 
     )
   )
 
-    message("Running sampler...")
-    raw_samples <- run_until_converged(
-      sampler = sampler,
-      model_type = 'hier',
-      inits = inits,
-      nchains = nchains,
-      max_attempts = max_attempts,
-      save_progress = save_progress,
-      threshold = threshold,
-      keep_samples = keep_samples,
-      autofit = autofit
-    )
+  message("Running sampler...")
+  raw_samples <- run_until_converged(
+    sampler = sampler,
+    model_type = 'hier',
+    inits = inits,
+    nchains = nchains,
+    max_attempts = max_attempts,
+    save_progress = save_progress,
+    threshold = threshold,
+    keep_samples = keep_samples,
+    autofit = autofit
+  )
 
-    message("Calculating correlation matrices...")
-    raw_samples_corr <- add_correlations(raw_samples, hier = TRUE, ngroups = ngroup)
+  message("Calculating correlation matrices...")
+  raw_samples_corr <- add_correlations(raw_samples, hier = TRUE, ngroups = ngroup)
 
-    message("Converting samples to coda mcmc.list object...")
-    samples_mcmc <- results2mcmclist(raw_samples_corr, type = "hier")
+  message("Converting samples to coda mcmc.list object...")
+  samples_mcmc <- results2mcmclist(raw_samples_corr, type = "hier")
 
-    niter <- coda::niter(samples_mcmc)
+  niter <- coda::niter(samples_mcmc)
 
-    message("Preparing summary table...")
-    summary_table <- summary_df(window(samples_mcmc, start = floor(niter / 2)), group = TRUE)
+  message("Preparing summary table...")
+  summary_table <- summary_df(window(samples_mcmc, start = floor(niter / 2)), group = TRUE)
 
-    stats <- c("Mean", "2.5%", "97.5%")
-    mu_global_stats <- sapply(
-      stats,
-      function(x) summary2vec(summary_table, x, variable == "mu", group == "global"),
-      simplify = FALSE,
-      USE.NAMES = TRUE
-    )
+  stats <- c("Mean", "2.5%", "97.5%")
+  mu_global_stats <- sapply(
+    stats,
+    function(x) summary2vec(summary_table, x, variable == "mu", group == "global"),
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
 
-    Sigma_global_stats <- sapply(
+  Sigma_global_stats <- sapply(
+    stats,
+    function(x) summary2mat(summary_table, x, variable == "Sigma", group == "global"),
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+
+  Corr_global_stats <- sapply(
+    stats,
+    function(x) summary2mat(summary_table, x, variable == "Corr", group == "global"),
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+
+  get_mu_group <- function(grp) {
+    sapply(
       stats,
       function(x) summary2vec(summary_table, x, variable == "mu", group == grp),
       simplify = FALSE,
