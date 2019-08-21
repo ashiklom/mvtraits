@@ -1,6 +1,21 @@
+#' Fit a hierarchical multivariate model to data
+#'
+#' @param groups A character, integer, or factor of group labels, with length
+#'   `nrow(dat)`.
+#' @inheritParams fit_mvnorm
+#' @inherit fit_mvnorm return
 #' @export
-fit_mvnorm_hier <- function(dat, groups, niter = 5000, priors = list(), inits = list(), nchains = 3, parallel = TRUE,
-                            autofit = FALSE, max_attempts = 10, keep_samples = Inf, threshold = 1.15,
+fit_mvnorm_hier <- function(dat,
+                            groups,
+                            niter = 5000,
+                            priors = list(),
+                            inits = list(),
+                            nchains = 3,
+                            parallel = TRUE,
+                            autofit = FALSE,
+                            max_attempts = 10,
+                            keep_samples = Inf,
+                            threshold = 1.15,
                             save_progress = NULL) {
 
     stopifnot(is.matrix(dat), length(groups) == nrow(dat))
