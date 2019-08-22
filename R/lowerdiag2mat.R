@@ -37,9 +37,9 @@ lowerdiag2mat <- function(vec, col_names = TRUE, corr = FALSE, colorder = NULL, 
     } else {
       col_names <- splitnames[seq_len(nmat), 1]
     }
+    stopifnot(length(col_names) == nmat)
+    rownames(mat) <- colnames(mat) <- col_names
   }
-  stopifnot(length(col_names) == nmat)
-  rownames(mat) <- colnames(mat) <- col_names
   if (!is.null(colorder)){
     mat <- mat[colorder, colorder]
   }
