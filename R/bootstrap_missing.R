@@ -23,6 +23,7 @@ bootstrap_missing <- function(fit, dat, n = 500) {
   setup <- setup_missing(dat)
   out <- array(numeric(), c(nrow(dat), ncol(dat), n))
   colnames(out) <- colnames(dat)
+  attr(out, "imissing") <- which(is.na(dat), arr.ind = TRUE)
   for (i in seq_len(n)) {
     mu <- fit_mu[i, ]
     sigma <- lowerdiag2mat(fit_sigma_wide[i, ], col_names = FALSE, corr = FALSE,
@@ -63,6 +64,7 @@ bootstrap_missing_hier <- function(fit, dat, groups, n = 500) {
   )
   out <- array(numeric(), c(nrow(dat), ncol(dat), n))
   colnames(out) <- colnames(dat)
+  attr(out, "imissing") <- which(is.na(dat), arr.ind = TRUE)
   for (i in seq_len(n)) {
     for (g in ugroup) {
       g_mu <- fit_mu_l[[g]][i,]
@@ -79,6 +81,28 @@ bootstrap_missing_hier <- function(fit, dat, groups, n = 500) {
     }
   }
   out
+}
+
+#' Tidy summary table of bootstrapped data
+#'
+#' @param boot_data Bootstrapped data, as returned by [bootstrap_missing()] or
+#'   [bootstrap_missing_hier()]
+#' @param quantiles Length-2 vector of quantiles to calculate
+#' @return `data.frame` summarizing the imputed missing values
+#' @author Alexey Shiklomanov
+#' @export
+tidy_bootstrap <- function(boot_data, quantiles = c(0.025, 0.975)) {
+  imissing <- attr(boot_data, "imissing")
+  data.frame(
+    irow = imissing[, "row"],
+    icol = imissing[, "col"],
+    column = colnames(boot_data)[imissing[, "col"]],
+    Mean = apply(boot_data, c(1, 2), mean)[imissing],
+    SD = apply(boot_data, c(1, 2), sd)[imissing],
+    lo = apply(boot_data, c(1, 2), quantile, probs = quantiles[1])[imissing],
+    hi = apply(boot_data, c(1, 2), quantile, probs = quantiles[2])[imissing],
+    stringsAsFactors = FALSE
+  )
 }
 
 get_mu_group <- function(group, smat) {
