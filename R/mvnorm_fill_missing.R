@@ -1,3 +1,32 @@
+#' Fill missing multivariate data based on known mean vector and covariance
+#' matrix
+#'
+#' @param dat Data matrix (observations in rows, variables in columns) with
+#'     missing data as NA
+#' @param mu Mean vector. Must be length `ncol(dat)`
+#' @param Sigma Covariance matrix. Must be dimensions `ncol(dat) x ncol(dat)`
+#' @param setup Information about missingness pattern, as returned by
+#'     [setup_missing()]. If missing, it will be calculated. When running this
+#'     function many times on data with the same missingness pattern, run
+#'     [setup_missing()] once first to make this calculation more efficient.
+#' @return One realization of `dat` with missing values imputed
+#' @export
+mvnorm_fill_missing <- function(dat, mu, Sigma, setup = NULL) {
+    # Split data into missing pieces
+    if (is.null(setup)) {
+        setup <- setup_missing(dat)
+    }
+    dat_filled <- c_mvnorm_fill_missing(dat, mu, Sigma, setup)
+    return(dat_filled)
+}
+
+#' Analyze missingness pattern in data
+#'
+#' Used as an input for [mvnorm_fill_missing()].
+#'
+#' @inheritParams mvnorm_fill_missing
+#' @return List describing the missingness pattern in `dat` and other relevant
+#'     indices for sorting, etc.
 #' @export
 setup_missing <- function(dat) {
     # Use -1 throughout to make indices work with C code
@@ -31,12 +60,3 @@ setup_missing <- function(dat) {
 
 }
 
-#' @export
-mvnorm_fill_missing <- function(dat, mu, Sigma, setup = NULL) {
-    # Split data into missing pieces
-    if (is.null(setup)) {
-        setup <- setup_missing(dat)
-    }
-    dat_filled <- c_mvnorm_fill_missing(dat, mu, Sigma, setup)
-    return(dat_filled)
-}
