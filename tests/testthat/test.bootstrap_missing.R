@@ -2,6 +2,7 @@ context("Bootstrap missing data")
 
 dat <- as.matrix(iris[, -5])
 groups <- iris[, 5]
+set.seed(1234123)
 
 # Make 25% of the data go missing
 ndata <- prod(dim(dat))
@@ -11,9 +12,13 @@ y <- dat
 ytrue <- y[imissing]
 y[imissing] <- NA
 
+cols <- c("Sepal.Length", "Sepal.Width",
+          "Petal.Length", "Petal.Width")
+
 test_that("Impute with multivariate normal fit", {
   result <- fit_mvnorm(y)
   out <- bootstrap_missing(result, y)
+  expect_equal(colnames(out), cols)
   means <- apply(out, c(1, 2), mean)[imissing]
   lo <- apply(out, c(1, 2), quantile, probs = 0.025)
   hi <- apply(out, c(1, 2), quantile, probs = 0.975)
@@ -30,6 +35,7 @@ test_that("Impute with multivariate normal fit", {
 test_that("Impute with hierarchical fit", {
   result <- fit_mvnorm_hier(y, groups)
   out <- bootstrap_missing_hier(result, y, groups = groups)
+  expect_equal(colnames(out), cols)
   means <- apply(out, c(1, 2), mean)[imissing]
   lo <- apply(out, c(1, 2), quantile, probs = 0.025)
   hi <- apply(out, c(1, 2), quantile, probs = 0.975)

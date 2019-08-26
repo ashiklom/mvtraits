@@ -22,6 +22,7 @@ bootstrap_missing <- function(fit, dat, n = 500) {
   fit_sigma_wide <- fit_samp[, grep("^Sigma\\.\\.", colnames(fit_samp))]
   setup <- setup_missing(dat)
   out <- array(numeric(), c(nrow(dat), ncol(dat), n))
+  colnames(out) <- colnames(dat)
   for (i in seq_len(n)) {
     mu <- fit_mu[i, ]
     sigma <- lowerdiag2mat(fit_sigma_wide[i, ], col_names = FALSE, corr = FALSE,
@@ -61,6 +62,7 @@ bootstrap_missing_hier <- function(fit, dat, groups, n = 500) {
     function(x) setup_missing(dat[groups == x, ])
   )
   out <- array(numeric(), c(nrow(dat), ncol(dat), n))
+  colnames(out) <- colnames(dat)
   for (i in seq_len(n)) {
     for (g in ugroup) {
       g_mu <- fit_mu_l[[g]][i,]
