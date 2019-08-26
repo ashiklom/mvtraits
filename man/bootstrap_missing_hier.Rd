@@ -4,10 +4,11 @@
 \alias{bootstrap_missing_hier}
 \title{Bootstrap missing values in data from fitted multivariate hierarchical model}
 \usage{
-bootstrap_missing_hier(fit, dat, groups, n = 500)
+bootstrap_missing_hier(fit, dat, groups, n = 500, progress = TRUE)
 }
 \arguments{
-\item{fit}{Fitting result, as returned by \code{\link[=fit_mvnorm]{fit_mvnorm()}} or \code{\link[=fit_mvnorm_hier]{fit_mvnorm_hier()}}.}
+\item{fit}{Fitting result, as returned by \code{\link[=fit_mvnorm]{fit_mvnorm()}} or
+\code{\link[=fit_mvnorm_hier]{fit_mvnorm_hier()}}.}
 
 \item{dat}{Data with partially missing values}
 
@@ -15,6 +16,8 @@ bootstrap_missing_hier(fit, dat, groups, n = 500)
 (default), assume a simple multivariate fit.}
 
 \item{n}{Number of bootstrap samples (default = 500)}
+
+\item{progress}{(Logical) If \code{TRUE} (default), display a progress bar}
 }
 \value{
 If \code{missing_only}, matrix of bootstrapped missing values (\code{nmissing x n}). Otherwise, an array of bootstraps of the full imputed dataset, with

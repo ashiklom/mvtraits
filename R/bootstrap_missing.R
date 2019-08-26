@@ -1,21 +1,24 @@
 #' Bootstrap missing values in data from fitted multivariate model
 #'
-#' @param fit Fitting result, as returned by [fit_mvnorm()] or [fit_mvnorm_hier()].
+#' @param fit Fitting result, as returned by [fit_mvnorm()] or
+#'   [fit_mvnorm_hier()].
 #' @param dat Data with partially missing values
 #' @param n Number of bootstrap samples (default = 500)
+#' @param progress (Logical) If `TRUE` (default), display a progress bar
 #' @return If `missing_only`, matrix of bootstrapped missing values (`nmissing x
 #'   n`). Otherwise, an array of bootstraps of the full imputed dataset, with
 #'   dimensions `c(nrow(dat), ncol(dat), n)`.
 #' @author Alexey Shiklomanov
 #' @export
-bootstrap_missing <- function(fit, dat, n = 500) {
+bootstrap_missing <- function(fit, dat, n = 500, progress = TRUE) {
   samp <- fit$samples
   stopifnot(
     inherits(samp, "mcmc.list"),
     any(is.na(dat))
   )
   if (!is.matrix(dat)) dat <- as.matrix(dat)
-  samp_mat <- as.matrix(samp)
+  # Method is not correctly exported, so need to call it manually
+  samp_mat <- coda:::as.matrix.mcmc.list(samp)
   # Grab n samples from the posterior
   fit_samp <- samp_mat[sample(nrow(samp_mat), n), ]
   fit_mu <- fit_samp[, grep("^mu\\.\\.", colnames(fit_samp))]
@@ -24,7 +27,9 @@ bootstrap_missing <- function(fit, dat, n = 500) {
   out <- array(numeric(), c(nrow(dat), ncol(dat), n))
   colnames(out) <- colnames(dat)
   attr(out, "imissing") <- which(is.na(dat), arr.ind = TRUE)
+  if (progress) pb <- progress::progress_bar$new(total = n)
   for (i in seq_len(n)) {
+    if (progress) pb$tick()
     mu <- fit_mu[i, ]
     sigma <- lowerdiag2mat(fit_sigma_wide[i, ], col_names = FALSE, corr = FALSE,
                            hier = hier)
@@ -42,7 +47,7 @@ bootstrap_missing <- function(fit, dat, n = 500) {
 #' @inheritParams bootstrap_missing
 #' @inherit bootstrap_missing return
 #' @export
-bootstrap_missing_hier <- function(fit, dat, groups, n = 500) {
+bootstrap_missing_hier <- function(fit, dat, groups, n = 500, progress = TRUE) {
   samp <- fit$samples
   stopifnot(
     inherits(samp, "mcmc.list"),
@@ -50,7 +55,8 @@ bootstrap_missing_hier <- function(fit, dat, groups, n = 500) {
     length(groups) == nrow(dat)
   )
   if (!is.matrix(dat)) dat <- as.matrix(dat)
-  samp_mat <- as.matrix(samp)
+  # Method is not correctly exported, so need to call it manually
+  samp_mat <- coda:::as.matrix.mcmc.list(samp)
   ugroup <- unique(groups)
   # Grab n samples from the posterior
   fit_samp <- samp_mat[sample(nrow(samp_mat), n), ]
@@ -65,7 +71,9 @@ bootstrap_missing_hier <- function(fit, dat, groups, n = 500) {
   out <- array(numeric(), c(nrow(dat), ncol(dat), n))
   colnames(out) <- colnames(dat)
   attr(out, "imissing") <- which(is.na(dat), arr.ind = TRUE)
+  if (progress) pb <- progress::progress_bar$new(total = n)
   for (i in seq_len(n)) {
+    if (progress) pb$tick()
     for (g in ugroup) {
       g_mu <- fit_mu_l[[g]][i,]
       g_sigma <- lowerdiag2mat(
