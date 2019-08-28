@@ -68,6 +68,7 @@ bootstrap_missing_hier <- function(fit, dat, groups, n = 500, progress = TRUE) {
     ugroup,
     function(x) setup_missing(dat[groups == x, ])
   )
+  names(setup_l) <- ugroup
   out <- array(numeric(), c(nrow(dat), ncol(dat), n))
   colnames(out) <- colnames(dat)
   attr(out, "imissing") <- which(is.na(dat), arr.ind = TRUE)
