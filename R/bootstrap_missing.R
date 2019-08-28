@@ -1,7 +1,8 @@
 #' Bootstrap missing values in data from fitted multivariate model
 #'
 #' @param fit Fitting result, as returned by [fit_mvnorm()] or
-#'   [fit_mvnorm_hier()].
+#'   [fit_mvnorm_hier()]. Or, a matrix of samples, as returned by
+#'   `coda:::as.matrix.mcmc.list(fit)`
 #' @param dat Data with partially missing values
 #' @param n Number of bootstrap samples (default = 500)
 #' @param progress (Logical) If `TRUE` (default), display a progress bar
@@ -11,14 +12,16 @@
 #' @author Alexey Shiklomanov
 #' @export
 bootstrap_missing <- function(fit, dat, n = 500, progress = TRUE) {
-  samp <- fit$samples
-  stopifnot(
-    inherits(samp, "mcmc.list"),
-    any(is.na(dat))
-  )
+  stopifnot(any(is.na(dat)))
   if (!is.matrix(dat)) dat <- as.matrix(dat)
-  # Method is not correctly exported, so need to call it manually
-  samp_mat <- coda:::as.matrix.mcmc.list(samp)
+  if (is.list(fit) && inherits(fit$samples, "mcmc.list")) {
+    # Method is not correctly exported, so need to call it manually
+    samp_mat <- coda:::as.matrix.mcmc.list(fit$samples)
+  } else if (is.matrix(fit)) {
+    samp_mat <- fit
+  } else {
+    stop("Invalid type for input `fit`.")
+  }
   # Grab n samples from the posterior
   fit_samp <- samp_mat[sample(nrow(samp_mat), n), ]
   fit_mu <- fit_samp[, grep("^mu\\.\\.", colnames(fit_samp))]
@@ -48,15 +51,19 @@ bootstrap_missing <- function(fit, dat, n = 500, progress = TRUE) {
 #' @inherit bootstrap_missing return
 #' @export
 bootstrap_missing_hier <- function(fit, dat, groups, n = 500, progress = TRUE) {
-  samp <- fit$samples
   stopifnot(
-    inherits(samp, "mcmc.list"),
     any(is.na(dat)),
     length(groups) == nrow(dat)
   )
   if (!is.matrix(dat)) dat <- as.matrix(dat)
-  # Method is not correctly exported, so need to call it manually
-  samp_mat <- coda:::as.matrix.mcmc.list(samp)
+  if (is.list(fit) && inherits(fit$samples, "mcmc.list")) {
+    # Method is not correctly exported, so need to call it manually
+    samp_mat <- coda:::as.matrix.mcmc.list(fit$samples)
+  } else if (is.matrix(fit)) {
+    samp <- fit
+  } else {
+    stop("Invalid type for input `fit`.")
+  }
   ugroup <- unique(groups)
   # Grab n samples from the posterior
   fit_samp <- samp_mat[sample(nrow(samp_mat), n), ]

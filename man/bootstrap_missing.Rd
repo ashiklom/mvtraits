@@ -8,7 +8,8 @@ bootstrap_missing(fit, dat, n = 500, progress = TRUE)
 }
 \arguments{
 \item{fit}{Fitting result, as returned by \code{\link[=fit_mvnorm]{fit_mvnorm()}} or
-\code{\link[=fit_mvnorm_hier]{fit_mvnorm_hier()}}.}
+\code{\link[=fit_mvnorm_hier]{fit_mvnorm_hier()}}. Or, a matrix of samples, as returned by
+\code{coda:::as.matrix.mcmc.list(fit)}}
 
 \item{dat}{Data with partially missing values}
 
