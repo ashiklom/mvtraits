@@ -60,7 +60,7 @@ bootstrap_missing_hier <- function(fit, dat, groups, n = 500, progress = TRUE) {
     # Method is not correctly exported, so need to call it manually
     samp_mat <- coda:::as.matrix.mcmc.list(fit$samples)
   } else if (is.matrix(fit)) {
-    samp <- fit
+    samp_mat <- fit
   } else {
     stop("Invalid type for input `fit`.")
   }
