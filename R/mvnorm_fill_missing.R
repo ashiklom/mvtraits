@@ -12,6 +12,14 @@
 #' @return One realization of `dat` with missing values imputed
 #' @export
 mvnorm_fill_missing <- function(dat, mu, Sigma, setup = NULL) {
+    # If everything in data is missing, just draw randomly from mu and sigma
+    # (with a warning)
+    if (all(is.na(dat))) {
+        warning("Everything in `dat` is missing. Filling with random draws.")
+        out <- mvtraits::random_mvnorm(nrow(dat), mu, Sigma)
+        return(out)
+    }
+
     # Split data into missing pieces
     if (is.null(setup)) {
         setup <- setup_missing(dat)
