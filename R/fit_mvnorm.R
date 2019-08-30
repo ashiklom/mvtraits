@@ -19,6 +19,9 @@
 #'   (`summary_table`), a list of the summary statistics (`stats`), and the raw
 #'   MCMC samples as an `mcmc.list` (`samples`).
 #' @useDynLib mvtraits
+#' @importFrom Rcpp sourceCpp
+# ^^ This is apparently needed to make Rcpp work because of a bug in R
+# See here for details: https://adv-r.hadley.nz/rcpp.html#rcpp-package
 #' @export
 fit_mvnorm <- function(dat, niter = 5000, priors = list(), inits = list(), nchains = 3,
                        autofit = FALSE, max_attempts = 10, keep_samples = Inf,
