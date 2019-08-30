@@ -55,6 +55,11 @@ Rcpp::List c_sample_mvnorm_hier(unsigned int niter, arma::mat dat, arma::uvec gr
             arma::mat dat_sub = dat.rows(arma::find(groups == (g + 1)));
             arma::mat y = c_mvnorm_fill_missing(dat_sub, mu, Sigma, setup);
             ybar = arma::mean(y, 0);
+            // Possible shortcut for columns that are completely missing.
+            // arma::uvec all_missing = setup["all_missing"];
+            // if (all_missing.n_elem > 0){
+            //     ybar(all_missing) = mu(all_missing);
+            // }
             mu_group.row(g) = c_draw_mu(ybar, y.n_rows, Sigma_inv, mu0_group.row(g), Sigma0_group_inv.slice(g));
             Sigma_group.slice(g) = c_draw_Sigma(y, mu_group.row(g), v0_group(g), S0_group.slice(g));
         }
