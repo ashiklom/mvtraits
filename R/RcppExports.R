@@ -41,3 +41,15 @@ store_covgrouparray <- function(X) {
     .Call('_mvtraits_store_covgrouparray', PACKAGE = 'mvtraits', X)
 }
 
+zsetseed <- function(s) {
+    invisible(.Call('_mvtraits_zsetseed', PACKAGE = 'mvtraits', s))
+}
+
+zgetseed <- function() {
+    .Call('_mvtraits_zgetseed', PACKAGE = 'mvtraits')
+}
+
+zrnorm <- function() {
+    .Call('_mvtraits_zrnorm', PACKAGE = 'mvtraits')
+}
+

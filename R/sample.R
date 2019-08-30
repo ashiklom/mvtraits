@@ -8,6 +8,10 @@ sample_mvnorm <- function(niter, dat,
   ## result <- r_sample_mvnorm(niter, dat, mu, Sigma,
   ##                           mu0, Sigma0_inv, v0, S0,
   ##                           setup, progress = progress)
+
+  # Configure random numbers
+  zsetseed(sample(1e7, 1))
+
   # Capture annoying "inv_sympd" warnings
   sampler_stderr <- capture.output({
     result <- c_sample_mvnorm(niter, dat, mu, Sigma,
@@ -36,6 +40,9 @@ sample_mvnorm_hier <- function(niter, dat, groups,
   c_Sigma_group <- aperm(Sigma_group, c(2, 3, 1))
   c_Sigma0_group_inv <- aperm(Sigma0_group_inv, c(2, 3, 1))
   c_S0_group <- aperm(S0_group, c(2, 3, 1))
+
+  # Configure random numbers
+  zsetseed(sample(1e7, 1))
 
   # Run sampler
   sampler_stderr <- capture.output({

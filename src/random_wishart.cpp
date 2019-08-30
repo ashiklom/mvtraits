@@ -19,7 +19,7 @@ arma::mat rwishart(double df, arma::mat S){
   // Fill the lower matrix with random guesses
   for(unsigned int j = 0; j < m; j++){  
     for(unsigned int i = j+1; i < m; i++){    
-      Z(i, j) = zigg.norm();
+      Z(i, j) = zrnorm();
     }
   }
   
