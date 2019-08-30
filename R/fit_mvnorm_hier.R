@@ -53,6 +53,17 @@ fit_mvnorm_hier <- function(dat,
   default_priors <- gibbs_default_priors(nparam, ngroup)
   if (!is.null(priors)) {
     priors <- modifyList(default_priors, priors)
+    if (length(priors) != length(default_priors)) {
+      stop(
+        "Length of priors (", length(priors), ") ",
+        "does not equal length of default priors (",
+        length(default_priors), "). ",
+        "There is likely a typo in your `prior` name.\n",
+        "names(priors): ", paste(names(priors), collapse = ", "),
+        "\n",
+        "names(default_priors): ", paste(names(default_priors), collapse = ", ")
+      )
+    }
   } else {
     priors <- default_priors
   }
