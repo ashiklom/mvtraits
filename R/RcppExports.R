@@ -25,6 +25,18 @@ c_mvnorm_fill_missing <- function(dat, mu, Sigma, setup) {
     .Call('_mvtraits_c_mvnorm_fill_missing', PACKAGE = 'mvtraits', dat, mu, Sigma, setup)
 }
 
+zsetseed <- function(s) {
+    invisible(.Call('_mvtraits_zsetseed', PACKAGE = 'mvtraits', s))
+}
+
+zgetseed <- function() {
+    .Call('_mvtraits_zgetseed', PACKAGE = 'mvtraits')
+}
+
+zrnorm <- function() {
+    .Call('_mvtraits_zrnorm', PACKAGE = 'mvtraits')
+}
+
 c_random_mvnorm <- function(n, mu, Sigma) {
     .Call('_mvtraits_c_random_mvnorm', PACKAGE = 'mvtraits', n, mu, Sigma)
 }
@@ -39,17 +51,5 @@ store_covmat <- function(X) {
 
 store_covgrouparray <- function(X) {
     .Call('_mvtraits_store_covgrouparray', PACKAGE = 'mvtraits', X)
-}
-
-zsetseed <- function(s) {
-    invisible(.Call('_mvtraits_zsetseed', PACKAGE = 'mvtraits', s))
-}
-
-zgetseed <- function() {
-    .Call('_mvtraits_zgetseed', PACKAGE = 'mvtraits')
-}
-
-zrnorm <- function() {
-    .Call('_mvtraits_zrnorm', PACKAGE = 'mvtraits')
 }
 

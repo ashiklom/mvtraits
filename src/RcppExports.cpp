@@ -107,6 +107,36 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// zsetseed
+void zsetseed(unsigned long int s);
+RcppExport SEXP _mvtraits_zsetseed(SEXP sSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned long int >::type s(sSEXP);
+    zsetseed(s);
+    return R_NilValue;
+END_RCPP
+}
+// zgetseed
+unsigned long int zgetseed();
+RcppExport SEXP _mvtraits_zgetseed() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(zgetseed());
+    return rcpp_result_gen;
+END_RCPP
+}
+// zrnorm
+double zrnorm();
+RcppExport SEXP _mvtraits_zrnorm() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(zrnorm());
+    return rcpp_result_gen;
+END_RCPP
+}
 // c_random_mvnorm
 arma::mat c_random_mvnorm(unsigned int n, arma::mat mu, arma::mat Sigma);
 RcppExport SEXP _mvtraits_c_random_mvnorm(SEXP nSEXP, SEXP muSEXP, SEXP SigmaSEXP) {
@@ -154,36 +184,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// zsetseed
-void zsetseed(unsigned long int s);
-RcppExport SEXP _mvtraits_zsetseed(SEXP sSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< unsigned long int >::type s(sSEXP);
-    zsetseed(s);
-    return R_NilValue;
-END_RCPP
-}
-// zgetseed
-unsigned long int zgetseed();
-RcppExport SEXP _mvtraits_zgetseed() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(zgetseed());
-    return rcpp_result_gen;
-END_RCPP
-}
-// zrnorm
-double zrnorm();
-RcppExport SEXP _mvtraits_zrnorm() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(zrnorm());
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mvtraits_c_cov2cor", (DL_FUNC) &_mvtraits_c_cov2cor, 1},
@@ -192,13 +192,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mvtraits_c_sample_mvnorm", (DL_FUNC) &_mvtraits_c_sample_mvnorm, 10},
     {"_mvtraits_c_sample_mvnorm_hier", (DL_FUNC) &_mvtraits_c_sample_mvnorm_hier, 17},
     {"_mvtraits_c_mvnorm_fill_missing", (DL_FUNC) &_mvtraits_c_mvnorm_fill_missing, 4},
+    {"_mvtraits_zsetseed", (DL_FUNC) &_mvtraits_zsetseed, 1},
+    {"_mvtraits_zgetseed", (DL_FUNC) &_mvtraits_zgetseed, 0},
+    {"_mvtraits_zrnorm", (DL_FUNC) &_mvtraits_zrnorm, 0},
     {"_mvtraits_c_random_mvnorm", (DL_FUNC) &_mvtraits_c_random_mvnorm, 3},
     {"_mvtraits_rwishart", (DL_FUNC) &_mvtraits_rwishart, 2},
     {"_mvtraits_store_covmat", (DL_FUNC) &_mvtraits_store_covmat, 1},
     {"_mvtraits_store_covgrouparray", (DL_FUNC) &_mvtraits_store_covgrouparray, 1},
-    {"_mvtraits_zsetseed", (DL_FUNC) &_mvtraits_zsetseed, 1},
-    {"_mvtraits_zgetseed", (DL_FUNC) &_mvtraits_zgetseed, 0},
-    {"_mvtraits_zrnorm", (DL_FUNC) &_mvtraits_zrnorm, 0},
     {NULL, NULL, 0}
 };
 
